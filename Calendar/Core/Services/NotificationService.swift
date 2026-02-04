@@ -11,7 +11,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     
     func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
+            if error != nil {
                 // print("Notification authorization error: \(error)")
             }
         }
@@ -96,7 +96,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
         UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
+            if error != nil {
                 // print("Error scheduling event notification: \(error)")
             }
         }

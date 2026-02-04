@@ -62,24 +62,28 @@ extension Date {
     
     var formattedMonthYear: String {
         let formatter = DateFormatter()
+        formatter.locale = Localization.locale
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: self)
     }
     
     var formattedDay: String {
         let formatter = DateFormatter()
+        formatter.locale = Localization.locale
         formatter.dateFormat = "d"
         return formatter.string(from: self)
     }
     
     var formattedWeekday: String {
         let formatter = DateFormatter()
+        formatter.locale = Localization.locale
         formatter.dateFormat = "EEE"
         return formatter.string(from: self)
     }
     
     var formattedDate: String {
         let formatter = DateFormatter()
+        formatter.locale = Localization.locale
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: self)

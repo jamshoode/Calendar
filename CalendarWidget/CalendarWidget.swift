@@ -129,7 +129,19 @@ struct Provider: TimelineProvider {
         let adjustedWeekday = (weekday + 5) % 7
         
         var weekDays: [WeekDay] = []
-        let dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+        let formatter = DateFormatter()
+        formatter.locale = WidgetLocalization.locale
+        let dayNames = formatter.shortStandaloneWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] // Fallback
+        // shortStandaloneWeekdaySymbols usually starts Sunday (index 0). 
+        // Our logic loop i in 0..<7. 
+        // We need to map i (0=Mon?) to correct symbol.
+        // My previous logic: dayNames[i] where i=0 was Mon.
+        // Standard symbols: 0=Sun, 1=Mon.
+        // So dayNames is Sun, Mon, Tue...
+        // If i=0 (Mon), I need index 1.
+        // Adjusted:
+        let orderedNames = Array(dayNames.dropFirst()) + [dayNames.first!] // Shift Sun to end -> Mon...Sun
         
         for i in 0..<7 {
             let dayDate = calendar.date(byAdding: .day, value: i - adjustedWeekday, to: date)!
@@ -137,7 +149,7 @@ struct Provider: TimelineProvider {
             let isToday = calendar.isDate(dayDate, inSameDayAs: date)
             
             weekDays.append(WeekDay(
-                name: dayNames[i],
+                name: orderedNames[i],
                 date: dayOfMonth,
                 isToday: isToday
             ))
@@ -171,12 +183,12 @@ struct MediumWidgetView: View {
             // Header Content
             if !entry.hasTimer && !entry.hasAlarm {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.date.formatted(.dateTime.weekday(.wide)))
+                    Text(entry.date.formatted(.dateTime.weekday(.wide).locale(WidgetLocalization.locale)))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
                         .textCase(.uppercase)
                     
-                    Text(entry.date.formatted(.dateTime.month().day()))
+                    Text(entry.date.formatted(.dateTime.month().day().locale(WidgetLocalization.locale)))
                         .font(.system(size: 32, weight: .heavy, design: .rounded))
                         .foregroundColor(.primary)
                 }
@@ -193,7 +205,7 @@ struct MediumWidgetView: View {
                             } else if let endTime = entry.timerEndTime {
                                 Text(endTime, style: .timer)
                             } else {
-                                Text("Active")
+                                Text(WidgetLocalization.string(.active))
                             }
                         }
                         .font(.system(.subheadline, design: .rounded).weight(.medium))
@@ -204,7 +216,7 @@ struct MediumWidgetView: View {
                     }
                     
                     if entry.hasAlarm {
-                        Label("Alarm", systemImage: "alarm.fill")
+                        Label(WidgetLocalization.string(.alarm), systemImage: "alarm.fill")
                             .font(.system(.subheadline, design: .rounded).weight(.medium))
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
@@ -226,7 +238,9 @@ struct MediumWidgetView: View {
         }
         .padding()
         .containerBackground(for: .widget) {
-            Color(UIColor.systemBackground)
+            Color(UIColor { trait in
+                trait.userInterfaceStyle == .dark ? .black : .white
+            })
         }
     }
 }
@@ -245,14 +259,14 @@ struct LargeWidgetView: View {
             Divider()
             
             VStack(alignment: .leading, spacing: 16) {
-                Text("Status")
+                Text(WidgetLocalization.string(.status))
                     .font(.headline)
                     .foregroundColor(.secondary)
                 
                 HStack(spacing: 16) {
                     StatusCard(
                         icon: "timer",
-                        title: "Timer",
+                        title: WidgetLocalization.string(.timer),
                         statusText: timerStatusText(entry: entry),
                         color: .accentColor,
                         isActive: entry.hasTimer
@@ -260,8 +274,8 @@ struct LargeWidgetView: View {
                     
                     StatusCard(
                         icon: "alarm.fill",
-                        title: "Alarm",
-                        status: entry.hasAlarm ? "Set" : "Off",
+                        title: WidgetLocalization.string(.alarm),
+                        status: entry.hasAlarm ? WidgetLocalization.string(.set) : WidgetLocalization.string(.off),
                         color: .orange,
                         isActive: entry.hasAlarm
                     )
@@ -272,7 +286,9 @@ struct LargeWidgetView: View {
         }
         .padding()
         .containerBackground(for: .widget) {
-            Color(UIColor.systemBackground)
+            Color(UIColor { trait in
+                trait.userInterfaceStyle == .dark ? .black : .white
+            })
         }
     }
 }
@@ -365,10 +381,10 @@ func timerStatusText(entry: CalendarEntry) -> Text {
         } else if let endTime = entry.timerEndTime {
             return Text(endTime, style: .timer)
         } else {
-            return Text("Active")
+            return Text(WidgetLocalization.string(.active))
         }
     } else {
-        return Text("Idle")
+        return Text(WidgetLocalization.string(.idle))
     }
 }
 

@@ -14,7 +14,7 @@ struct EventListView: View {
                     Text(date.formattedDate)
                         .font(.system(size: 18, weight: .semibold))
                 } else {
-                    Text("Select a date")
+                    Text(Localization.string(.selectDate))
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.secondary)
                 }
@@ -26,7 +26,7 @@ struct EventListView: View {
                         .font(.system(size: 24))
                         .foregroundColor(.accentColor)
                 }
-                .accessibilityLabel("Add event")
+                .accessibilityLabel(Localization.string(.addEvent))
             }
             
             if events.isEmpty {
@@ -35,9 +35,9 @@ struct EventListView: View {
                         Image(systemName: "calendar.badge.plus")
                             .font(.system(size: 40))
                             .foregroundColor(.secondary)
-                        Text("No events")
+                        Text(Localization.string(.noEvents))
                             .foregroundColor(.secondary)
-                        Text("Tap to add")
+                        Text(Localization.string(.tapToAdd))
                             .font(.caption)
                             .foregroundColor(.secondary.opacity(0.8))
                     }
@@ -48,7 +48,7 @@ struct EventListView: View {
             } else {
                 HStack {
                     Spacer()
-                    Text("\(events.count) events")
+                    Text(Localization.string(.eventsCount(events.count)))
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
@@ -65,7 +65,7 @@ struct EventListView: View {
                                     Button(role: .destructive) {
                                         onDelete(event)
                                     } label: {
-                                        Label("Delete", systemImage: "trash")
+                                        Label(Localization.string(.delete), systemImage: "trash")
                                     }
                                 }
                         }

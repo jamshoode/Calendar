@@ -6,6 +6,7 @@ struct AddEventView: View {
     let date: Date
     let event: Event?
     let onSave: (String, String?, String, Date, TimeInterval?) -> Void
+    let onDelete: (() -> Void)?
     
     @State private var title: String = ""
     @State private var notes: String = ""
@@ -13,22 +14,26 @@ struct AddEventView: View {
     @State private var selectedDate: Date = Date()
     @State private var reminderSelection: TimeInterval = 0
     
+    // ... colors ...
     private let colors = ["blue", "green", "orange", "red", "purple", "pink", "yellow"]
     
-    private let reminders: [(String, TimeInterval)] = [
-        ("None", 0),
-        ("At time of event", 0.1),
-        ("15 minutes before", 15 * 60),
-        ("30 minutes before", 30 * 60),
-        ("1 hour before", 60 * 60),
-        ("2 hours before", 2 * 60 * 60),
-        ("1 day before", 24 * 60 * 60)
-    ]
+    private var reminders: [(String, TimeInterval)] {
+        [
+            (Localization.string(.none), 0),
+            (Localization.string(.atTimeOfEvent), 0.1),
+            (Localization.string(.minutesBefore(15)), 15 * 60),
+            (Localization.string(.minutesBefore(30)), 30 * 60),
+            (Localization.string(.hoursBefore(1)), 60 * 60),
+            (Localization.string(.hoursBefore(2)), 2 * 60 * 60),
+            (Localization.string(.daysBefore(1)), 24 * 60 * 60)
+        ]
+    }
     
-    init(date: Date, event: Event? = nil, onSave: @escaping (String, String?, String, Date, TimeInterval?) -> Void) {
+    init(date: Date, event: Event? = nil, onSave: @escaping (String, String?, String, Date, TimeInterval?) -> Void, onDelete: (() -> Void)? = nil) {
         self.date = date
         self.event = event
         self.onSave = onSave
+        self.onDelete = onDelete
         
         if let event = event {
             _title = State(initialValue: event.title)
@@ -44,28 +49,28 @@ struct AddEventView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Event Details") {
-                    TextField("Title", text: $title)
+                Section(Localization.string(.eventsCount(0)).replacingOccurrences(of: "0 ", with: "").replacingOccurrences(of: "подій", with: "Деталі події").replacingOccurrences(of: "events", with: "Event Details")) { 
+                    TextField(Localization.string(.title), text: $title)
                     
                     if #available(iOS 16.0, *) {
-                        TextField("Notes", text: $notes, axis: .vertical)
+                        TextField(Localization.string(.notes), text: $notes, axis: .vertical)
                             .lineLimit(3...6)
                     } else {
-                        TextField("Notes", text: $notes)
+                        TextField(Localization.string(.notes), text: $notes)
                     }
                 }
                 
-                Section("Date & Time") {
-                    DatePicker("Starts", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                Section(Localization.string(.date)) {
+                    DatePicker(Localization.string(.date), selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
                     
-                    Picker("Reminder", selection: $reminderSelection) {
+                    Picker(Localization.string(.reminder), selection: $reminderSelection) {
                         ForEach(reminders, id: \.1) { label, value in
                             Text(label).tag(value)
                         }
                     }
                 }
                 
-                Section("Color") {
+                Section(Localization.string(.color)) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(colors, id: \.self) { color in
@@ -77,18 +82,33 @@ struct AddEventView: View {
                         .padding(.horizontal, 4)
                     }
                 }
+                
+                if let onDelete = onDelete {
+                    Section {
+                        Button(role: .destructive) {
+                            onDelete()
+                            dismiss()
+                        } label: {
+                            HStack {
+                                Spacer()
+                                Text(Localization.string(.delete))
+                                Spacer()
+                            }
+                        }
+                    }
+                }
             }
-            .navigationTitle(event == nil ? "New Event" : "Edit Event")
+            .navigationTitle(event == nil ? Localization.string(.newEvent) : Localization.string(.editEvent))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(Localization.string(.cancel)) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(Localization.string(.save)) {
                         let reminder = reminderSelection == 0 ? nil : reminderSelection
                         onSave(title, notes.isEmpty ? nil : notes, selectedColor, selectedDate, reminder)
                         dismiss()

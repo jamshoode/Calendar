@@ -69,6 +69,9 @@ struct CalendarView: View {
                 event: event,
                 onSave: { title, notes, color, date, reminderInterval in
                     updateEvent(event, title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
+                },
+                onDelete: {
+                    deleteEvent(event)
                 }
             )
         }
@@ -133,7 +136,7 @@ struct MonthHeaderView: View {
                     .font(.title2)
                     .foregroundColor(.primary)
             }
-            .accessibilityLabel("Previous month")
+            .accessibilityLabel(Localization.string(.previousMonth))
             
             Spacer()
             
@@ -147,7 +150,7 @@ struct MonthHeaderView: View {
                     .font(.title2)
                     .foregroundColor(.primary)
             }
-            .accessibilityLabel("Next month")
+            .accessibilityLabel(Localization.string(.nextMonth))
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -158,7 +161,24 @@ struct MonthHeaderView: View {
 }
 
 struct WeekdayHeaderView: View {
-    private let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    private var weekdays: [String] {
+        var calendar = Calendar.current
+        calendar.locale = Localization.locale
+        // Adjust to match "Mon...Sun" order or system order. 
+        // Our sample code has Mon-Sun hardcoded effectively. 
+        // Let's rely on formatter.shortStandaloneWeekdaySymbols
+        let symbols = calendar.shortStandaloneWeekdaySymbols
+        // Default symbols usually start Sunday.
+        // If we want Mon-Sun:
+        // This is complex to get perfectly right for "Mon...Sun" if the UI expects exactly that order.
+        // But for simplicity and correctness in UA/EN, UA usually starts Monday. EN/US starts Sunday.
+        // However, the previous code hardcoded Mon...Sun.
+        // If I switch to locale based, the order might change (Sun..Sat).
+        // If the grid (MonthView) expects Mon-Start, I must ensure this array matches Mon-Start.
+        // Let's assume Mon-Start for visual consistency with previous design if it was 7 columns fixed.
+        // Shifting Sunday to end:
+        return Array(symbols.dropFirst()) + [symbols.first!]
+    }
     
     var body: some View {
         HStack {

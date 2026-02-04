@@ -65,15 +65,15 @@ struct AlarmCard: View {
             }
             
             HStack(spacing: 12) {
-                GlassButton(title: "Edit", icon: "pencil") {
+                GlassButton(title: Localization.string(.edit), icon: "pencil") {
                     showingTimePicker = true
                 }
-                .accessibilityLabel("Edit alarm time")
+                .accessibilityLabel(Localization.string(.edit))
                 
-                GlassButton(title: "Delete", icon: "trash", isPrimary: true) {
+                GlassButton(title: Localization.string(.delete), icon: "trash", isPrimary: true) {
                     viewModel.deleteAlarm(alarm: alarm, context: modelContext)
                 }
-                .accessibilityLabel("Delete alarm")
+                .accessibilityLabel(Localization.string(.delete))
             }
         }
         .padding(24)
@@ -103,17 +103,17 @@ struct EmptyAlarmView: View {
                 .foregroundColor(.secondary)
                 .accessibilityHidden(true)
             
-            Text("No Alarm Set")
+            Text(Localization.string(.noAlarmSet))
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundColor(.secondary)
             
-            Text("Tap the button below to set an alarm")
+            Text(Localization.string(.tapToSetAlarm))
                 .font(.system(size: 16))
                 .foregroundColor(.secondary)
             
-            GlassButton(title: "Set Alarm", icon: "plus", isPrimary: true, action: onAdd)
+            GlassButton(title: Localization.string(.setAlarm), icon: "plus", isPrimary: true, action: onAdd)
                 .padding(.top, 20)
-                .accessibilityLabel("Set new alarm")
+                .accessibilityLabel(Localization.string(.setAlarm))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
