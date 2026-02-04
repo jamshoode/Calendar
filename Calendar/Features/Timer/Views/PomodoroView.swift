@@ -30,7 +30,7 @@ struct PomodoroView: View {
                 onPlay: {
                     if viewModel.isPaused {
                         viewModel.resumeTimer()
-                    } else if viewModel.remainingTime > 0 {
+                    } else if viewModel.remainingTime > 0 && !viewModel.isRunning {
                         viewModel.startTimer(duration: viewModel.remainingTime)
                     } else {
                         startNextSession()
@@ -59,7 +59,7 @@ struct PomodoroView: View {
         }
         .padding()
         .onAppear {
-            if viewModel.remainingTime == 0 {
+            if viewModel.remainingTime == 0 && !viewModel.isRunning && !viewModel.isPaused {
                 resetPomodoro()
             }
         }

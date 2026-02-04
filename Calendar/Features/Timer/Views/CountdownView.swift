@@ -14,7 +14,7 @@ struct CountdownView: View {
                 onPlay: {
                     if viewModel.isPaused {
                         viewModel.resumeTimer()
-                    } else if viewModel.remainingTime > 0 {
+                    } else if viewModel.remainingTime > 0 && !viewModel.isRunning {
                         viewModel.startTimer(duration: viewModel.remainingTime)
                     }
                 },
@@ -22,12 +22,14 @@ struct CountdownView: View {
                     viewModel.pauseTimer()
                 },
                 onReset: {
+                    viewModel.stopTimer()
                     viewModel.resetTimer()
                 }
             )
             
             if !viewModel.isRunning && !viewModel.isPaused {
                 PresetsGrid(presets: presets) { preset in
+                    viewModel.stopTimer()
                     viewModel.selectedPreset = preset
                     viewModel.startTimer(duration: preset.duration)
                 }
