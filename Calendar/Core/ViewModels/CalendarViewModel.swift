@@ -1,16 +1,17 @@
 import SwiftUI
 import SwiftData
+import Combine
 
 class CalendarViewModel: ObservableObject {
     @Published var currentMonth: Date = Date()
     @Published var selectedDate: Date = Date()
     
     func moveToPreviousMonth() {
-        currentMonth = currentMonth.addingMonths(-1)
+        currentMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
     }
     
     func moveToNextMonth() {
-        currentMonth = currentMonth.addingMonths(1)
+        currentMonth = Calendar.current.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
     }
     
     func selectDate(_ date: Date) {

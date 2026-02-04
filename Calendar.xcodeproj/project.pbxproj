@@ -6,6 +6,52 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F593C0E62F33C234007F8DEB /* Assets.xcassets */; };
+		F593C11F2F33C234007F8DEB /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C11B2F33C234007F8DEB /* Formatters.swift */; };
+		F593C1202F33C234007F8DEB /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1092F33C234007F8DEB /* CountdownView.swift */; };
+		F593C1212F33C234007F8DEB /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */; };
+		F593C1222F33C234007F8DEB /* View+Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1182F33C234007F8DEB /* View+Glass.swift */; };
+		F593C1232F33C234007F8DEB /* CalendarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E72F33C234007F8DEB /* CalendarApp.swift */; };
+		F593C1242F33C234007F8DEB /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C10C2F33C234007F8DEB /* TimerView.swift */; };
+		F593C1252F33C234007F8DEB /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0EE2F33C234007F8DEB /* NotificationService.swift */; };
+		F593C1262F33C234007F8DEB /* AlarmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */; };
+		F593C1272F33C234007F8DEB /* PresetsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C10B2F33C234007F8DEB /* PresetsGrid.swift */; };
+		F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FC2F33C234007F8DEB /* EventIndicator.swift */; };
+		F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E42F33C234007F8DEB /* AppDelegate.swift */; };
+		F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C10A2F33C234007F8DEB /* PomodoroView.swift */; };
+		F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1032F33C234007F8DEB /* MonthView.swift */; };
+		F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1122F33C234007F8DEB /* GlassBackground.swift */; };
+		F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FF2F33C234007F8DEB /* AddEventView.swift */; };
+		F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1162F33C234007F8DEB /* Color+Glass.swift */; };
+		F593C12F2F33C234007F8DEB /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E92F33C234007F8DEB /* Event.swift */; };
+		F593C1302F33C234007F8DEB /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1172F33C234007F8DEB /* Date+Extensions.swift */; };
+		F593C1312F33C234007F8DEB /* AlarmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F82F33C234007F8DEB /* AlarmView.swift */; };
+		F593C1322F33C234007F8DEB /* DayCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1012F33C234007F8DEB /* DayCell.swift */; };
+		F593C1332F33C234007F8DEB /* TimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F32F33C234007F8DEB /* TimerViewModel.swift */; };
+		F593C1342F33C234007F8DEB /* SwipeGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FD2F33C234007F8DEB /* SwipeGestureModifier.swift */; };
+		F593C1352F33C234007F8DEB /* TimerSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0EB2F33C234007F8DEB /* TimerSession.swift */; };
+		F593C1362F33C234007F8DEB /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1002F33C234007F8DEB /* CalendarView.swift */; };
+		F593C1372F33C234007F8DEB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E52F33C234007F8DEB /* AppState.swift */; };
+		F593C1382F33C234007F8DEB /* TimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F92F33C234007F8DEB /* TimePicker.swift */; };
+		F593C1392F33C234007F8DEB /* TimerPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0EA2F33C234007F8DEB /* TimerPreset.swift */; };
+		F593C13A2F33C234007F8DEB /* AdaptiveSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1102F33C234007F8DEB /* AdaptiveSidebar.swift */; };
+		F593C13B2F33C234007F8DEB /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1022F33C234007F8DEB /* EventListView.swift */; };
+		F593C13C2F33C234007F8DEB /* TimerDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1072F33C234007F8DEB /* TimerDisplay.swift */; };
+		F593C13D2F33C234007F8DEB /* AdaptiveTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */; };
+		F593C13E2F33C234007F8DEB /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1142F33C234007F8DEB /* GlassCard.swift */; };
+		F593C13F2F33C234007F8DEB /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0ED2F33C234007F8DEB /* AudioService.swift */; };
+		F593C1402F33C234007F8DEB /* TimerControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1062F33C234007F8DEB /* TimerControls.swift */; };
+		F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F62F33C234007F8DEB /* AlarmToggle.swift */; };
+		F593C1422F33C234007F8DEB /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C11A2F33C234007F8DEB /* Constants.swift */; };
+		F593C1432F33C234007F8DEB /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1132F33C234007F8DEB /* GlassButton.swift */; };
+		F593C1442F33C234007F8DEB /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E82F33C234007F8DEB /* Alarm.swift */; };
+		F593C1452F33C234007F8DEB /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F22F33C234007F8DEB /* EventViewModel.swift */; };
+		F593C1502F33C31D007F8DEB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C14F2F33C31D007F8DEB /* WidgetKit.framework */; };
+		F593C1522F33C31D007F8DEB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C1512F33C31D007F8DEB /* SwiftUI.framework */; };
+		F593C1632F33C31F007F8DEB /* CalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F593BFEA2F33B92A007F8DEB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,28 +67,98 @@
 			remoteGlobalIDString = F593BFDB2F33B928007F8DEB;
 			remoteInfo = Calendar;
 		};
+		F593C1612F33C31F007F8DEB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F593BFD42F33B928007F8DEB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F593C14C2F33C31D007F8DEB;
+			remoteInfo = CalendarWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F593C1682F33C31F007F8DEB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F593C1632F33C31F007F8DEB /* CalendarWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		F593BFDC2F33B928007F8DEB /* Calendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F593BFE92F33B92A007F8DEB /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F593BFE92F33B92A007F8DEB /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CalendarTests.xctest; path = "/Users/shoode/projects/Calendar/build/Debug-iphoneos/Calendar.app/PlugIns/CalendarTests.xctest"; sourceTree = "<absolute>"; };
+		F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CalendarUITests.xctest; path = "/Users/shoode/projects/Calendar/build/Debug-iphoneos/CalendarUITests-Runner.app/PlugIns/CalendarUITests.xctest"; sourceTree = "<absolute>"; };
+		F593C0E42F33C234007F8DEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Calendar/AppDelegate.swift; sourceTree = "<group>"; };
+		F593C0E52F33C234007F8DEB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppState.swift; path = Calendar/AppState.swift; sourceTree = "<group>"; };
+		F593C0E62F33C234007F8DEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Calendar/Assets.xcassets; sourceTree = "<group>"; };
+		F593C0E72F33C234007F8DEB /* CalendarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarApp.swift; path = Calendar/CalendarApp.swift; sourceTree = "<group>"; };
+		F593C0E82F33C234007F8DEB /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
+		F593C0E92F33C234007F8DEB /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		F593C0EA2F33C234007F8DEB /* TimerPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPreset.swift; sourceTree = "<group>"; };
+		F593C0EB2F33C234007F8DEB /* TimerSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerSession.swift; sourceTree = "<group>"; };
+		F593C0ED2F33C234007F8DEB /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
+		F593C0EE2F33C234007F8DEB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewModel.swift; sourceTree = "<group>"; };
+		F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
+		F593C0F22F33C234007F8DEB /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
+		F593C0F32F33C234007F8DEB /* TimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewModel.swift; sourceTree = "<group>"; };
+		F593C0F62F33C234007F8DEB /* AlarmToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmToggle.swift; sourceTree = "<group>"; };
+		F593C0F82F33C234007F8DEB /* AlarmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmView.swift; sourceTree = "<group>"; };
+		F593C0F92F33C234007F8DEB /* TimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePicker.swift; sourceTree = "<group>"; };
+		F593C0FC2F33C234007F8DEB /* EventIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventIndicator.swift; sourceTree = "<group>"; };
+		F593C0FD2F33C234007F8DEB /* SwipeGestureModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeGestureModifier.swift; sourceTree = "<group>"; };
+		F593C0FF2F33C234007F8DEB /* AddEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventView.swift; sourceTree = "<group>"; };
+		F593C1002F33C234007F8DEB /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		F593C1012F33C234007F8DEB /* DayCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayCell.swift; sourceTree = "<group>"; };
+		F593C1022F33C234007F8DEB /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
+		F593C1032F33C234007F8DEB /* MonthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthView.swift; sourceTree = "<group>"; };
+		F593C1062F33C234007F8DEB /* TimerControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerControls.swift; sourceTree = "<group>"; };
+		F593C1072F33C234007F8DEB /* TimerDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerDisplay.swift; sourceTree = "<group>"; };
+		F593C1092F33C234007F8DEB /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
+		F593C10A2F33C234007F8DEB /* PomodoroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroView.swift; sourceTree = "<group>"; };
+		F593C10B2F33C234007F8DEB /* PresetsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsGrid.swift; sourceTree = "<group>"; };
+		F593C10C2F33C234007F8DEB /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
+		F593C1102F33C234007F8DEB /* AdaptiveSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveSidebar.swift; sourceTree = "<group>"; };
+		F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveTabBar.swift; sourceTree = "<group>"; };
+		F593C1122F33C234007F8DEB /* GlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackground.swift; sourceTree = "<group>"; };
+		F593C1132F33C234007F8DEB /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
+		F593C1142F33C234007F8DEB /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		F593C1162F33C234007F8DEB /* Color+Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Glass.swift"; sourceTree = "<group>"; };
+		F593C1172F33C234007F8DEB /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		F593C1182F33C234007F8DEB /* View+Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Glass.swift"; sourceTree = "<group>"; };
+		F593C11A2F33C234007F8DEB /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		F593C11B2F33C234007F8DEB /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		F593C1462F33C290007F8DEB /* Calendar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Calendar.entitlements; path = Calendar/Calendar.entitlements; sourceTree = "<group>"; };
+		F593C1472F33C290007F8DEB /* Calendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F593C1482F33C2B3007F8DEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = Calendar/Info.plist; sourceTree = "<group>"; };
+		F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CalendarWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F593C14F2F33C31D007F8DEB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F593C1512F33C31D007F8DEB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		F593C1692F33C32E007F8DEB /* CalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F593C1642F33C31F007F8DEB /* Exceptions for "CalendarWidget" folder in "CalendarWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F593C14C2F33C31D007F8DEB /* CalendarWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F593BFDE2F33B928007F8DEB /* Calendar */ = {
+		F593C1532F33C31D007F8DEB /* CalendarWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Calendar;
-			sourceTree = "<group>";
-		};
-		F593BFEC2F33B92A007F8DEB /* CalendarTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CalendarTests;
-			sourceTree = "<group>";
-		};
-		F593BFF62F33B92A007F8DEB /* CalendarUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CalendarUITests;
+			exceptions = (
+				F593C1642F33C31F007F8DEB /* Exceptions for "CalendarWidget" folder in "CalendarWidgetExtension" target */,
+			);
+			path = CalendarWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,27 +185,225 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F593C14A2F33C31D007F8DEB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F593C1522F33C31D007F8DEB /* SwiftUI.framework in Frameworks */,
+				F593C1502F33C31D007F8DEB /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		F593BFD32F33B928007F8DEB = {
 			isa = PBXGroup;
 			children = (
-				F593BFDE2F33B928007F8DEB /* Calendar */,
-				F593BFEC2F33B92A007F8DEB /* CalendarTests */,
-				F593BFF62F33B92A007F8DEB /* CalendarUITests */,
-				F593BFDD2F33B928007F8DEB /* Products */,
+				F593C1692F33C32E007F8DEB /* CalendarWidgetExtension.entitlements */,
+				F593C1482F33C2B3007F8DEB /* Info.plist */,
+				F593C1462F33C290007F8DEB /* Calendar.entitlements */,
+				F593C0E42F33C234007F8DEB /* AppDelegate.swift */,
+				F593C0E52F33C234007F8DEB /* AppState.swift */,
+				F593C0E62F33C234007F8DEB /* Assets.xcassets */,
+				F593C0E72F33C234007F8DEB /* CalendarApp.swift */,
+				F593C0F52F33C234007F8DEB /* Core */,
+				F593C10F2F33C234007F8DEB /* Features */,
+				F593C11D2F33C234007F8DEB /* Shared */,
+				F593C1472F33C290007F8DEB /* Calendar.app */,
+				F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */,
+				F593C1532F33C31D007F8DEB /* CalendarWidget */,
+				F593C14E2F33C31D007F8DEB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		F593BFDD2F33B928007F8DEB /* Products */ = {
+		F593C0EC2F33C234007F8DEB /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				F593BFDC2F33B928007F8DEB /* Calendar.app */,
-				F593BFE92F33B92A007F8DEB /* CalendarTests.xctest */,
-				F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */,
+				F593C0E82F33C234007F8DEB /* Alarm.swift */,
+				F593C0E92F33C234007F8DEB /* Event.swift */,
+				F593C0EA2F33C234007F8DEB /* TimerPreset.swift */,
+				F593C0EB2F33C234007F8DEB /* TimerSession.swift */,
 			);
-			name = Products;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F593C0EF2F33C234007F8DEB /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0ED2F33C234007F8DEB /* AudioService.swift */,
+				F593C0EE2F33C234007F8DEB /* NotificationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		F593C0F42F33C234007F8DEB /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */,
+				F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */,
+				F593C0F22F33C234007F8DEB /* EventViewModel.swift */,
+				F593C0F32F33C234007F8DEB /* TimerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		F593C0F52F33C234007F8DEB /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0EC2F33C234007F8DEB /* Models */,
+				F593C0EF2F33C234007F8DEB /* Services */,
+				F593C0F42F33C234007F8DEB /* ViewModels */,
+			);
+			name = Core;
+			path = Calendar/Core;
+			sourceTree = "<group>";
+		};
+		F593C0F72F33C234007F8DEB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0F62F33C234007F8DEB /* AlarmToggle.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F593C0FA2F33C234007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0F82F33C234007F8DEB /* AlarmView.swift */,
+				F593C0F92F33C234007F8DEB /* TimePicker.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F593C0FB2F33C234007F8DEB /* Alarm */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0F72F33C234007F8DEB /* Components */,
+				F593C0FA2F33C234007F8DEB /* Views */,
+			);
+			path = Alarm;
+			sourceTree = "<group>";
+		};
+		F593C0FE2F33C234007F8DEB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0FC2F33C234007F8DEB /* EventIndicator.swift */,
+				F593C0FD2F33C234007F8DEB /* SwipeGestureModifier.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F593C1042F33C234007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0FF2F33C234007F8DEB /* AddEventView.swift */,
+				F593C1002F33C234007F8DEB /* CalendarView.swift */,
+				F593C1012F33C234007F8DEB /* DayCell.swift */,
+				F593C1022F33C234007F8DEB /* EventListView.swift */,
+				F593C1032F33C234007F8DEB /* MonthView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F593C1052F33C234007F8DEB /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0FE2F33C234007F8DEB /* Components */,
+				F593C1042F33C234007F8DEB /* Views */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		F593C1082F33C234007F8DEB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1062F33C234007F8DEB /* TimerControls.swift */,
+				F593C1072F33C234007F8DEB /* TimerDisplay.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F593C10D2F33C234007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1092F33C234007F8DEB /* CountdownView.swift */,
+				F593C10A2F33C234007F8DEB /* PomodoroView.swift */,
+				F593C10B2F33C234007F8DEB /* PresetsGrid.swift */,
+				F593C10C2F33C234007F8DEB /* TimerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F593C10E2F33C234007F8DEB /* Timer */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1082F33C234007F8DEB /* Components */,
+				F593C10D2F33C234007F8DEB /* Views */,
+			);
+			path = Timer;
+			sourceTree = "<group>";
+		};
+		F593C10F2F33C234007F8DEB /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				F593C0FB2F33C234007F8DEB /* Alarm */,
+				F593C1052F33C234007F8DEB /* Calendar */,
+				F593C10E2F33C234007F8DEB /* Timer */,
+			);
+			name = Features;
+			path = Calendar/Features;
+			sourceTree = "<group>";
+		};
+		F593C1152F33C234007F8DEB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1102F33C234007F8DEB /* AdaptiveSidebar.swift */,
+				F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */,
+				F593C1122F33C234007F8DEB /* GlassBackground.swift */,
+				F593C1132F33C234007F8DEB /* GlassButton.swift */,
+				F593C1142F33C234007F8DEB /* GlassCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F593C1192F33C234007F8DEB /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1162F33C234007F8DEB /* Color+Glass.swift */,
+				F593C1172F33C234007F8DEB /* Date+Extensions.swift */,
+				F593C1182F33C234007F8DEB /* View+Glass.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F593C11C2F33C234007F8DEB /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F593C11A2F33C234007F8DEB /* Constants.swift */,
+				F593C11B2F33C234007F8DEB /* Formatters.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		F593C11D2F33C234007F8DEB /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1152F33C234007F8DEB /* Components */,
+				F593C1192F33C234007F8DEB /* Extensions */,
+				F593C11C2F33C234007F8DEB /* Utilities */,
+			);
+			name = Shared;
+			path = Calendar/Shared;
+			sourceTree = "<group>";
+		};
+		F593C14E2F33C31D007F8DEB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F593C14F2F33C31D007F8DEB /* WidgetKit.framework */,
+				F593C1512F33C31D007F8DEB /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,19 +416,18 @@
 				F593BFD82F33B928007F8DEB /* Sources */,
 				F593BFD92F33B928007F8DEB /* Frameworks */,
 				F593BFDA2F33B928007F8DEB /* Resources */,
+				F593C1682F33C31F007F8DEB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				F593BFDE2F33B928007F8DEB /* Calendar */,
+				F593C1622F33C31F007F8DEB /* PBXTargetDependency */,
 			);
 			name = Calendar;
 			packageProductDependencies = (
 			);
 			productName = Calendar;
-			productReference = F593BFDC2F33B928007F8DEB /* Calendar.app */;
+			productReference = F593C1472F33C290007F8DEB /* Calendar.app */;
 			productType = "com.apple.product-type.application";
 		};
 		F593BFE82F33B92A007F8DEB /* CalendarTests */ = {
@@ -129,9 +442,6 @@
 			);
 			dependencies = (
 				F593BFEB2F33B92A007F8DEB /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F593BFEC2F33B92A007F8DEB /* CalendarTests */,
 			);
 			name = CalendarTests;
 			packageProductDependencies = (
@@ -153,15 +463,34 @@
 			dependencies = (
 				F593BFF52F33B92A007F8DEB /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				F593BFF62F33B92A007F8DEB /* CalendarUITests */,
-			);
 			name = CalendarUITests;
 			packageProductDependencies = (
 			);
 			productName = CalendarUITests;
 			productReference = F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		F593C14C2F33C31D007F8DEB /* CalendarWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F593C1652F33C31F007F8DEB /* Build configuration list for PBXNativeTarget "CalendarWidgetExtension" */;
+			buildPhases = (
+				F593C1492F33C31D007F8DEB /* Sources */,
+				F593C14A2F33C31D007F8DEB /* Frameworks */,
+				F593C14B2F33C31D007F8DEB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F593C1532F33C31D007F8DEB /* CalendarWidget */,
+			);
+			name = CalendarWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = CalendarWidgetExtension;
+			productReference = F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -184,6 +513,9 @@
 						CreatedOnToolsVersion = 26.1;
 						TestTargetID = F593BFDB2F33B928007F8DEB;
 					};
+					F593C14C2F33C31D007F8DEB = {
+						CreatedOnToolsVersion = 26.1;
+					};
 				};
 			};
 			buildConfigurationList = F593BFD72F33B928007F8DEB /* Build configuration list for PBXProject "Calendar" */;
@@ -196,13 +528,14 @@
 			mainGroup = F593BFD32F33B928007F8DEB;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = F593BFDD2F33B928007F8DEB /* Products */;
+			productRefGroup = F593BFD32F33B928007F8DEB;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				F593BFDB2F33B928007F8DEB /* Calendar */,
 				F593BFE82F33B92A007F8DEB /* CalendarTests */,
 				F593BFF22F33B92A007F8DEB /* CalendarUITests */,
+				F593C14C2F33C31D007F8DEB /* CalendarWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -212,6 +545,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +563,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F593C14B2F33C31D007F8DEB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -236,6 +577,45 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F593C11F2F33C234007F8DEB /* Formatters.swift in Sources */,
+				F593C1202F33C234007F8DEB /* CountdownView.swift in Sources */,
+				F593C1212F33C234007F8DEB /* CalendarViewModel.swift in Sources */,
+				F593C1222F33C234007F8DEB /* View+Glass.swift in Sources */,
+				F593C1232F33C234007F8DEB /* CalendarApp.swift in Sources */,
+				F593C1242F33C234007F8DEB /* TimerView.swift in Sources */,
+				F593C1252F33C234007F8DEB /* NotificationService.swift in Sources */,
+				F593C1262F33C234007F8DEB /* AlarmViewModel.swift in Sources */,
+				F593C1272F33C234007F8DEB /* PresetsGrid.swift in Sources */,
+				F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */,
+				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
+				F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */,
+				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
+				F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */,
+				F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */,
+				F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */,
+				F593C12F2F33C234007F8DEB /* Event.swift in Sources */,
+				F593C1302F33C234007F8DEB /* Date+Extensions.swift in Sources */,
+				F593C1312F33C234007F8DEB /* AlarmView.swift in Sources */,
+				F593C1322F33C234007F8DEB /* DayCell.swift in Sources */,
+				F593C1332F33C234007F8DEB /* TimerViewModel.swift in Sources */,
+				F593C1342F33C234007F8DEB /* SwipeGestureModifier.swift in Sources */,
+				F593C1352F33C234007F8DEB /* TimerSession.swift in Sources */,
+				F593C1362F33C234007F8DEB /* CalendarView.swift in Sources */,
+				F593C1372F33C234007F8DEB /* AppState.swift in Sources */,
+				F593C1382F33C234007F8DEB /* TimePicker.swift in Sources */,
+				F593C1392F33C234007F8DEB /* TimerPreset.swift in Sources */,
+				F593C13A2F33C234007F8DEB /* AdaptiveSidebar.swift in Sources */,
+				F593C13B2F33C234007F8DEB /* EventListView.swift in Sources */,
+				F593C13C2F33C234007F8DEB /* TimerDisplay.swift in Sources */,
+				F593C13D2F33C234007F8DEB /* AdaptiveTabBar.swift in Sources */,
+				F593C13E2F33C234007F8DEB /* GlassCard.swift in Sources */,
+				F593C13F2F33C234007F8DEB /* AudioService.swift in Sources */,
+				F593C1402F33C234007F8DEB /* TimerControls.swift in Sources */,
+				F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */,
+				F593C1422F33C234007F8DEB /* Constants.swift in Sources */,
+				F593C1432F33C234007F8DEB /* GlassButton.swift in Sources */,
+				F593C1442F33C234007F8DEB /* Alarm.swift in Sources */,
+				F593C1452F33C234007F8DEB /* EventViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +627,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F593BFEF2F33B92A007F8DEB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F593C1492F33C31D007F8DEB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -265,6 +652,11 @@
 			isa = PBXTargetDependency;
 			target = F593BFDB2F33B928007F8DEB /* Calendar */;
 			targetProxy = F593BFF42F33B92A007F8DEB /* PBXContainerItemProxy */;
+		};
+		F593C1622F33C31F007F8DEB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F593C14C2F33C31D007F8DEB /* CalendarWidgetExtension */;
+			targetProxy = F593C1612F33C31F007F8DEB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -395,11 +787,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Calendar/Calendar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C99Q5SCRVZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Calendar/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -427,11 +821,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Calendar/Calendar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C99Q5SCRVZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Calendar/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -538,6 +934,68 @@
 			};
 			name = Release;
 		};
+		F593C1662F33C31F007F8DEB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CalendarWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C99Q5SCRVZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CalendarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CalendarWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Shoode.Calendar.CalendarWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F593C1672F33C31F007F8DEB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CalendarWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C99Q5SCRVZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CalendarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CalendarWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Shoode.Calendar.CalendarWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,6 +1031,15 @@
 			buildConfigurations = (
 				F593C0042F33B92A007F8DEB /* Debug */,
 				F593C0052F33B92A007F8DEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F593C1652F33C31F007F8DEB /* Build configuration list for PBXNativeTarget "CalendarWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F593C1662F33C31F007F8DEB /* Debug */,
+				F593C1672F33C31F007F8DEB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
