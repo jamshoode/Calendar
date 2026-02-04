@@ -17,7 +17,11 @@ class TimerViewModel: ObservableObject {
         isRunning = true
         isPaused = false
         
+        UserDefaults.shared.set(true, forKey: "hasActiveTimer")
+        UserDefaults.shared.synchronize()
+        
         NotificationService.shared.scheduleTimerNotification(duration: duration)
+        WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
         
         timer = Timer.publish(every: 0.1, on: .main, in: .common)
             .autoconnect()
@@ -53,7 +57,12 @@ class TimerViewModel: ObservableObject {
         remainingTime = 0
         timer?.cancel()
         timer = nil
+        
+        UserDefaults.shared.set(false, forKey: "hasActiveTimer")
+        UserDefaults.shared.synchronize()
+        
         NotificationService.shared.cancelTimerNotifications()
+        WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     }
     
     func resetTimer() {
@@ -74,5 +83,11 @@ class TimerViewModel: ObservableObject {
         } else {
             remainingTime = remaining
         }
+    }
+}
+
+extension UserDefaults {
+    static var shared: UserDefaults {
+        UserDefaults(suiteName: Constants.Storage.appGroupIdentifier) ?? .standard
     }
 }

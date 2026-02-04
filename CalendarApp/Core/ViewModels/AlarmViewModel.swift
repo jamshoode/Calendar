@@ -8,7 +8,12 @@ class AlarmViewModel: ObservableObject {
     func createAlarm(time: Date, context: ModelContext) {
         let alarm = Alarm(time: time)
         context.insert(alarm)
+        
+        UserDefaults.shared.set(true, forKey: "hasActiveAlarm")
+        UserDefaults.shared.synchronize()
+        
         NotificationService.shared.scheduleAlarmNotification(date: time)
+        WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     }
     
     func setAlarm(time: Date) {
@@ -22,16 +27,26 @@ class AlarmViewModel: ObservableObject {
     func toggleAlarm(alarm: Alarm, context: ModelContext) {
         alarm.isEnabled.toggle()
         
+        UserDefaults.shared.set(alarm.isEnabled, forKey: "hasActiveAlarm")
+        UserDefaults.shared.synchronize()
+        
         if alarm.isEnabled {
             NotificationService.shared.scheduleAlarmNotification(date: alarm.time)
         } else {
             NotificationService.shared.cancelAlarmNotifications()
         }
+        
+        WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     }
     
     func deleteAlarm(alarm: Alarm, context: ModelContext) {
         context.delete(alarm)
+        
+        UserDefaults.shared.set(false, forKey: "hasActiveAlarm")
+        UserDefaults.shared.synchronize()
+        
         NotificationService.shared.cancelAlarmNotifications()
+        WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     }
     
     func timeRemainingText(for alarm: Alarm) -> String {
