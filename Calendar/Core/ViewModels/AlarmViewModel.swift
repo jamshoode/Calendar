@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 class AlarmViewModel: ObservableObject {
     @Published var alarmTime: Date = Date()

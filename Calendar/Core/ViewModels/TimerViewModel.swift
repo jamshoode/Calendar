@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import Combine
+import WidgetKit
 
 class TimerViewModel: ObservableObject {
     @Published var remainingTime: TimeInterval = 0
