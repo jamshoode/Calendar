@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556A0352F33CD160071D8B8 /* NotFoundView.swift */; };
 		F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F593C0E62F33C234007F8DEB /* Assets.xcassets */; };
 		F593C11F2F33C234007F8DEB /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C11B2F33C234007F8DEB /* Formatters.swift */; };
 		F593C1202F33C234007F8DEB /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1092F33C234007F8DEB /* CountdownView.swift */; };
@@ -93,6 +94,7 @@
 /* Begin PBXFileReference section */
 		F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F556A0352F33CD160071D8B8 /* NotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotFoundView.swift; path = Calendar/Shared/Components/NotFoundView.swift; sourceTree = SOURCE_ROOT; };
 		F593C0E42F33C234007F8DEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Calendar/AppDelegate.swift; sourceTree = "<group>"; };
 		F593C0E62F33C234007F8DEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Calendar/Assets.xcassets; sourceTree = "<group>"; };
 		F593C0E72F33C234007F8DEB /* CalendarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarApp.swift; path = Calendar/CalendarApp.swift; sourceTree = "<group>"; };
@@ -365,6 +367,7 @@
 				F593C1122F33C234007F8DEB /* GlassBackground.swift */,
 				F593C1132F33C234007F8DEB /* GlassButton.swift */,
 				F593C1142F33C234007F8DEB /* GlassCard.swift */,
+				F556A0352F33CD160071D8B8 /* NotFoundView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -600,6 +603,7 @@
 				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
 				F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */,
 				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
+				F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */,
 				F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */,
 				F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */,
 				F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */,
