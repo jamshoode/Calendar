@@ -12,7 +12,5 @@ import SwiftUI
 struct CalendarWidgetBundle: WidgetBundle {
     var body: some Widget {
         CalendarWidget()
-        CalendarWidgetControl()
-        CalendarWidgetLiveActivity()
     }
 }
