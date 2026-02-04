@@ -177,6 +177,7 @@ class TimerViewModel: ObservableObject {
     }
 
     defaults.synchronize()
+    WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
   }
 
   private func restoreState() {

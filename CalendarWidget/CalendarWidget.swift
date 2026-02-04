@@ -20,6 +20,11 @@ struct CalendarEntry: TimelineEntry {
     let weekDays: [WeekDay]
     let hasTimer: Bool
     let hasAlarm: Bool
+    let timerEndTime: Date?
+    let timerRemainingTime: TimeInterval
+    let isTimerPaused: Bool
+    let isStopwatch: Bool
+    let stopwatchStartTime: Date?
 }
 
 struct WeekDay: Identifiable {
@@ -31,11 +36,31 @@ struct WeekDay: Identifiable {
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> CalendarEntry {
-        CalendarEntry(date: Date(), weekDays: sampleWeekDays(), hasTimer: false, hasAlarm: false)
+        CalendarEntry(
+            date: Date(),
+            weekDays: sampleWeekDays(),
+            hasTimer: false,
+            hasAlarm: false,
+            timerEndTime: nil,
+            timerRemainingTime: 0,
+            isTimerPaused: false,
+            isStopwatch: false,
+            stopwatchStartTime: nil
+        )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (CalendarEntry) -> ()) {
-        let entry = CalendarEntry(date: Date(), weekDays: sampleWeekDays(), hasTimer: false, hasAlarm: false)
+        let entry = CalendarEntry(
+            date: Date(),
+            weekDays: sampleWeekDays(),
+            hasTimer: false,
+            hasAlarm: false,
+            timerEndTime: nil,
+            timerRemainingTime: 0,
+            isTimerPaused: false,
+            isStopwatch: false,
+            stopwatchStartTime: nil
+        )
         completion(entry)
     }
 
@@ -45,11 +70,39 @@ struct Provider: TimelineProvider {
         
         for hourOffset in 0 ..< 5 {
             let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
+            let defaults = UserDefaults.shared
+            let timerIds = ["countdown", "pomodoro"]
+            
+            var activeTimerId: String?
+            for id in timerIds {
+                if defaults.bool(forKey: "\(id).isRunning") || defaults.bool(forKey: "\(id).isPaused") {
+                    activeTimerId = id
+                    break
+                }
+            }
+            
+            let timerId = activeTimerId ?? "countdown"
+            
+            // Legacy fallback check
+            let globalHasTimer = defaults.bool(forKey: "hasActiveTimer")
+            
+            let isRunning = defaults.bool(forKey: "\(timerId).isRunning")
+            let isPaused = defaults.bool(forKey: "\(timerId).isPaused")
+            let isStopwatch = defaults.bool(forKey: "\(timerId).isStopwatch")
+            let remainingTime = defaults.double(forKey: "\(timerId).remainingTime")
+            let endTime = defaults.object(forKey: "\(timerId).endTime") as? Date
+            let startTime = defaults.object(forKey: "\(timerId).startTime") as? Date
+            
             let entry = CalendarEntry(
                 date: entryDate,
                 weekDays: getWeekDays(for: entryDate),
-                hasTimer: UserDefaults.shared.bool(forKey: "hasActiveTimer"),
-                hasAlarm: UserDefaults.shared.bool(forKey: "hasActiveAlarm")
+                hasTimer: isRunning || isPaused || isStopwatch || globalHasTimer,
+                hasAlarm: defaults.bool(forKey: "hasActiveAlarm"),
+                timerEndTime: endTime,
+                timerRemainingTime: remainingTime,
+                isTimerPaused: isPaused,
+                isStopwatch: isStopwatch,
+                stopwatchStartTime: startTime
             )
             entries.append(entry)
         }
@@ -131,12 +184,23 @@ struct MediumWidgetView: View {
             } else {
                 HStack(spacing: 12) {
                     if entry.hasTimer {
-                        Label("Timer", systemImage: "timer")
-                            .font(.system(.subheadline, design: .rounded).weight(.medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Capsule().fill(Color.accentColor.gradient))
+                        HStack(spacing: 4) {
+                            Image(systemName: "timer")
+                            if entry.isTimerPaused {
+                                Text(formatDuration(entry.timerRemainingTime))
+                            } else if entry.isStopwatch, let startTime = entry.stopwatchStartTime {
+                                Text(startTime, style: .timer)
+                            } else if let endTime = entry.timerEndTime {
+                                Text(endTime, style: .timer)
+                            } else {
+                                Text("Active")
+                            }
+                        }
+                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(Color.accentColor))
                     }
                     
                     if entry.hasAlarm {
@@ -145,7 +209,7 @@ struct MediumWidgetView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(Color.orange.gradient))
+                            .background(Capsule().fill(Color.orange))
                     }
                 }
                 .padding(.bottom, 12)
@@ -189,7 +253,7 @@ struct LargeWidgetView: View {
                     StatusCard(
                         icon: "timer",
                         title: "Timer",
-                        status: entry.hasTimer ? "Active" : "Idle",
+                        statusText: timerStatusText(entry: entry),
                         color: .accentColor,
                         isActive: entry.hasTimer
                     )
@@ -233,13 +297,7 @@ struct WeekDayCell: View {
             ZStack {
                 if day.isToday {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Color.accentColor)
                         .shadow(color: Color.accentColor.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
             }
@@ -250,9 +308,21 @@ struct WeekDayCell: View {
 struct StatusCard: View {
     let icon: String
     let title: String
-    let status: String
+    let statusText: Text
     let color: Color
     let isActive: Bool
+    
+    init(icon: String, title: String, statusText: Text? = nil, status: String? = nil, color: Color, isActive: Bool) {
+        self.icon = icon
+        self.title = title
+        if let statusText = statusText {
+            self.statusText = statusText
+        } else {
+            self.statusText = Text(status ?? "")
+        }
+        self.color = color
+        self.isActive = isActive
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -270,7 +340,7 @@ struct StatusCard: View {
                 Text(title)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.secondary)
-                Text(status)
+                statusText
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
             }
@@ -284,6 +354,28 @@ struct StatusCard: View {
                 .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         )
     }
+}
+
+func timerStatusText(entry: CalendarEntry) -> Text {
+    if entry.hasTimer {
+        if entry.isTimerPaused {
+            return Text(formatDuration(entry.timerRemainingTime))
+        } else if entry.isStopwatch, let startTime = entry.stopwatchStartTime {
+            return Text(startTime, style: .timer)
+        } else if let endTime = entry.timerEndTime {
+            return Text(endTime, style: .timer)
+        } else {
+            return Text("Active")
+        }
+    } else {
+        return Text("Idle")
+    }
+}
+
+func formatDuration(_ duration: TimeInterval) -> String {
+    let minutes = Int(duration) / 60
+    let seconds = Int(duration) % 60
+    return String(format: "%02d:%02d", minutes, seconds)
 }
 
 extension UserDefaults {

@@ -5,16 +5,27 @@ struct AddEventView: View {
     
     let date: Date
     let event: Event?
-    let onSave: (String, String?, String) -> Void
+    let onSave: (String, String?, String, Date, TimeInterval?) -> Void
     
     @State private var title: String = ""
     @State private var notes: String = ""
     @State private var selectedColor: String = "blue"
     @State private var selectedDate: Date = Date()
+    @State private var reminderSelection: TimeInterval = 0
     
     private let colors = ["blue", "green", "orange", "red", "purple", "pink", "yellow"]
     
-    init(date: Date, event: Event? = nil, onSave: @escaping (String, String?, String) -> Void) {
+    private let reminders: [(String, TimeInterval)] = [
+        ("None", 0),
+        ("At time of event", 0.1),
+        ("15 minutes before", 15 * 60),
+        ("30 minutes before", 30 * 60),
+        ("1 hour before", 60 * 60),
+        ("2 hours before", 2 * 60 * 60),
+        ("1 day before", 24 * 60 * 60)
+    ]
+    
+    init(date: Date, event: Event? = nil, onSave: @escaping (String, String?, String, Date, TimeInterval?) -> Void) {
         self.date = date
         self.event = event
         self.onSave = onSave
@@ -24,6 +35,7 @@ struct AddEventView: View {
             _notes = State(initialValue: event.notes ?? "")
             _selectedColor = State(initialValue: event.color)
             _selectedDate = State(initialValue: event.date)
+            _reminderSelection = State(initialValue: event.reminderInterval ?? 0)
         } else {
             _selectedDate = State(initialValue: date)
         }
@@ -44,7 +56,13 @@ struct AddEventView: View {
                 }
                 
                 Section("Date & Time") {
-                    DatePicker("Date", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                    DatePicker("Starts", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                    
+                    Picker("Reminder", selection: $reminderSelection) {
+                        ForEach(reminders, id: \.1) { label, value in
+                            Text(label).tag(value)
+                        }
+                    }
                 }
                 
                 Section("Color") {
@@ -71,7 +89,8 @@ struct AddEventView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(title, notes.isEmpty ? nil : notes, selectedColor)
+                        let reminder = reminderSelection == 0 ? nil : reminderSelection
+                        onSave(title, notes.isEmpty ? nil : notes, selectedColor, selectedDate, reminder)
                         dismiss()
                     }
                     .disabled(title.isEmpty)

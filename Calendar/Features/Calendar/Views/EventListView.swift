@@ -5,6 +5,7 @@ struct EventListView: View {
     let events: [Event]
     let onEdit: (Event) -> Void
     let onDelete: (Event) -> Void
+    let onAdd: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -20,21 +21,39 @@ struct EventListView: View {
                 
                 Spacer()
                 
-                Text("\(events.count) events")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                Button(action: onAdd) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.accentColor)
+                }
+                .accessibilityLabel("Add event")
             }
             
             if events.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "calendar.badge.plus")
-                        .font(.system(size: 40))
-                        .foregroundColor(.secondary)
-                    Text("No events")
+                Button(action: onAdd) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "calendar.badge.plus")
+                            .font(.system(size: 40))
+                            .foregroundColor(.secondary)
+                        Text("No events")
+                            .foregroundColor(.secondary)
+                        Text("Tap to add")
+                            .font(.caption)
+                            .foregroundColor(.secondary.opacity(0.8))
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            } else {
+                HStack {
+                    Spacer()
+                    Text("\(events.count) events")
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
-                .frame(maxWidth: .infinity, minHeight: 100)
-            } else {
+                .padding(.bottom, -8)
+                
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         ForEach(events) { event in

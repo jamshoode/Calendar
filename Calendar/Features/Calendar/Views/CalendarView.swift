@@ -48,6 +48,9 @@ struct CalendarView: View {
                     },
                     onDelete: { event in
                         deleteEvent(event)
+                    },
+                    onAdd: {
+                        showingAddEvent = true
                     }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -56,16 +59,16 @@ struct CalendarView: View {
         .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
         .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
         .sheet(isPresented: $showingAddEvent) {
-            AddEventView(date: viewModel.selectedDate ?? Date()) { title, notes, color in
-                addEvent(title: title, notes: notes, color: color)
+            AddEventView(date: viewModel.selectedDate ?? Date()) { title, notes, color, date, reminderInterval in
+                addEvent(title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
             }
         }
         .sheet(item: $editingEvent) { event in
             AddEventView(
                 date: event.date,
                 event: event,
-                onSave: { title, notes, color in
-                    updateEvent(event, title: title, notes: notes, color: color)
+                onSave: { title, notes, color, date, reminderInterval in
+                    updateEvent(event, title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
                 }
             )
         }
@@ -77,6 +80,9 @@ struct CalendarView: View {
                 .accessibilityLabel("Add new event")
             }
         }
+        .onAppear {
+            eventViewModel.rescheduleAllNotifications(context: modelContext)
+        }
     }
     
     private var eventsForSelectedDate: [Event] {
@@ -84,25 +90,35 @@ struct CalendarView: View {
         return events.filter { $0.date.isSameDay(as: selectedDate) }
     }
     
-    private func addEvent(title: String, notes: String?, color: String) {
-        let event = Event(
-            date: viewModel.selectedDate ?? Date(),
+    private func addEvent(title: String, notes: String?, color: String, date: Date, reminderInterval: TimeInterval?) {
+        eventViewModel.addEvent(
+            date: date,
             title: title,
             notes: notes,
-            color: color
+            color: color,
+            reminderInterval: reminderInterval,
+            context: modelContext
         )
-        modelContext.insert(event)
     }
     
-    private func updateEvent(_ event: Event, title: String, notes: String?, color: String) {
-        event.title = title
-        event.notes = notes
-        event.color = color
+    private func updateEvent(_ event: Event, title: String, notes: String?, color: String, date: Date, reminderInterval: TimeInterval?) {
+        // Since date might change, we might need a better update flow, but for now we update specific fields
+        event.date = date // Update date
+        eventViewModel.updateEvent(
+            event,
+            title: title,
+            notes: notes,
+            color: color,
+            reminderInterval: reminderInterval,
+            context: modelContext
+        )
     }
     
     private func deleteEvent(_ event: Event) {
-        modelContext.delete(event)
+        eventViewModel.deleteEvent(event, context: modelContext)
     }
+    
+    private let eventViewModel = EventViewModel()
 }
 
 struct MonthHeaderView: View {

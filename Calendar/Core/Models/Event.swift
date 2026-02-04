@@ -10,12 +10,15 @@ class Event {
     var color: String
     var createdAt: Date
     
-    init(date: Date, title: String, notes: String? = nil, color: String = "blue") {
+    var reminderInterval: TimeInterval?
+    
+    init(date: Date, title: String, notes: String? = nil, color: String = "blue", reminderInterval: TimeInterval? = nil) {
         self.id = UUID()
         self.date = date
         self.title = title
         self.notes = notes
         self.color = color
+        self.reminderInterval = reminderInterval
         self.createdAt = Date()
     }
 }
