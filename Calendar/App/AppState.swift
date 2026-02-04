@@ -1,5 +1,4 @@
-import SwiftUI
-import SwiftData
+import Foundation
 import Combine
 
 class AppState: ObservableObject {
@@ -11,4 +10,6 @@ class AppState: ObservableObject {
         case timer
         case alarm
     }
+    
+    init() {}
 }
