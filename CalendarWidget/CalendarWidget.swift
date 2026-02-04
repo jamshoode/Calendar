@@ -1,13 +1,6 @@
 import WidgetKit
 import SwiftUI
 
-@main
-struct CalendarWidgetBundle: WidgetBundle {
-    var body: some Widget {
-        CalendarWidget()
-    }
-}
-
 struct CalendarWidget: Widget {
     let kind: String = "CalendarWidget"
 
