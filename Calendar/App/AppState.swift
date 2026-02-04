@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 class AppState: ObservableObject {
-    @Published var selectedTab: Tab = .calendar
+    @Published var selectedTab: Tab? = .calendar
     @Published var selectedDate: Date = Date()
     
     enum Tab {

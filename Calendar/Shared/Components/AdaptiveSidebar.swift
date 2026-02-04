@@ -33,7 +33,7 @@ struct AdaptiveSidebar: View {
             .navigationTitle("Calendar")
         } detail: {
             switch appState.selectedTab {
-            case .calendar:
+            case .calendar, .none:
                 CalendarView()
             case .timer:
                 TimerView()
