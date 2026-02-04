@@ -39,9 +39,9 @@ struct CalendarView: View {
             )
             .accessibilityHint("Swipe left or right to change months")
             
-            if viewModel.selectedDate != nil {
+            if let selectedDate = viewModel.selectedDate {
                 EventListView(
-                    date: viewModel.selectedDate,
+                    date: selectedDate,
                     events: eventsForSelectedDate,
                     onEdit: { event in
                         editingEvent = event
@@ -56,7 +56,7 @@ struct CalendarView: View {
         .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
         .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
         .sheet(isPresented: $showingAddEvent) {
-            AddEventView(date: viewModel.selectedDate) { title, notes, color in
+            AddEventView(date: viewModel.selectedDate ?? Date()) { title, notes, color in
                 addEvent(title: title, notes: notes, color: color)
             }
         }

@@ -5,16 +5,28 @@ struct AdaptiveSidebar: View {
     
     var body: some View {
         NavigationSplitView {
-            List(selection: $appState.selectedTab) {
-                NavigationLink(value: AppState.Tab.calendar) {
+            List {
+                NavigationLink(
+                    destination: CalendarView(),
+                    tag: AppState.Tab.calendar,
+                    selection: $appState.selectedTab
+                ) {
                     Label("Calendar", systemImage: "calendar")
                 }
                 
-                NavigationLink(value: AppState.Tab.timer) {
+                NavigationLink(
+                    destination: TimerView(),
+                    tag: AppState.Tab.timer,
+                    selection: $appState.selectedTab
+                ) {
                     Label("Timer", systemImage: "timer")
                 }
                 
-                NavigationLink(value: AppState.Tab.alarm) {
+                NavigationLink(
+                    destination: AlarmView(),
+                    tag: AppState.Tab.alarm,
+                    selection: $appState.selectedTab
+                ) {
                     Label("Alarm", systemImage: "alarm")
                 }
             }

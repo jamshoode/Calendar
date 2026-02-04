@@ -91,8 +91,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F593BFE92F33B92A007F8DEB /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CalendarTests.xctest; path = "/Users/shoode/projects/Calendar/build/Debug-iphoneos/Calendar.app/PlugIns/CalendarTests.xctest"; sourceTree = "<absolute>"; };
-		F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CalendarUITests.xctest; path = "/Users/shoode/projects/Calendar/build/Debug-iphoneos/CalendarUITests-Runner.app/PlugIns/CalendarUITests.xctest"; sourceTree = "<absolute>"; };
+		F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F593C0E42F33C234007F8DEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Calendar/AppDelegate.swift; sourceTree = "<group>"; };
 		F593C0E62F33C234007F8DEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Calendar/Assets.xcassets; sourceTree = "<group>"; };
 		F593C0E72F33C234007F8DEB /* CalendarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarApp.swift; path = Calendar/CalendarApp.swift; sourceTree = "<group>"; };
@@ -214,6 +214,8 @@
 				F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */,
 				F593C1532F33C31D007F8DEB /* CalendarWidget */,
 				F593C14E2F33C31D007F8DEB /* Frameworks */,
+				F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */,
+				F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -455,7 +457,7 @@
 			packageProductDependencies = (
 			);
 			productName = CalendarTests;
-			productReference = F593BFE92F33B92A007F8DEB /* CalendarTests.xctest */;
+			productReference = F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		F593BFF22F33B92A007F8DEB /* CalendarUITests */ = {
@@ -475,7 +477,7 @@
 			packageProductDependencies = (
 			);
 			productName = CalendarUITests;
-			productReference = F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */;
+			productReference = F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		F593C14C2F33C31D007F8DEB /* CalendarWidgetExtension */ = {
@@ -955,6 +957,7 @@
 				INFOPLIST_FILE = CalendarWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CalendarWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -986,6 +989,7 @@
 				INFOPLIST_FILE = CalendarWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CalendarWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
