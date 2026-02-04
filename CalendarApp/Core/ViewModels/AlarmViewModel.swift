@@ -5,6 +5,12 @@ class AlarmViewModel: ObservableObject {
     @Published var alarmTime: Date = Date()
     @Published var isEnabled: Bool = false
     
+    func createAlarm(time: Date, context: ModelContext) {
+        let alarm = Alarm(time: time)
+        context.insert(alarm)
+        NotificationService.shared.scheduleAlarmNotification(date: time)
+    }
+    
     func setAlarm(time: Date) {
         alarmTime = time
         if isEnabled {
@@ -13,14 +19,48 @@ class AlarmViewModel: ObservableObject {
         }
     }
     
-    func toggleAlarm() {
-        isEnabled.toggle()
+    func toggleAlarm(alarm: Alarm, context: ModelContext) {
+        alarm.isEnabled.toggle()
         
-        if isEnabled {
-            NotificationService.shared.scheduleAlarmNotification(date: alarmTime)
+        if alarm.isEnabled {
+            NotificationService.shared.scheduleAlarmNotification(date: alarm.time)
         } else {
             NotificationService.shared.cancelAlarmNotifications()
         }
+    }
+    
+    func deleteAlarm(alarm: Alarm, context: ModelContext) {
+        context.delete(alarm)
+        NotificationService.shared.cancelAlarmNotifications()
+    }
+    
+    func timeRemainingText(for alarm: Alarm) -> String {
+        let remaining = timeRemainingUntil(alarm: alarm)
+        
+        if remaining <= 0 {
+            return "Alarm ringing now"
+        }
+        
+        let hours = Int(remaining) / 3600
+        let minutes = (Int(remaining) % 3600) / 60
+        
+        if hours > 0 {
+            return "Alarm in \(hours)h \(minutes)m"
+        } else {
+            return "Alarm in \(minutes)m"
+        }
+    }
+    
+    private func timeRemainingUntil(alarm: Alarm) -> TimeInterval {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.hour, .minute], from: alarm.time)
+        
+        guard let nextAlarm = calendar.nextDate(after: now, matching: components, matchingPolicy: .nextTime) else {
+            return 0
+        }
+        
+        return nextAlarm.timeIntervalSince(now)
     }
     
     var timeRemaining: TimeInterval {
