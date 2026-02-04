@@ -3,7 +3,9 @@ import SwiftData
 
 @main
 struct CalendarApp: App {
+    #if os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #endif
     
     var body: some Scene {
         WindowGroup {

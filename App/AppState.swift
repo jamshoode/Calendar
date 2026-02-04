@@ -9,6 +9,5 @@ class AppState: ObservableObject {
         case calendar
         case timer
         case alarm
-        case none
     }
 }
