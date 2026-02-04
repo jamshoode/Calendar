@@ -19,14 +19,18 @@ struct TimerView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
+            .accessibilityLabel("Select timer type")
             
             switch selectedTab {
             case .countdown:
                 CountdownView(viewModel: viewModel, presets: presets)
+                    .transition(.opacity)
             case .pomodoro:
                 PomodoroView(viewModel: viewModel)
+                    .transition(.opacity)
             }
         }
         .padding(.top)
+        .animation(.easeInOut(duration: 0.3), value: selectedTab)
     }
 }

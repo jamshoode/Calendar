@@ -32,6 +32,7 @@ struct TimerDisplay: View {
                 .foregroundColor(.primary)
                 .scaleEffect(isRunning ? 1.02 : 1.0)
                 .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: isRunning)
+                .accessibilityLabel("Time remaining: \(formattedTime)")
         }
         .frame(width: 280, height: 280)
     }

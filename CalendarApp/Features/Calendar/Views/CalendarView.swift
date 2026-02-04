@@ -22,6 +22,8 @@ struct CalendarView: View {
                 onPrevious: viewModel.moveToPreviousMonth,
                 onNext: viewModel.moveToNextMonth
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Calendar for \(viewModel.currentMonth.formattedMonthYear)")
             
             WeekdayHeaderView()
             
@@ -35,6 +37,7 @@ struct CalendarView: View {
                 onLeft: viewModel.moveToNextMonth,
                 onRight: viewModel.moveToPreviousMonth
             )
+            .accessibilityHint("Swipe left or right to change months")
             
             if viewModel.selectedDate != nil {
                 EventListView(
@@ -47,8 +50,11 @@ struct CalendarView: View {
                         deleteEvent(event)
                     }
                 )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
+        .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
         .sheet(isPresented: $showingAddEvent) {
             AddEventView(date: viewModel.selectedDate) { title, notes, color in
                 addEvent(title: title, notes: notes, color: color)
@@ -68,6 +74,7 @@ struct CalendarView: View {
                 Button(action: { showingAddEvent = true }) {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add new event")
             }
         }
     }
@@ -110,6 +117,7 @@ struct MonthHeaderView: View {
                     .font(.title2)
                     .foregroundColor(.primary)
             }
+            .accessibilityLabel("Previous month")
             
             Spacer()
             
@@ -123,6 +131,7 @@ struct MonthHeaderView: View {
                     .font(.title2)
                     .foregroundColor(.primary)
             }
+            .accessibilityLabel("Next month")
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
