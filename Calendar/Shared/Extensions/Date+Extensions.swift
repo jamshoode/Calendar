@@ -77,4 +77,11 @@ extension Date {
         formatter.dateFormat = "EEE"
         return formatter.string(from: self)
     }
+    
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: self)
+    }
 }

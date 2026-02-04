@@ -32,7 +32,6 @@
 		F593C1342F33C234007F8DEB /* SwipeGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FD2F33C234007F8DEB /* SwipeGestureModifier.swift */; };
 		F593C1352F33C234007F8DEB /* TimerSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0EB2F33C234007F8DEB /* TimerSession.swift */; };
 		F593C1362F33C234007F8DEB /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1002F33C234007F8DEB /* CalendarView.swift */; };
-		F593C1372F33C234007F8DEB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E52F33C234007F8DEB /* AppState.swift */; };
 		F593C1382F33C234007F8DEB /* TimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F92F33C234007F8DEB /* TimePicker.swift */; };
 		F593C1392F33C234007F8DEB /* TimerPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0EA2F33C234007F8DEB /* TimerPreset.swift */; };
 		F593C13A2F33C234007F8DEB /* AdaptiveSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1102F33C234007F8DEB /* AdaptiveSidebar.swift */; };
@@ -50,6 +49,7 @@
 		F593C1502F33C31D007F8DEB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C14F2F33C31D007F8DEB /* WidgetKit.framework */; };
 		F593C1522F33C31D007F8DEB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C1512F33C31D007F8DEB /* SwiftUI.framework */; };
 		F593C1632F33C31F007F8DEB /* CalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1CA2F33C57E007F8DEB /* AppState.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,7 +94,6 @@
 		F593BFE92F33B92A007F8DEB /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CalendarTests.xctest; path = "/Users/shoode/projects/Calendar/build/Debug-iphoneos/Calendar.app/PlugIns/CalendarTests.xctest"; sourceTree = "<absolute>"; };
 		F593BFF32F33B92A007F8DEB /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CalendarUITests.xctest; path = "/Users/shoode/projects/Calendar/build/Debug-iphoneos/CalendarUITests-Runner.app/PlugIns/CalendarUITests.xctest"; sourceTree = "<absolute>"; };
 		F593C0E42F33C234007F8DEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Calendar/AppDelegate.swift; sourceTree = "<group>"; };
-		F593C0E52F33C234007F8DEB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppState.swift; path = Calendar/AppState.swift; sourceTree = "<group>"; };
 		F593C0E62F33C234007F8DEB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Calendar/Assets.xcassets; sourceTree = "<group>"; };
 		F593C0E72F33C234007F8DEB /* CalendarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarApp.swift; path = Calendar/CalendarApp.swift; sourceTree = "<group>"; };
 		F593C0E82F33C234007F8DEB /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
@@ -140,6 +139,7 @@
 		F593C14F2F33C31D007F8DEB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		F593C1512F33C31D007F8DEB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		F593C1692F33C32E007F8DEB /* CalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
+		F593C1CA2F33C57E007F8DEB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -204,9 +204,9 @@
 				F593C1482F33C2B3007F8DEB /* Info.plist */,
 				F593C1462F33C290007F8DEB /* Calendar.entitlements */,
 				F593C0E42F33C234007F8DEB /* AppDelegate.swift */,
-				F593C0E52F33C234007F8DEB /* AppState.swift */,
 				F593C0E62F33C234007F8DEB /* Assets.xcassets */,
 				F593C0E72F33C234007F8DEB /* CalendarApp.swift */,
+				F593C1CB2F33C57E007F8DEB /* App */,
 				F593C0F52F33C234007F8DEB /* Core */,
 				F593C10F2F33C234007F8DEB /* Features */,
 				F593C11D2F33C234007F8DEB /* Shared */,
@@ -406,6 +406,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		F593C1CB2F33C57E007F8DEB /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F593C1CA2F33C57E007F8DEB /* AppState.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -601,7 +609,6 @@
 				F593C1342F33C234007F8DEB /* SwipeGestureModifier.swift in Sources */,
 				F593C1352F33C234007F8DEB /* TimerSession.swift in Sources */,
 				F593C1362F33C234007F8DEB /* CalendarView.swift in Sources */,
-				F593C1372F33C234007F8DEB /* AppState.swift in Sources */,
 				F593C1382F33C234007F8DEB /* TimePicker.swift in Sources */,
 				F593C1392F33C234007F8DEB /* TimerPreset.swift in Sources */,
 				F593C13A2F33C234007F8DEB /* AdaptiveSidebar.swift in Sources */,
@@ -614,6 +621,7 @@
 				F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */,
 				F593C1422F33C234007F8DEB /* Constants.swift in Sources */,
 				F593C1432F33C234007F8DEB /* GlassButton.swift in Sources */,
+				F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */,
 				F593C1442F33C234007F8DEB /* Alarm.swift in Sources */,
 				F593C1452F33C234007F8DEB /* EventViewModel.swift in Sources */,
 			);
