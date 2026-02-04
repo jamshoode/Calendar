@@ -2,8 +2,8 @@ import SwiftUI
 import Combine
 
 class AppState: ObservableObject {
-    var selectedTab: Tab = .calendar
-    var selectedDate: Date = Date()
+    @Published var selectedTab: Tab = .calendar
+    @Published var selectedDate: Date = Date()
     
     enum Tab {
         case calendar
