@@ -2,7 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct TimerView: View {
-    @StateObject private var viewModel = TimerViewModel()
+    @StateObject private var countdownViewModel = TimerViewModel()
+    @StateObject private var pomodoroViewModel = TimerViewModel()
     @Query private var presets: [TimerPreset]
     @State private var selectedTab: TimerTab = .countdown
     
@@ -23,10 +24,10 @@ struct TimerView: View {
             
             switch selectedTab {
             case .countdown:
-                CountdownView(viewModel: viewModel, presets: presets)
+                CountdownView(viewModel: countdownViewModel, presets: presets)
                     .transition(.opacity)
             case .pomodoro:
-                PomodoroView(viewModel: viewModel)
+                PomodoroView(viewModel: pomodoroViewModel)
                     .transition(.opacity)
             }
         }
