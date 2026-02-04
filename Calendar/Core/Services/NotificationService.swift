@@ -17,14 +17,14 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         }
     }
     
-    func scheduleTimerNotification(duration: TimeInterval) {
+    func scheduleTimerNotification(duration: TimeInterval, identifier: String = "timer") {
         let content = UNMutableNotificationContent()
         content.title = "Timer Complete"
         content.body = "Your timer has finished!"
         content.sound = .default
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: duration, repeats: false)
-        let request = UNNotificationRequest(identifier: "timer", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
         UNUserNotificationCenter.current().add(request)
     }
@@ -42,8 +42,8 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().add(request)
     }
     
-    func cancelTimerNotifications() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["timer"])
+    func cancelTimerNotifications(identifier: String = "timer") {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
     }
     
     func cancelAlarmNotifications() {

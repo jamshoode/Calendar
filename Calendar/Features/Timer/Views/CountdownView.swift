@@ -6,7 +6,7 @@ struct CountdownView: View {
     
     var body: some View {
         VStack(spacing: 32) {
-            TimerDisplay(remainingTime: viewModel.remainingTime, isRunning: viewModel.isRunning)
+            TimerDisplay(remainingTime: viewModel.remainingTime, isRunning: viewModel.isRunning, isStopwatch: viewModel.isStopwatch)
             
             TimerControls(
                 isRunning: viewModel.isRunning,
@@ -16,14 +16,25 @@ struct CountdownView: View {
                         viewModel.resumeTimer()
                     } else if viewModel.remainingTime > 0 && !viewModel.isRunning {
                         viewModel.startTimer(duration: viewModel.remainingTime)
+                    } else if let preset = viewModel.selectedPreset {
+                        viewModel.startTimer(duration: preset.duration)
+                    } else {
+                        viewModel.startStopwatch()
                     }
                 },
                 onPause: {
                     viewModel.pauseTimer()
                 },
                 onReset: {
+                    if viewModel.isStopwatch {
+                         viewModel.stopTimer()
+                    } else {
+                        viewModel.resetTimer()
+                    }
+                },
+                onStop: {
                     viewModel.stopTimer()
-                    viewModel.resetTimer()
+                    viewModel.selectedPreset = nil
                 }
             )
             

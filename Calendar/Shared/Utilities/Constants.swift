@@ -21,6 +21,6 @@ struct Constants {
     }
     
     struct Storage {
-        static let appGroupIdentifier = "group.com.yourcompany.calendar"
+        static let appGroupIdentifier = "group.com.shoode.calendar"
     }
 }

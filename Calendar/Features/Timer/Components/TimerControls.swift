@@ -6,6 +6,7 @@ struct TimerControls: View {
     let onPlay: () -> Void
     let onPause: () -> Void
     let onReset: () -> Void
+    let onStop: () -> Void
     
     var body: some View {
         HStack(spacing: 24) {
@@ -17,7 +18,7 @@ struct TimerControls: View {
                 ControlButton(icon: "play.fill", size: 80, isPrimary: true, action: onPlay)
             }
             
-            ControlButton(icon: "stop.fill", action: onReset)
+            ControlButton(icon: "stop.fill", action: onStop)
         }
     }
 }

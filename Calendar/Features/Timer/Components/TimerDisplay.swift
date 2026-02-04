@@ -3,12 +3,16 @@ import SwiftUI
 struct TimerDisplay: View {
     let remainingTime: TimeInterval
     let isRunning: Bool
+    var isStopwatch: Bool = false
     
     private var formattedTime: String {
         Formatters.formatTimerDuration(remainingTime)
     }
     
     private var progress: Double {
+        if isStopwatch {
+            return 1.0
+        }
         let totalDuration: TimeInterval = 3600
         return 1.0 - (remainingTime / totalDuration)
     }
@@ -30,8 +34,6 @@ struct TimerDisplay: View {
             Text(formattedTime)
                 .font(.system(size: 64, weight: .bold, design: .monospaced))
                 .foregroundColor(.primary)
-                .scaleEffect(isRunning ? 1.02 : 1.0)
-                .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: isRunning)
                 .accessibilityLabel("Time remaining: \(formattedTime)")
         }
         .frame(width: 280, height: 280)

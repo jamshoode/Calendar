@@ -2,8 +2,6 @@ import SwiftUI
 
 struct PomodoroView: View {
     @ObservedObject var viewModel: TimerViewModel
-    @State private var workSessions: Int = 0
-    @State private var isWorkSession: Bool = true
     
     private let workDuration: TimeInterval = 25 * 60
     private let shortBreakDuration: TimeInterval = 5 * 60
@@ -17,7 +15,7 @@ struct PomodoroView: View {
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.secondary)
                 
-                Text("Session \(workSessions + 1) of \(sessionsBeforeLongBreak)")
+                Text("Session \(viewModel.workSessions + 1) of \(sessionsBeforeLongBreak)")
                     .font(.system(size: 16))
                     .foregroundColor(.secondary)
             }
@@ -40,8 +38,10 @@ struct PomodoroView: View {
                     viewModel.pauseTimer()
                 },
                 onReset: {
-                    viewModel.stopTimer()
                     resetPomodoro()
+                },
+                onStop: {
+                    stopPomodoro()
                 }
             )
             
@@ -50,7 +50,7 @@ struct PomodoroView: View {
                     startNextSession()
                 }
                 
-                if workSessions > 0 {
+                if viewModel.workSessions > 0 {
                     GlassButton(title: "Skip Break", icon: "forward.fill") {
                         skipBreak()
                     }
@@ -60,7 +60,8 @@ struct PomodoroView: View {
         .padding()
         .onAppear {
             if viewModel.remainingTime == 0 && !viewModel.isRunning && !viewModel.isPaused {
-                resetPomodoro()
+                let duration = currentDuration
+                viewModel.remainingTime = duration
             }
         }
         .onChange(of: viewModel.remainingTime) { _, newValue in
@@ -71,9 +72,9 @@ struct PomodoroView: View {
     }
     
     private var sessionLabel: String {
-        if isWorkSession {
+        if viewModel.isWorkSession {
             return "Focus Time"
-        } else if workSessions % sessionsBeforeLongBreak == 0 && workSessions > 0 {
+        } else if viewModel.workSessions % sessionsBeforeLongBreak == 0 && viewModel.workSessions > 0 {
             return "Long Break"
         } else {
             return "Short Break"
@@ -81,9 +82,9 @@ struct PomodoroView: View {
     }
     
     private var currentDuration: TimeInterval {
-        if isWorkSession {
+        if viewModel.isWorkSession {
             return workDuration
-        } else if workSessions % sessionsBeforeLongBreak == 0 && workSessions > 0 {
+        } else if viewModel.workSessions % sessionsBeforeLongBreak == 0 && viewModel.workSessions > 0 {
             return longBreakDuration
         } else {
             return shortBreakDuration
@@ -98,11 +99,12 @@ struct PomodoroView: View {
     private func handleSessionComplete() {
         viewModel.stopTimer()
         
-        if isWorkSession {
-            workSessions += 1
+        if viewModel.isWorkSession {
+            viewModel.workSessions += 1
         }
         
-        isWorkSession.toggle()
+        viewModel.isWorkSession.toggle()
+        viewModel.updatePomodoroState(sessions: viewModel.workSessions, isWork: viewModel.isWorkSession)
         
         let duration = currentDuration
         viewModel.remainingTime = duration
@@ -111,16 +113,22 @@ struct PomodoroView: View {
     }
     
     private func skipBreak() {
-        isWorkSession = true
+        viewModel.isWorkSession = true
         viewModel.stopTimer()
+        viewModel.updatePomodoroState(sessions: viewModel.workSessions, isWork: true)
+        
         let duration = currentDuration
         viewModel.remainingTime = duration
         viewModel.startTimer(duration: duration)
     }
     
+    private func stopPomodoro() {
+        viewModel.pauseTimer()
+        viewModel.remainingTime = currentDuration
+    }
+    
     private func resetPomodoro() {
-        workSessions = 0
-        isWorkSession = true
-        viewModel.remainingTime = workDuration
+        viewModel.terminateSession(remaining: workDuration)
+        viewModel.updatePomodoroState(sessions: 0, isWork: true)
     }
 }

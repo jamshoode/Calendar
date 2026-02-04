@@ -2,9 +2,10 @@ import SwiftUI
 import SwiftData
 
 struct TimerView: View {
-    @StateObject private var countdownViewModel = TimerViewModel()
-    @StateObject private var pomodoroViewModel = TimerViewModel()
+    @StateObject private var countdownViewModel = TimerViewModel(id: "countdown")
+    @StateObject private var pomodoroViewModel = TimerViewModel(id: "pomodoro")
     @Query private var presets: [TimerPreset]
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: TimerTab = .countdown
     
     enum TimerTab {
@@ -33,5 +34,12 @@ struct TimerView: View {
         }
         .padding(.top)
         .animation(.easeInOut(duration: 0.3), value: selectedTab)
+        .onAppear {
+            if presets.isEmpty {
+                for preset in TimerPreset.defaultPresets {
+                    modelContext.insert(preset)
+                }
+            }
+        }
     }
 }

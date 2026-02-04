@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import UIKit
 
 struct CalendarWidget: Widget {
     let kind: String = "CalendarWidget"
@@ -113,43 +114,56 @@ struct MediumWidgetView: View {
     let entry: Provider.Entry
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header Content
+            if !entry.hasTimer && !entry.hasAlarm {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(entry.date.formatted(.dateTime.weekday(.wide)))
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                    
+                    Text(entry.date.formatted(.dateTime.month().day()))
+                        .font(.system(size: 32, weight: .heavy, design: .rounded))
+                        .foregroundColor(.primary)
+                }
+                .padding(.bottom, 12)
+            } else {
+                HStack(spacing: 12) {
+                    if entry.hasTimer {
+                        Label("Timer", systemImage: "timer")
+                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Capsule().fill(Color.accentColor.gradient))
+                    }
+                    
+                    if entry.hasAlarm {
+                        Label("Alarm", systemImage: "alarm.fill")
+                            .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Capsule().fill(Color.orange.gradient))
+                    }
+                }
+                .padding(.bottom, 12)
+            }
+            
+            Spacer()
+            
+            // Week Row
             HStack(spacing: 0) {
                 ForEach(entry.weekDays) { day in
                     WeekDayCell(day: day)
                 }
             }
-            
-            HStack(spacing: 16) {
-                if entry.hasTimer {
-                    HStack(spacing: 4) {
-                        Image(systemName: "timer")
-                            .font(.system(size: 14))
-                        Text("Active")
-                            .font(.system(size: 12, weight: .medium))
-                    }
-                    .foregroundColor(.accentColor)
-                }
-                
-                if entry.hasAlarm {
-                    HStack(spacing: 4) {
-                        Image(systemName: "alarm.fill")
-                            .font(.system(size: 14))
-                        Text("Set")
-                            .font(.system(size: 12, weight: .medium))
-                    }
-                    .foregroundColor(.orange)
-                }
-                
-                if !entry.hasTimer && !entry.hasAlarm {
-                    Text("No active timer or alarm")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-            }
         }
         .padding()
-        .containerBackground(.ultraThinMaterial, for: .widget)
+        .containerBackground(for: .widget) {
+            Color(UIColor.systemBackground)
+        }
     }
 }
 
@@ -157,31 +171,45 @@ struct LargeWidgetView: View {
     let entry: Provider.Entry
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             HStack(spacing: 0) {
                 ForEach(entry.weekDays) { day in
                     WeekDayCell(day: day, large: true)
                 }
             }
             
-            HStack(spacing: 20) {
-                StatusCard(
-                    icon: "timer",
-                    title: "Timer",
-                    status: entry.hasTimer ? "Active" : "Off",
-                    color: .accentColor
-                )
+            Divider()
+            
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Status")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
                 
-                StatusCard(
-                    icon: "alarm.fill",
-                    title: "Alarm",
-                    status: entry.hasAlarm ? "Set" : "Off",
-                    color: .orange
-                )
+                HStack(spacing: 16) {
+                    StatusCard(
+                        icon: "timer",
+                        title: "Timer",
+                        status: entry.hasTimer ? "Active" : "Idle",
+                        color: .accentColor,
+                        isActive: entry.hasTimer
+                    )
+                    
+                    StatusCard(
+                        icon: "alarm.fill",
+                        title: "Alarm",
+                        status: entry.hasAlarm ? "Set" : "Off",
+                        color: .orange,
+                        isActive: entry.hasAlarm
+                    )
+                }
             }
+            
+            Spacer()
         }
         .padding()
-        .containerBackground(.ultraThinMaterial, for: .widget)
+        .containerBackground(for: .widget) {
+            Color(UIColor.systemBackground)
+        }
     }
 }
 
@@ -190,21 +218,32 @@ struct WeekDayCell: View {
     var large: Bool = false
     
     var body: some View {
-        VStack(spacing: large ? 8 : 4) {
+        VStack(spacing: 6) {
             Text(day.name)
-                .font(.system(size: large ? 14 : 11, weight: .medium))
-                .foregroundColor(.secondary)
+                .font(.system(size: large ? 13 : 11, weight: .semibold, design: .rounded))
+                .foregroundColor(day.isToday ? .white : .secondary)
             
             Text("\(day.date)")
-                .font(.system(size: large ? 20 : 16, weight: day.isToday ? .bold : .regular))
-                .foregroundColor(day.isToday ? .accentColor : .primary)
-                .frame(width: large ? 36 : 28, height: large ? 36 : 28)
-                .background(
-                    Circle()
-                        .fill(day.isToday ? Color.accentColor.opacity(0.2) : Color.clear)
-                )
+                .font(.system(size: large ? 18 : 16, weight: .bold, design: .rounded))
+                .foregroundColor(day.isToday ? .white : .primary)
         }
         .frame(maxWidth: .infinity)
+        .frame(height: large ? 70 : 60)
+        .background(
+            ZStack {
+                if day.isToday {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(color: Color.accentColor.opacity(0.3), radius: 4, x: 0, y: 2)
+                }
+            }
+        )
     }
 }
 
@@ -213,32 +252,42 @@ struct StatusCard: View {
     let title: String
     let status: String
     let color: Color
+    let isActive: Bool
     
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(color)
+            ZStack {
+                Circle()
+                    .fill(isActive ? color.opacity(0.1) : Color.gray.opacity(0.1))
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(isActive ? color : .gray)
+            }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.secondary)
                 Text(status)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
             }
             
             Spacer()
         }
-        .padding()
-        .background(Color.white.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        )
     }
 }
 
 extension UserDefaults {
     static var shared: UserDefaults {
-        UserDefaults(suiteName: "group.com.yourcompany.calendar") ?? .standard
+        UserDefaults(suiteName: "group.com.shoode.calendar") ?? .standard
     }
 }
