@@ -81,6 +81,21 @@ struct Localization {
         // .delete already exists
         
 
+        // Time Picker / Timer Views
+        case timePicker
+        case alarmWillRingAt(String)
+        case alarmSetFor(String)
+        case countdown
+        case pomodoro
+        case selectTimerType
+        case pomodoroSession(Int, Int)
+        case timeRemaining(String)
+        case alarmTime(String)
+        
+        // General / Errors
+        case pageNotFound
+        case selectTabPrompt
+
         // Weekdays (Manual if needed, or use Locale)
         // We will often use DateFormatter with .locale, but for explicit UI labels:
         case mon, tue, wed, thu, fri, sat, sun
@@ -199,6 +214,32 @@ struct Localization {
         case .fri: return "Fri"
         case .sat: return "Sat"
         case .sun: return "Sun"
+            
+        // Time Picker / Timer
+        case .timePicker:
+            return lang == .ukrainian ? "Вибір часу" : "Time picker"
+        case .alarmWillRingAt(let time):
+            return lang == .ukrainian ? "Будильник продзвенить о \(time)" : "Alarm will ring at \(time)"
+        case .alarmSetFor(let time):
+            return lang == .ukrainian ? "Будильник встановлено на \(time)" : "Alarm set for \(time)"
+        case .countdown:
+            return lang == .ukrainian ? "Зворотній відлік" : "Countdown"
+        case .pomodoro:
+            return lang == .ukrainian ? "Помодоро" : "Pomodoro"
+        case .selectTimerType:
+            return lang == .ukrainian ? "Оберіть тип таймера" : "Select timer type"
+        case .pomodoroSession(let current, let total):
+            return lang == .ukrainian ? "Сесія \(current) з \(total)" : "Session \(current) of \(total)"
+        case .timeRemaining(let time):
+            return lang == .ukrainian ? "Залишилось часу: \(time)" : "Time remaining: \(time)"
+        case .alarmTime(let time):
+            return lang == .ukrainian ? "Час будильника: \(time)" : "Alarm time: \(time)"
+            
+        // General
+        case .pageNotFound:
+            return lang == .ukrainian ? "Сторінку не знайдено" : "Page Not Found"
+        case .selectTabPrompt:
+            return lang == .ukrainian ? "Будь ласка, оберіть вкладку на бічній панелі" : "Please select a tab from the sidebar"
         }
     }
 }

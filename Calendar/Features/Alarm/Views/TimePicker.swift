@@ -24,7 +24,7 @@ struct TimePickerView: View {
                 .datePickerStyle(.wheel)
                 .labelsHidden()
                 .frame(maxHeight: 200)
-                .accessibilityLabel("Time picker")
+                .accessibilityLabel(Localization.string(.timePicker))
                 
                 Text("Alarm will ring at \(Formatters.timeFormatter.string(from: selectedTime))")
                     .font(.system(size: 18))
@@ -34,17 +34,17 @@ struct TimePickerView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("Set Alarm")
+            .navigationTitle(Localization.string(.setAlarm))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(Localization.string(.cancel)) {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(Localization.string(.save)) {
                         onConfirm(selectedTime)
                     }
                 }

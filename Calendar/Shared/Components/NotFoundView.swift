@@ -7,11 +7,11 @@ struct NotFoundView: View {
                 .font(.system(size: 80))
                 .foregroundColor(.secondary)
             
-            Text("Page Not Found")
+            Text(Localization.string(.pageNotFound))
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.primary)
             
-            Text("Please select a tab from the sidebar")
+            Text(Localization.string(.selectTabPrompt))
                 .font(.system(size: 16))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

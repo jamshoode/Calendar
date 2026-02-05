@@ -27,6 +27,8 @@ struct WidgetLocalization {
         case set
         case off
         case status
+        case calendar
+        case widgetDescription
     }
     
     static func string(_ key: Key) -> String {
@@ -47,6 +49,10 @@ struct WidgetLocalization {
             return lang == .ukrainian ? "Вимк" : "Off"
         case .status:
             return lang == .ukrainian ? "Статус" : "Status"
+        case .calendar:
+            return lang == .ukrainian ? "Календар" : "Calendar"
+        case .widgetDescription:
+            return lang == .ukrainian ? "Показує поточний тиждень та статус таймера/будильника." : "Shows the current week and timer/alarm status."
         }
     }
 }

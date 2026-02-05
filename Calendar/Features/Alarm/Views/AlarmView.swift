@@ -54,7 +54,7 @@ struct AlarmCard: View {
                     .foregroundColor(alarm.isEnabled ? .primary : .secondary)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Alarm time: \(Formatters.timeFormatter.string(from: alarm.time))")
+            .accessibilityLabel(Localization.string(.alarmTime(Formatters.timeFormatter.string(from: alarm.time))))
             .accessibilityHint("Double tap to edit alarm time")
             
             if alarm.isEnabled {

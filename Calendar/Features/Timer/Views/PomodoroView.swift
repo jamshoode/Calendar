@@ -15,7 +15,7 @@ struct PomodoroView: View {
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.secondary)
                 
-                Text("Session \(viewModel.workSessions + 1) of \(sessionsBeforeLongBreak)")
+                Text(Localization.string(.pomodoroSession(viewModel.workSessions + 1, sessionsBeforeLongBreak)))
                     .font(.system(size: 16))
                     .foregroundColor(.secondary)
             }

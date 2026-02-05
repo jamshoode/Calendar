@@ -34,7 +34,7 @@ struct TimerDisplay: View {
             Text(formattedTime)
                 .font(.system(size: 64, weight: .bold, design: .monospaced))
                 .foregroundColor(.primary)
-                .accessibilityLabel("Time remaining: \(formattedTime)")
+                .accessibilityLabel(Localization.string(.timeRemaining(formattedTime)))
         }
         .frame(width: 280, height: 280)
     }

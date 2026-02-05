@@ -9,8 +9,8 @@ struct CalendarWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             CalendarWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Calendar")
-        .description("Shows the current week and timer/alarm status.")
+        .configurationDisplayName(WidgetLocalization.string(.calendar))
+        .description(WidgetLocalization.string(.widgetDescription))
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }

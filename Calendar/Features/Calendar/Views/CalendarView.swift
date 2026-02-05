@@ -23,7 +23,7 @@ struct CalendarView: View {
                 onNext: viewModel.moveToNextMonth
             )
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Calendar for \(viewModel.currentMonth.formattedMonthYear)")
+            .accessibilityLabel(Localization.string(.calendarFor(viewModel.currentMonth.formattedMonthYear)))
             
             WeekdayHeaderView()
             
@@ -82,7 +82,7 @@ struct CalendarView: View {
                 Button(action: { showingAddEvent = true }) {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("Add new event")
+                .accessibilityLabel(Localization.string(.addEvent))
             }
         }
         .onAppear {

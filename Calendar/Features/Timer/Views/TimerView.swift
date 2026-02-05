@@ -16,12 +16,12 @@ struct TimerView: View {
     var body: some View {
         VStack(spacing: 24) {
             Picker("Timer Type", selection: $selectedTab) {
-                Text("Countdown").tag(TimerTab.countdown)
-                Text("Pomodoro").tag(TimerTab.pomodoro)
+                Text(Localization.string(.countdown)).tag(TimerTab.countdown)
+                Text(Localization.string(.pomodoro)).tag(TimerTab.pomodoro)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .accessibilityLabel("Select timer type")
+            .accessibilityLabel(Localization.string(.selectTimerType))
             
             switch selectedTab {
             case .countdown:

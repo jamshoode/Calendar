@@ -18,7 +18,7 @@ struct AdaptiveSidebar: View {
                     Label("Alarm", systemImage: "alarm")
                 }
             }
-            .navigationTitle("Calendar")
+            .navigationTitle(Localization.string(.tabCalendar))
         } detail: {
             switch appState.selectedTab {
             case .calendar:
