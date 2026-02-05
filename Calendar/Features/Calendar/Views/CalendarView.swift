@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct CalendarView: View {
     @StateObject private var viewModel = CalendarViewModel()
@@ -16,7 +17,8 @@ struct CalendarView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
+        ZStack {
+            VStack(spacing: 0) {
             MonthHeaderView(
                 currentMonth: viewModel.currentMonth,
                 onPrevious: viewModel.moveToPreviousMonth,
@@ -39,25 +41,41 @@ struct CalendarView: View {
             )
             .accessibilityHint("Swipe left or right to change months")
             
-            if let selectedDate = viewModel.selectedDate {
-                EventListView(
-                    date: selectedDate,
-                    events: eventsForSelectedDate,
-                    onEdit: { event in
-                        editingEvent = event
-                    },
-                    onDelete: { event in
-                        deleteEvent(event)
-                    },
-                    onAdd: {
-                        showingAddEvent = true
-                    }
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
         }
-        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
         .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
+        
+        // Floating Window Overlay
+        if let selectedDate = viewModel.selectedDate {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    viewModel.selectedDate = nil
+                }
+                .transition(.opacity)
+            
+            EventListView(
+                date: selectedDate,
+                events: events.filter { $0.date.isSameDay(as: selectedDate) },
+                onEdit: { event in
+                    editingEvent = event
+                },
+                onDelete: { event in
+                    deleteEvent(event)
+                },
+                onAdd: {
+                    showingAddEvent = true
+                }
+            )
+            .background(Color(UIColor.systemBackground))
+            .cornerRadius(16)
+            .shadow(radius: 10)
+            .padding()
+            .frame(maxWidth: 400, maxHeight: 500) // Floating size constraints
+            .transition(.scale.combined(with: .opacity))
+            .zIndex(1) // Ensure it stays on top
+        }
+    } // End ZStack
+    .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
         .sheet(isPresented: $showingAddEvent) {
             AddEventView(date: viewModel.selectedDate ?? Date()) { title, notes, color, date, reminderInterval in
                 addEvent(title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
