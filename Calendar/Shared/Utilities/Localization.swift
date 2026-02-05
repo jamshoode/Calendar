@@ -53,6 +53,8 @@ struct Localization {
         case hoursBefore(Int)
         case dayBefore // 1 day
         case daysBefore(Int)
+        case minutesShort(Int)
+        case minutesUnit
         
         // Widget / Timer / Alarm
         case active
@@ -163,6 +165,10 @@ struct Localization {
             return lang == .ukrainian ? "1 день до" : "1 day before"
         case .daysBefore(let days):
             return lang == .ukrainian ? "\(days) днів до" : "\(days) days before"
+        case .minutesShort(let min):
+            return lang == .ukrainian ? "\(min) хв" : "\(min) min"
+        case .minutesUnit:
+            return lang == .ukrainian ? "хв" : "min"
             
         // Widget
         case .active:

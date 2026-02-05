@@ -99,7 +99,9 @@ struct AddEventView: View {
                 }
             }
             .navigationTitle(event == nil ? Localization.string(.newEvent) : Localization.string(.editEvent))
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(Localization.string(.cancel)) {

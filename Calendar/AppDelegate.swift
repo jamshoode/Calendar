@@ -1,3 +1,4 @@
+#if os(iOS)
 import UIKit
 import UserNotifications
 
@@ -14,3 +15,4 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // print("Failed to register for remote notifications: \(error)")
     }
 }
+#endif

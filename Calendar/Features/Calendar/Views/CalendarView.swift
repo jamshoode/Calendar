@@ -87,6 +87,41 @@ struct CalendarView: View {
                 )
                 .transition(.scale.combined(with: .opacity))
                 .zIndex(1)
+                .zIndex(1)
+            }
+            
+            // Floating "Jump to Today" Button
+            if !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date()) || 
+               !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month) {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            withAnimation {
+                                let today = Date()
+                                viewModel.selectDate(today)
+                                viewModel.currentMonth = today
+                            }
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.system(size: 14, weight: .bold))
+                                Text("Today")
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .glassBackground(cornerRadius: 30)
+                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                    }
+                }
+                .zIndex(2) // Ensure it floats above everything
             }
         }
         // Prevent layout animations on the entire VStack when selectedDate changes
@@ -110,12 +145,21 @@ struct CalendarView: View {
             )
         }
         .toolbar {
+            #if os(iOS)
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { showingAddEvent = true }) {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel(Localization.string(.addEvent))
             }
+            #else
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddEvent = true }) {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel(Localization.string(.addEvent))
+            }
+            #endif
         }
         .onAppear {
             eventViewModel.rescheduleAllNotifications(context: modelContext)

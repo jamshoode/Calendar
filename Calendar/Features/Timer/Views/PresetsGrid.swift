@@ -29,11 +29,12 @@ struct PresetButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: preset.icon)
-                    .font(.system(size: 20))
-                Text(preset.label)
+            VStack(spacing: 0) {
+                Text("\(Int(preset.duration / 60))")
+                    .font(.system(size: 24, weight: .bold))
+                Text(Localization.string(.minutesUnit))
                     .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 60)

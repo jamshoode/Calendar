@@ -21,7 +21,9 @@ struct TimePickerView: View {
                     selection: $selectedTime,
                     displayedComponents: .hourAndMinute
                 )
+                #if os(iOS)
                 .datePickerStyle(.wheel)
+                #endif
                 .labelsHidden()
                 .frame(maxHeight: 200)
                 .accessibilityLabel(Localization.string(.timePicker))
@@ -35,7 +37,9 @@ struct TimePickerView: View {
             }
             .padding()
             .navigationTitle(Localization.string(.setAlarm))
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(Localization.string(.cancel)) {

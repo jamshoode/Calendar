@@ -47,25 +47,57 @@ struct MenuBarContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Picker("View", selection: $selectedTab) {
-                Image(systemName: "calendar").tag(Tab.calendar)
-                Image(systemName: "timer").tag(Tab.timer)
-                Image(systemName: "alarm").tag(Tab.alarm)
+            // Custom Tab Bar
+            HStack(spacing: 0) {
+                MenuBarTabButton(icon: "calendar", isSelected: selectedTab == .calendar) {
+                    selectedTab = .calendar
+                }
+                MenuBarTabButton(icon: "timer", isSelected: selectedTab == .timer) {
+                    selectedTab = .timer
+                }
+                MenuBarTabButton(icon: "alarm.fill", isSelected: selectedTab == .alarm) {
+                    selectedTab = .alarm
+                }
             }
-            .pickerStyle(.segmented)
-            .padding()
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(Color(nsColor: .windowBackgroundColor))
             
             Divider()
             
-            switch selectedTab {
-            case .calendar:
-                CalendarView()
-            case .timer:
-                TimerView()
-            case .alarm:
-                AlarmView()
+            // Content
+            ZStack {
+                switch selectedTab {
+                case .calendar:
+                    CalendarView()
+                case .timer:
+                    TimerView()
+                case .alarm:
+                    AlarmView()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
+}
+
+struct MenuBarTabButton: View {
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: isSelected ? .bold : .medium))
+                    .foregroundColor(isSelected ? .accentColor : .secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 #endif

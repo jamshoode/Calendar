@@ -97,24 +97,57 @@ struct EmptyAlarmView: View {
     let onAdd: () -> Void
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "alarm")
-                .font(.system(size: 80))
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
+        VStack(spacing: 32) {
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.1))
+                    .frame(width: 140, height: 140)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.accentColor.opacity(0.2), lineWidth: 1)
+                    )
+                
+                Image(systemName: "alarm.fill")
+                    .font(.system(size: 64))
+                    .foregroundColor(.accentColor)
+                    .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 5)
+            }
+            .padding(.bottom, 10)
+            .accessibilityHidden(true)
             
-            Text(Localization.string(.noAlarmSet))
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundColor(.secondary)
+            VStack(spacing: 12) {
+                Text(Localization.string(.noAlarmSet))
+                    .font(.title2.weight(.bold))
+                    .foregroundColor(.primary)
+                
+                Text(Localization.string(.tapToSetAlarm))
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
             
-            Text(Localization.string(.tapToSetAlarm))
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
-            
-            GlassButton(title: Localization.string(.setAlarm), icon: "plus", isPrimary: true, action: onAdd)
-                .padding(.top, 20)
-                .accessibilityLabel(Localization.string(.setAlarm))
+            Button(action: onAdd) {
+                HStack {
+                    Image(systemName: "plus")
+                        .font(.headline)
+                    Text(Localization.string(.setAlarm))
+                        .font(.headline)
+                }
+                .foregroundColor(.white)
+                .frame(height: 50)
+                .padding(.horizontal, 32)
+                .background(
+                    Capsule()
+                        .fill(Color.accentColor)
+                        .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 5)
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 20)
+            .accessibilityLabel(Localization.string(.setAlarm))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 }
