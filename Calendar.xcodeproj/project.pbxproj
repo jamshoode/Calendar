@@ -8,6 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
+		F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE42F34F4AA008B6601 /* TodoCategory.swift */; };
+		F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE52F34F4AA008B6601 /* TodoItem.swift */; };
+		F554EFE92F34F4C8008B6601 /* TodoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE82F34F4C8008B6601 /* TodoViewModel.swift */; };
+		F554EFF62F34F4DF008B6601 /* AddCategorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFEF2F34F4DF008B6601 /* AddCategorySheet.swift */; };
+		F554EFF72F34F4DF008B6601 /* AddTodoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFF02F34F4DF008B6601 /* AddTodoSheet.swift */; };
+		F554EFF82F34F4DF008B6601 /* SubtaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFEC2F34F4DF008B6601 /* SubtaskRow.swift */; };
+		F554EFF92F34F4DF008B6601 /* PriorityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFEA2F34F4DF008B6601 /* PriorityBadge.swift */; };
+		F554EFFA2F34F4DF008B6601 /* TodoCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFED2F34F4DF008B6601 /* TodoCheckbox.swift */; };
+		F554EFFB2F34F4DF008B6601 /* TodoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFF32F34F4DF008B6601 /* TodoView.swift */; };
+		F554EFFC2F34F4DF008B6601 /* TodoRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFF22F34F4DF008B6601 /* TodoRow.swift */; };
+		F554EFFD2F34F4DF008B6601 /* CategoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFF12F34F4DF008B6601 /* CategoryCard.swift */; };
+		F554EFFE2F34F4DF008B6601 /* RecurrencePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFEB2F34F4DF008B6601 /* RecurrencePicker.swift */; };
+		F554F0002F34F99C008B6601 /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFFF2F34F99C008B6601 /* TopBarView.swift */; };
+		F554F0022F34F9AE008B6601 /* SideSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */; };
+		F554F0062F34F9E6008B6601 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554F0032F34F9E6008B6601 /* SettingsSheet.swift */; };
 		F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556A0352F33CD160071D8B8 /* NotFoundView.swift */; };
 		F556A0542F33F0BD0071D8B8 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556A0532F33F0BD0071D8B8 /* Localization.swift */; };
 		F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F593C0E62F33C234007F8DEB /* Assets.xcassets */; };
@@ -97,6 +112,21 @@
 
 /* Begin PBXFileReference section */
 		F51A59232F34AFB20006E307 /* MonthYearPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthYearPicker.swift; sourceTree = "<group>"; };
+		F554EFE42F34F4AA008B6601 /* TodoCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TodoCategory.swift; path = Calendar/Core/Models/TodoCategory.swift; sourceTree = SOURCE_ROOT; };
+		F554EFE52F34F4AA008B6601 /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TodoItem.swift; path = Calendar/Core/Models/TodoItem.swift; sourceTree = SOURCE_ROOT; };
+		F554EFE82F34F4C8008B6601 /* TodoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TodoViewModel.swift; path = Calendar/Core/ViewModels/TodoViewModel.swift; sourceTree = SOURCE_ROOT; };
+		F554EFEA2F34F4DF008B6601 /* PriorityBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityBadge.swift; sourceTree = "<group>"; };
+		F554EFEB2F34F4DF008B6601 /* RecurrencePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrencePicker.swift; sourceTree = "<group>"; };
+		F554EFEC2F34F4DF008B6601 /* SubtaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtaskRow.swift; sourceTree = "<group>"; };
+		F554EFED2F34F4DF008B6601 /* TodoCheckbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCheckbox.swift; sourceTree = "<group>"; };
+		F554EFEF2F34F4DF008B6601 /* AddCategorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategorySheet.swift; sourceTree = "<group>"; };
+		F554EFF02F34F4DF008B6601 /* AddTodoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTodoSheet.swift; sourceTree = "<group>"; };
+		F554EFF12F34F4DF008B6601 /* CategoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCard.swift; sourceTree = "<group>"; };
+		F554EFF22F34F4DF008B6601 /* TodoRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRow.swift; sourceTree = "<group>"; };
+		F554EFF32F34F4DF008B6601 /* TodoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoView.swift; sourceTree = "<group>"; };
+		F554EFFF2F34F99C008B6601 /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarView.swift; sourceTree = "<group>"; };
+		F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideSheetModifier.swift; sourceTree = "<group>"; };
+		F554F0032F34F9E6008B6601 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
 		F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F556A0352F33CD160071D8B8 /* NotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotFoundView.swift; path = Calendar/Shared/Components/NotFoundView.swift; sourceTree = SOURCE_ROOT; };
@@ -207,6 +237,56 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F554EFEE2F34F4DF008B6601 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F554EFEA2F34F4DF008B6601 /* PriorityBadge.swift */,
+				F554EFEB2F34F4DF008B6601 /* RecurrencePicker.swift */,
+				F554EFEC2F34F4DF008B6601 /* SubtaskRow.swift */,
+				F554EFED2F34F4DF008B6601 /* TodoCheckbox.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F554EFF42F34F4DF008B6601 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F554EFEF2F34F4DF008B6601 /* AddCategorySheet.swift */,
+				F554EFF02F34F4DF008B6601 /* AddTodoSheet.swift */,
+				F554EFF12F34F4DF008B6601 /* CategoryCard.swift */,
+				F554EFF22F34F4DF008B6601 /* TodoRow.swift */,
+				F554EFF32F34F4DF008B6601 /* TodoView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F554EFF52F34F4DF008B6601 /* Todo */ = {
+			isa = PBXGroup;
+			children = (
+				F554EFEE2F34F4DF008B6601 /* Components */,
+				F554EFF42F34F4DF008B6601 /* Views */,
+			);
+			name = Todo;
+			path = Calendar/Features/Todo;
+			sourceTree = SOURCE_ROOT;
+		};
+		F554F0042F34F9E6008B6601 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F554F0032F34F9E6008B6601 /* SettingsSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F554F0052F34F9E6008B6601 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F554F0042F34F9E6008B6601 /* Views */,
+			);
+			name = Settings;
+			path = Calendar/Features/Settings;
+			sourceTree = SOURCE_ROOT;
+		};
 		F593BFD32F33B928007F8DEB = {
 			isa = PBXGroup;
 			children = (
@@ -237,6 +317,8 @@
 				F593C0E92F33C234007F8DEB /* Event.swift */,
 				F593C0EA2F33C234007F8DEB /* TimerPreset.swift */,
 				F593C0EB2F33C234007F8DEB /* TimerSession.swift */,
+				F554EFE42F34F4AA008B6601 /* TodoCategory.swift */,
+				F554EFE52F34F4AA008B6601 /* TodoItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -257,6 +339,7 @@
 				F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */,
 				F593C0F22F33C234007F8DEB /* EventViewModel.swift */,
 				F593C0F32F33C234007F8DEB /* TimerViewModel.swift */,
+				F554EFE82F34F4C8008B6601 /* TodoViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -361,6 +444,8 @@
 		F593C10F2F33C234007F8DEB /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				F554F0052F34F9E6008B6601 /* Settings */,
+				F554EFF52F34F4DF008B6601 /* Todo */,
 				F593C0FB2F33C234007F8DEB /* Alarm */,
 				F593C1052F33C234007F8DEB /* Calendar */,
 				F593C10E2F33C234007F8DEB /* Timer */,
@@ -378,6 +463,8 @@
 				F593C1132F33C234007F8DEB /* GlassButton.swift */,
 				F593C1142F33C234007F8DEB /* GlassCard.swift */,
 				F556A0352F33CD160071D8B8 /* NotFoundView.swift */,
+				F554EFFF2F34F99C008B6601 /* TopBarView.swift */,
+				F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -615,6 +702,7 @@
 				F593C1202F33C234007F8DEB /* CountdownView.swift in Sources */,
 				F593C1212F33C234007F8DEB /* CalendarViewModel.swift in Sources */,
 				F593C1222F33C234007F8DEB /* View+Glass.swift in Sources */,
+				F554F0062F34F9E6008B6601 /* SettingsSheet.swift in Sources */,
 				F593C1232F33C234007F8DEB /* CalendarApp.swift in Sources */,
 				F593C1242F33C234007F8DEB /* TimerView.swift in Sources */,
 				F593C1252F33C234007F8DEB /* NotificationService.swift in Sources */,
@@ -626,20 +714,34 @@
 				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
 				F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */,
 				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
+				F554F0022F34F9AE008B6601 /* SideSheetModifier.swift in Sources */,
 				F556A0542F33F0BD0071D8B8 /* Localization.swift in Sources */,
 				F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */,
 				F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */,
 				F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */,
 				F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */,
 				F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */,
+				F554EFF62F34F4DF008B6601 /* AddCategorySheet.swift in Sources */,
+				F554EFF72F34F4DF008B6601 /* AddTodoSheet.swift in Sources */,
+				F554EFF82F34F4DF008B6601 /* SubtaskRow.swift in Sources */,
+				F554EFF92F34F4DF008B6601 /* PriorityBadge.swift in Sources */,
+				F554EFFA2F34F4DF008B6601 /* TodoCheckbox.swift in Sources */,
+				F554EFFB2F34F4DF008B6601 /* TodoView.swift in Sources */,
+				F554EFFC2F34F4DF008B6601 /* TodoRow.swift in Sources */,
+				F554EFFD2F34F4DF008B6601 /* CategoryCard.swift in Sources */,
+				F554EFFE2F34F4DF008B6601 /* RecurrencePicker.swift in Sources */,
+				F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */,
+				F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */,
 				F593C12F2F33C234007F8DEB /* Event.swift in Sources */,
 				F593C1302F33C234007F8DEB /* Date+Extensions.swift in Sources */,
+				F554F0002F34F99C008B6601 /* TopBarView.swift in Sources */,
 				F593C1312F33C234007F8DEB /* AlarmView.swift in Sources */,
 				F593C1322F33C234007F8DEB /* DayCell.swift in Sources */,
 				F593C1332F33C234007F8DEB /* TimerViewModel.swift in Sources */,
 				F593C1342F33C234007F8DEB /* SwipeGestureModifier.swift in Sources */,
 				F593C1352F33C234007F8DEB /* TimerSession.swift in Sources */,
 				F593C1362F33C234007F8DEB /* CalendarView.swift in Sources */,
+				F554EFE92F34F4C8008B6601 /* TodoViewModel.swift in Sources */,
 				F593C1382F33C234007F8DEB /* TimePicker.swift in Sources */,
 				F593C1392F33C234007F8DEB /* TimerPreset.swift in Sources */,
 				F593C13A2F33C234007F8DEB /* AdaptiveSidebar.swift in Sources */,
@@ -847,7 +949,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.Calendar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -887,7 +989,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.Calendar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -912,7 +1014,7 @@
 				DEVELOPMENT_TEAM = C99Q5SCRVZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.CalendarTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -935,7 +1037,7 @@
 				DEVELOPMENT_TEAM = C99Q5SCRVZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.CalendarTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -956,7 +1058,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C99Q5SCRVZ;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.CalendarUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -976,7 +1078,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C99Q5SCRVZ;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.CalendarUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;

@@ -1,16 +1,14 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 class AppState: ObservableObject {
-    @Published var selectedTab: Tab? = .calendar
-    @Published var selectedDate: Date = Date()
-    
-    enum Tab {
-        case calendar
-        case timer
-        case alarm
-        #if DEBUG
-        case debug
-        #endif
-    }
+  @Published var selectedTab: Tab? = .calendar
+  @Published var selectedDate: Date = Date()
+
+  enum Tab {
+    case calendar
+    case todo
+    case timer
+    case alarm
+  }
 }
