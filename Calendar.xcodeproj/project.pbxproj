@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
 		F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556A0352F33CD160071D8B8 /* NotFoundView.swift */; };
 		F556A0542F33F0BD0071D8B8 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556A0532F33F0BD0071D8B8 /* Localization.swift */; };
 		F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F593C0E62F33C234007F8DEB /* Assets.xcassets */; };
@@ -93,6 +94,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F51A59232F34AFB20006E307 /* MonthYearPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthYearPicker.swift; sourceTree = "<group>"; };
 		F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F556A0352F33CD160071D8B8 /* NotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotFoundView.swift; path = Calendar/Shared/Components/NotFoundView.swift; sourceTree = SOURCE_ROOT; };
@@ -308,6 +310,7 @@
 				F593C1012F33C234007F8DEB /* DayCell.swift */,
 				F593C1022F33C234007F8DEB /* EventListView.swift */,
 				F593C1032F33C234007F8DEB /* MonthView.swift */,
+				F51A59232F34AFB20006E307 /* MonthYearPicker.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -608,6 +611,7 @@
 				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
 				F556A0542F33F0BD0071D8B8 /* Localization.swift in Sources */,
 				F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */,
+				F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */,
 				F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */,
 				F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */,
 				F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */,

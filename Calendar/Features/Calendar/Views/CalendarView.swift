@@ -7,6 +7,7 @@ struct CalendarView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State private var showingAddEvent = false
+    @State private var showingDatePicker = false
     @State private var editingEvent: Event?
     
     private var eventsForMonth: [Event] {
@@ -16,46 +17,77 @@ struct CalendarView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            MonthHeaderView(
-                currentMonth: viewModel.currentMonth,
-                onPrevious: viewModel.moveToPreviousMonth,
-                onNext: viewModel.moveToNextMonth
-            )
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(Localization.string(.calendarFor(viewModel.currentMonth.formattedMonthYear)))
+        ZStack {
+            VStack(spacing: 0) {
+                MonthHeaderView(
+                    currentMonth: viewModel.currentMonth,
+                    onPrevious: viewModel.moveToPreviousMonth,
+                    onNext: viewModel.moveToNextMonth,
+                    onTitleTap: {
+                        withAnimation {
+                            showingDatePicker.toggle()
+                        }
+                    }
+                )
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Localization.string(.calendarFor(viewModel.currentMonth.formattedMonthYear)))
+                
+                WeekdayHeaderView()
+                
+                MonthView(
+                    currentMonth: viewModel.currentMonth,
+                    selectedDate: viewModel.selectedDate,
+                    events: eventsForMonth,
+                    onSelectDate: { date in
+                        viewModel.selectDate(date)
+                        // Ensure picker is closed if selecting date
+                        if showingDatePicker {
+                           withAnimation { showingDatePicker = false }
+                        }
+                    }
+                )
+                .swipeGesture(
+                    onLeft: viewModel.moveToNextMonth,
+                    onRight: viewModel.moveToPreviousMonth
+                )
+                .accessibilityHint("Swipe left or right to change months")
+                
+                
+                // Always show Event List to maintain stable layout
+                EventListView(
+                    date: viewModel.selectedDate ?? Date(), // Default to Today
+                    events: eventsForSelectedDate,
+                    onEdit: { event in
+                        editingEvent = event
+                    },
+                    onDelete: { event in
+                        deleteEvent(event)
+                    },
+                    onAdd: {
+                        showingAddEvent = true
+                    }
+                )
+                .frame(maxHeight: .infinity, alignment: .top) // Fill remaining space, anchor to top
+            }
+            .blur(radius: showingDatePicker ? 4 : 0) // Blur background when picking
+            .disabled(showingDatePicker) // Disable interaction beneath
             
-            WeekdayHeaderView()
-            
-            MonthView(
-                currentMonth: viewModel.currentMonth,
-                selectedDate: viewModel.selectedDate,
-                events: eventsForMonth,
-                onSelectDate: viewModel.selectDate
-            )
-            .swipeGesture(
-                onLeft: viewModel.moveToNextMonth,
-                onRight: viewModel.moveToPreviousMonth
-            )
-            .accessibilityHint("Swipe left or right to change months")
-            
-
-            
-            // Always show Event List to maintain stable layout
-            EventListView(
-                date: viewModel.selectedDate ?? Date(), // Default to Today
-                events: eventsForSelectedDate,
-                onEdit: { event in
-                    editingEvent = event
-                },
-                onDelete: { event in
-                    deleteEvent(event)
-                },
-                onAdd: {
-                    showingAddEvent = true
-                }
-            )
-            .frame(maxHeight: .infinity, alignment: .top) // Fill remaining space, anchor to top
+            if showingDatePicker {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            showingDatePicker = false
+                        }
+                    }
+                
+                MonthYearPicker(
+                    currentMonth: $viewModel.currentMonth,
+                    isPresented: $showingDatePicker
+                )
+                .transition(.scale.combined(with: .opacity))
+                .zIndex(1)
+            }
         }
         // Prevent layout animations on the entire VStack when selectedDate changes
         .animation(nil, value: viewModel.selectedDate)
@@ -130,6 +162,7 @@ struct MonthHeaderView: View {
     let currentMonth: Date
     let onPrevious: () -> Void
     let onNext: () -> Void
+    var onTitleTap: (() -> Void)? = nil
     
     var body: some View {
         HStack {
@@ -142,8 +175,20 @@ struct MonthHeaderView: View {
             
             Spacer()
             
-            Text(currentMonth.formattedMonthYear)
-                .font(.system(size: 20, weight: .semibold))
+            Button(action: { onTitleTap?() }) {
+                HStack(spacing: 4) {
+                    Text(currentMonth.formattedMonthYear)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.primary)
+                    
+                    if onTitleTap != nil {
+                        Image(systemName: "chevron.down")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .accessibilityAddTraits(.isHeader)
             
             Spacer()
             
