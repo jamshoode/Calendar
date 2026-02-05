@@ -276,6 +276,7 @@ struct TodoView: View {
         Image(systemName: "chevron.down")
           .font(.system(size: 12, weight: .medium))
       }
+      .fixedSize()
       .foregroundColor(.secondary)
       .padding(.horizontal, 12)
       .padding(.vertical, 8)
