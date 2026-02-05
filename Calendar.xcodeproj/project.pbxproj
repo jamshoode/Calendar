@@ -53,6 +53,8 @@
 		F593C1522F33C31D007F8DEB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C1512F33C31D007F8DEB /* SwiftUI.framework */; };
 		F593C1632F33C31F007F8DEB /* CalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1CA2F33C57E007F8DEB /* AppState.swift */; };
+		F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC972F34C45D0025B2E6 /* DebugView.swift */; };
+		F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,6 +148,8 @@
 		F593C1512F33C31D007F8DEB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		F593C1692F33C32E007F8DEB /* CalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
 		F593C1CA2F33C57E007F8DEB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettings.swift; sourceTree = "<group>"; };
+		F5BCFC972F34C45D0025B2E6 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -214,6 +218,7 @@
 				F593C0E72F33C234007F8DEB /* CalendarApp.swift */,
 				F593C1CB2F33C57E007F8DEB /* App */,
 				F593C0F52F33C234007F8DEB /* Core */,
+				F5BCFC982F34C45D0025B2E6 /* Debug */,
 				F593C10F2F33C234007F8DEB /* Features */,
 				F593C11D2F33C234007F8DEB /* Shared */,
 				F593C1472F33C290007F8DEB /* Calendar.app */,
@@ -425,6 +430,16 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		F5BCFC982F34C45D0025B2E6 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */,
+				F5BCFC972F34C45D0025B2E6 /* DebugView.swift */,
+			);
+			name = Debug;
+			path = Calendar/Debug;
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -605,6 +620,8 @@
 				F593C1252F33C234007F8DEB /* NotificationService.swift in Sources */,
 				F593C1262F33C234007F8DEB /* AlarmViewModel.swift in Sources */,
 				F593C1272F33C234007F8DEB /* PresetsGrid.swift in Sources */,
+				F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */,
+				F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */,
 				F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */,
 				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
 				F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */,
@@ -979,7 +996,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.Calendar.CalendarWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1012,7 +1029,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.69;
 				PRODUCT_BUNDLE_IDENTIFIER = Shoode.Calendar.CalendarWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

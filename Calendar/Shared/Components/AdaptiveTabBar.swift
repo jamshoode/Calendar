@@ -25,6 +25,15 @@ struct AdaptiveTabBar: View {
                     Text(Localization.string(.tabAlarm))
                 }
                 .tag(AppState.Tab.alarm)
+            
+            #if DEBUG
+            DebugView()
+                .tabItem {
+                    Image(systemName: "ant.circle")
+                    Text("Debug")
+                }
+                .tag(AppState.Tab.debug)
+            #endif
         }
     }
 }

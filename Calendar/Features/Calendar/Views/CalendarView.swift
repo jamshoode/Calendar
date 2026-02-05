@@ -67,7 +67,7 @@ struct CalendarView: View {
                         showingAddEvent = true
                     }
                 )
-                .frame(maxHeight: .infinity, alignment: .top) // Fill remaining space, anchor to top
+
             }
             .blur(radius: showingDatePicker ? 4 : 0) // Blur background when picking
             .disabled(showingDatePicker) // Disable interaction beneath

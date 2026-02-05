@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct AdaptiveSidebar: View {
     @EnvironmentObject var appState: AppState
@@ -17,6 +18,12 @@ struct AdaptiveSidebar: View {
                 NavigationLink(value: AppState.Tab.alarm) {
                     Label("Alarm", systemImage: "alarm")
                 }
+                
+                #if DEBUG
+                NavigationLink(value: AppState.Tab.debug) {
+                    Label("Debug", systemImage: "ant.circle")
+                }
+                #endif
             }
             .navigationTitle(Localization.string(.tabCalendar))
         } detail: {
@@ -27,6 +34,10 @@ struct AdaptiveSidebar: View {
                 TimerView()
             case .alarm:
                 AlarmView()
+            #if DEBUG
+            case .debug:
+                DebugView()
+            #endif
             case nil:
                 NotFoundView()
             }

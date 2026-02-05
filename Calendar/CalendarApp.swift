@@ -7,6 +7,12 @@ struct CalendarApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     #endif
     
+    #if DEBUG
+    @StateObject private var debugSettings = DebugSettings()
+    #endif
+    
+    @StateObject private var appState = AppState()
+    
     var body: some Scene {
         #if os(macOS)
         MenuBarExtra("Calendar", systemImage: "calendar") {
@@ -18,7 +24,11 @@ struct CalendarApp: App {
         #else
         WindowGroup {
             ContentView()
-                .environmentObject(AppState())
+                .environmentObject(appState)
+                #if DEBUG
+                .environmentObject(debugSettings)
+                .preferredColorScheme(debugSettings.themeOverride.colorScheme)
+                #endif
         }
         .modelContainer(for: [Event.self, TimerSession.self, Alarm.self, TimerPreset.self])
         #endif

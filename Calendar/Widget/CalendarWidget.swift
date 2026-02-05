@@ -118,6 +118,7 @@ struct CalendarWidgetEntryView : View {
 
 struct MediumWidgetView: View {
     let entry: Provider.Entry
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -142,7 +143,7 @@ struct MediumWidgetView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(Color.accentColor.gradient))
+                            .background(Capsule().fill(Color.accentColor))
                     }
                     
                     if entry.hasAlarm {
@@ -151,7 +152,7 @@ struct MediumWidgetView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(Color.orange.gradient))
+                            .background(Capsule().fill(Color.orange))
                     }
                 }
                 .padding(.bottom, 12)
@@ -167,12 +168,13 @@ struct MediumWidgetView: View {
             }
         }
         .padding()
-        .containerBackground(Color.white, for: .widget)
+        .containerBackground(colorScheme == .dark ? Color(red: 44/255, green: 44/255, blue: 46/255) : .white, for: .widget)
     }
 }
 
 struct LargeWidgetView: View {
     let entry: Provider.Entry
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack(spacing: 24) {
@@ -211,7 +213,7 @@ struct LargeWidgetView: View {
             Spacer()
         }
         .padding()
-        .containerBackground(Color.white, for: .widget)
+        .containerBackground(colorScheme == .dark ? Color(red: 44/255, green: 44/255, blue: 46/255) : .white, for: .widget)
     }
 }
 
@@ -235,13 +237,7 @@ struct WeekDayCell: View {
             ZStack {
                 if day.isToday {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Color.accentColor)
                         .shadow(color: Color.accentColor.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
             }
@@ -272,9 +268,13 @@ struct StatusCard: View {
                 Text(title)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
                 Text(status)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.3)
             }
             
             Spacer()

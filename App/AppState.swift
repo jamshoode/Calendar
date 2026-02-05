@@ -9,5 +9,8 @@ class AppState: ObservableObject {
         case calendar
         case timer
         case alarm
+        #if DEBUG
+        case debug
+        #endif
     }
 }

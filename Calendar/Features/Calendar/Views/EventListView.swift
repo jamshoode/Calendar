@@ -30,6 +30,7 @@ struct EventListView: View {
             }
             
             if events.isEmpty {
+                Spacer()
                 Button(action: onAdd) {
                     VStack(spacing: 8) {
                         Image(systemName: "calendar.badge.plus")
@@ -45,6 +46,7 @@ struct EventListView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                Spacer()
             } else {
                 HStack {
                     Spacer()
@@ -74,9 +76,11 @@ struct EventListView: View {
             }
         }
         .padding()
+        .frame(maxHeight: .infinity, alignment: .top)
         .glassBackground(cornerRadius: 20)
         .padding(.horizontal)
         .padding(.top, 12)
+        .padding(.bottom, 50) // Added padding to avoid touching tab bar (approx height)
     }
 }
 
