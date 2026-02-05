@@ -39,24 +39,26 @@ struct CalendarView: View {
             )
             .accessibilityHint("Swipe left or right to change months")
             
-            if let selectedDate = viewModel.selectedDate {
-                EventListView(
-                    date: selectedDate,
-                    events: eventsForSelectedDate,
-                    onEdit: { event in
-                        editingEvent = event
-                    },
-                    onDelete: { event in
-                        deleteEvent(event)
-                    },
-                    onAdd: {
-                        showingAddEvent = true
-                    }
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+
+            
+            // Always show Event List to maintain stable layout
+            EventListView(
+                date: viewModel.selectedDate ?? Date(), // Default to Today
+                events: eventsForSelectedDate,
+                onEdit: { event in
+                    editingEvent = event
+                },
+                onDelete: { event in
+                    deleteEvent(event)
+                },
+                onAdd: {
+                    showingAddEvent = true
+                }
+            )
+            .frame(maxHeight: .infinity, alignment: .top) // Fill remaining space, anchor to top
         }
-        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
+        // Prevent layout animations on the entire VStack when selectedDate changes
+        .animation(nil, value: viewModel.selectedDate)
         .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
         .sheet(isPresented: $showingAddEvent) {
             AddEventView(date: viewModel.selectedDate ?? Date()) { title, notes, color, date, reminderInterval in
@@ -89,8 +91,8 @@ struct CalendarView: View {
     }
     
     private var eventsForSelectedDate: [Event] {
-        guard let selectedDate = viewModel.selectedDate else { return [] }
-        return events.filter { $0.date.isSameDay(as: selectedDate) }
+        let dateToCheck = viewModel.selectedDate ?? Date() // Default to Today
+        return events.filter { $0.date.isSameDay(as: dateToCheck) }
     }
     
     private func addEvent(title: String, notes: String?, color: String, date: Date, reminderInterval: TimeInterval?) {
