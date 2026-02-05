@@ -39,10 +39,16 @@ struct CalendarView: View {
             )
             .accessibilityHint("Swipe left or right to change months")
             
-            if let selectedDate = viewModel.selectedDate {
+        }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
+        .sheet(isPresented: Binding(
+            get: { viewModel.selectedDate != nil },
+            set: { if !$0 { viewModel.selectedDate = nil } }
+        )) {
+            if let date = viewModel.selectedDate {
                 EventListView(
-                    date: selectedDate,
-                    events: eventsForSelectedDate,
+                    date: date,
+                    events: events.filter { $0.date.isSameDay(as: date) },
                     onEdit: { event in
                         editingEvent = event
                     },
@@ -53,11 +59,12 @@ struct CalendarView: View {
                         showingAddEvent = true
                     }
                 )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                // When sheet is dismissed (swiped down), selectedDate becomes nil automatically via binding? 
+                // No, sheet binding sets it to nil. Correct.
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDate)
-        .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
         .sheet(isPresented: $showingAddEvent) {
             AddEventView(date: viewModel.selectedDate ?? Date()) { title, notes, color, date, reminderInterval in
                 addEvent(title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
