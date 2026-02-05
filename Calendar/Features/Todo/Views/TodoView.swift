@@ -51,9 +51,16 @@ struct TodoView: View {
       .sorted { $0.sortOrder < $1.sortOrder }
   }
 
-  private var uncategorizedTodos: [TodoItem] {
+  private var pinnedUncategorizedTodos: [TodoItem] {
     let todos = allTodos.filter {
-      $0.category == nil || $0.category?.name == TodoViewModel.noCategoryName
+      ($0.category == nil || $0.category?.name == TodoViewModel.noCategoryName) && $0.isPinned
+    }
+    return sortTodos(todos)
+  }
+
+  private var unpinnedUncategorizedTodos: [TodoItem] {
+    let todos = allTodos.filter {
+      ($0.category == nil || $0.category?.name == TodoViewModel.noCategoryName) && !$0.isPinned
     }
     return sortTodos(todos)
   }
@@ -89,24 +96,46 @@ struct TodoView: View {
             sortDropdown
               .padding(.bottom, 8)
 
-            ForEach(pinnedCategories) { category in
-              draggableCategoryCard(category: category)
+            if !pinnedCategories.isEmpty || !pinnedUncategorizedTodos.isEmpty {
+              VStack(alignment: .leading, spacing: 8) {
+                Text(Localization.string(.pinned))
+                  .font(.system(size: 14, weight: .medium))
+                  .foregroundColor(.secondary)
+                  .padding(.horizontal, 16)
+
+                ForEach(pinnedCategories, id: \.id) { category in
+                  draggableCategoryCard(category: category)
+                }
+
+                ForEach(pinnedUncategorizedTodos, id: \.id) { todo in
+                  draggableTodoRow(todo: todo)
+                }
+              }
             }
 
-            if !uncategorizedTodos.isEmpty {
+            if (!pinnedCategories.isEmpty || !pinnedUncategorizedTodos.isEmpty)
+              && (!unpinnedCategories.isEmpty || !unpinnedUncategorizedTodos.isEmpty)
+            {
+              Rectangle()
+                .fill(Color.primary.opacity(0.3))
+                .frame(height: 1)
+                .padding(.vertical, 8)
+            }
+
+            if !unpinnedUncategorizedTodos.isEmpty {
               VStack(alignment: .leading, spacing: 8) {
                 Text(Localization.string(.noCategory))
                   .font(.system(size: 14, weight: .medium))
                   .foregroundColor(.secondary)
                   .padding(.horizontal, 16)
 
-                ForEach(uncategorizedTodos) { todo in
+                ForEach(unpinnedUncategorizedTodos, id: \.id) { todo in
                   draggableTodoRow(todo: todo)
                 }
               }
             }
 
-            ForEach(unpinnedCategories) { category in
+            ForEach(unpinnedCategories, id: \.id) { category in
               draggableCategoryCard(category: category)
             }
           }
@@ -256,33 +285,35 @@ struct TodoView: View {
   }
 
   private var sortDropdown: some View {
-    Menu {
-      ForEach(TodoSortOrder.allCases, id: \.self) { order in
-        Button(action: { sortOrder = order }) {
-          HStack {
-            Text(order.label)
-            if sortOrder == order {
-              Image(systemName: "checkmark")
+    HStack {
+      Menu {
+        ForEach(TodoSortOrder.allCases, id: \.self) { order in
+          Button(action: { sortOrder = order }) {
+            HStack {
+              Text(order.label)
+              if sortOrder == order {
+                Image(systemName: "checkmark")
+              }
             }
           }
         }
+      } label: {
+        HStack(spacing: 8) {
+          Image(systemName: "arrow.up.arrow.down")
+            .font(.system(size: 14, weight: .medium))
+          Text(sortOrder.label)
+            .font(.system(size: 14, weight: .medium))
+            .frame(minWidth: 80, alignment: .center)
+          Image(systemName: "chevron.down")
+            .font(.system(size: 12, weight: .medium))
+        }
+        .foregroundColor(.secondary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .glassBackground(cornerRadius: 10)
       }
-    } label: {
-      HStack(spacing: 8) {
-        Image(systemName: "arrow.up.arrow.down")
-          .font(.system(size: 14, weight: .medium))
-        Text(sortOrder.label)
-          .font(.system(size: 14, weight: .medium))
-        Image(systemName: "chevron.down")
-          .font(.system(size: 12, weight: .medium))
-      }
-      .fixedSize()
-      .foregroundColor(.secondary)
-      .padding(.horizontal, 12)
-      .padding(.vertical, 8)
-      .glassBackground(cornerRadius: 10)
+      Spacer()
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
   }
 
   @ViewBuilder
@@ -368,8 +399,8 @@ struct TodoView: View {
         return true
       }
 
-      if let categoryId = UUID(uuidString: idString),
-        let draggedCat = categories.first(where: { $0.id == categoryId }),
+      if let droppedCategoryId = UUID(uuidString: idString),
+        let draggedCat = categories.first(where: { $0.id == droppedCategoryId }),
         draggedCat.id != category.id
       {
         let targetList = category.isPinned ? pinnedCategories : unpinnedCategories
@@ -404,7 +435,8 @@ struct TodoView: View {
 
   private func moveTodo(_ todo: TodoItem, toIndex newIndex: Int, inCategory category: TodoCategory?)
   {
-    let todos = category == nil ? uncategorizedTodos : todosForCategory(category!)
+    let allUncategorized = pinnedUncategorizedTodos + unpinnedUncategorizedTodos
+    let todos = category == nil ? allUncategorized : todosForCategory(category!)
 
     for (index, t) in todos.enumerated() {
       t.sortOrder = index < newIndex ? index : index + 1

@@ -77,66 +77,14 @@ struct CategoryCard: View {
           .padding(.horizontal, 16)
 
         VStack(spacing: 8) {
-          ForEach(incompleteTodos) { todo in
-            TodoRow(
-              todo: todo,
-              onToggle: { onTodoToggle(todo) },
-              onTap: { onTodoTap(todo) },
-              onDelete: { onTodoDelete(todo) }
-            )
-            .draggable(todo.id.uuidString) {
-              TodoRow(
-                todo: todo,
-                onToggle: {},
-                onTap: {},
-                onDelete: {}
-              )
-              .frame(width: 280)
-              .opacity(0.8)
-            }
-            .contextMenu {
-              Button(action: {
-                onTodoTogglePin(todo)
-              }) {
-                Label(
-                  todo.isPinned ? Localization.string(.unpin) : Localization.string(.pin),
-                  systemImage: todo.isPinned ? "pin.slash" : "pin"
-                )
-              }
-
-              Button(role: .destructive) {
-                onTodoDelete(todo)
-              } label: {
-                Label(Localization.string(.delete), systemImage: "trash")
-              }
-            }
+          ForEach(incompleteTodos, id: \.id) { todo in
+            todoRowView(for: todo)
           }
 
           if !completedTodos.isEmpty {
             DisclosureGroup {
-              ForEach(completedTodos) { todo in
-                TodoRow(
-                  todo: todo,
-                  onToggle: { onTodoToggle(todo) },
-                  onTap: { onTodoTap(todo) },
-                  onDelete: { onTodoDelete(todo) }
-                )
-                .contextMenu {
-                  Button(action: {
-                    onTodoTogglePin(todo)
-                  }) {
-                    Label(
-                      todo.isPinned ? Localization.string(.unpin) : Localization.string(.pin),
-                      systemImage: todo.isPinned ? "pin.slash" : "pin"
-                    )
-                  }
-
-                  Button(role: .destructive) {
-                    onTodoDelete(todo)
-                  } label: {
-                    Label(Localization.string(.delete), systemImage: "trash")
-                  }
-                }
+              ForEach(completedTodos, id: \.id) { todo in
+                todoRowView(for: todo)
               }
             } label: {
               Text("\(completedTodos.count) \(Localization.string(.completed))")
@@ -151,5 +99,41 @@ struct CategoryCard: View {
       }
     }
     .glassBackground(cornerRadius: 16)
+  }
+
+  @ViewBuilder
+  private func todoRowView(for todo: TodoItem) -> some View {
+    TodoRow(
+      todo: todo,
+      onToggle: { onTodoToggle(todo) },
+      onTap: { onTodoTap(todo) },
+      onDelete: { onTodoDelete(todo) }
+    )
+    .draggable(todo.id.uuidString) {
+      TodoRow(
+        todo: todo,
+        onToggle: {},
+        onTap: {},
+        onDelete: {}
+      )
+      .frame(width: 280)
+      .opacity(0.8)
+    }
+    .contextMenu {
+      Button(action: {
+        onTodoTogglePin(todo)
+      }) {
+        Label(
+          todo.isPinned ? Localization.string(.unpin) : Localization.string(.pin),
+          systemImage: todo.isPinned ? "pin.slash" : "pin"
+        )
+      }
+
+      Button(role: .destructive) {
+        onTodoDelete(todo)
+      } label: {
+        Label(Localization.string(.delete), systemImage: "trash")
+      }
+    }
   }
 }

@@ -141,6 +141,7 @@ struct Localization {
     // Pin
     case pin
     case unpin
+    case pinned
 
     // Settings
     case settings
@@ -373,6 +374,8 @@ struct Localization {
       return lang == .ukrainian ? "Закріпити" : "Pin"
     case .unpin:
       return lang == .ukrainian ? "Відкріпити" : "Unpin"
+    case .pinned:
+      return lang == .ukrainian ? "Закріплені" : "Pinned"
     case .settings:
       return lang == .ukrainian ? "Налаштування" : "Settings"
     case .appInfo:
