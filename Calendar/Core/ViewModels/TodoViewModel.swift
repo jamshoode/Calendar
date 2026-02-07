@@ -79,6 +79,7 @@ class TodoViewModel: ObservableObject {
     }
 
     syncTodoCountToWidget(context: context)
+    EventViewModel().syncEventsToWidget(context: context)
   }
 
   func updateTodo(
@@ -115,6 +116,7 @@ class TodoViewModel: ObservableObject {
     }
 
     syncTodoCountToWidget(context: context)
+    EventViewModel().syncEventsToWidget(context: context)
   }
 
   func deleteTodo(_ todo: TodoItem, context: ModelContext) {
@@ -122,6 +124,7 @@ class TodoViewModel: ObservableObject {
     context.delete(todo)
     try? context.save()
     syncTodoCountToWidget(context: context)
+    EventViewModel().syncEventsToWidget(context: context)
   }
 
   func toggleCompletion(_ todo: TodoItem, context: ModelContext) {
@@ -177,6 +180,7 @@ class TodoViewModel: ObservableObject {
 
     try? context.save()
     syncTodoCountToWidget(context: context)
+    EventViewModel().syncEventsToWidget(context: context)
   }
 
   func addSubtask(to parent: TodoItem, title: String, context: ModelContext) {

@@ -56,7 +56,7 @@ class EventViewModel {
     let rangeStart = calendar.date(byAdding: .day, value: -1, to: weekStart)!
     let rangeEnd = calendar.date(byAdding: .day, value: 15, to: weekStart)!
 
-    let descriptor = FetchDescriptor<Event>(
+    let eventDescriptor = FetchDescriptor<Event>(
       predicate: #Predicate { event in
         event.date >= rangeStart && event.date <= rangeEnd
       },
@@ -68,13 +68,37 @@ class EventViewModel {
 
     var eventMap: [String: [String]] = [:]
 
+    // Sync events
     do {
-      let events = try context.fetch(descriptor)
+      let events = try context.fetch(eventDescriptor)
       for event in events {
         let key = formatter.string(from: event.date)
         var colors = eventMap[key] ?? []
-        if colors.count < 3 {
+        if colors.count < 6 {
           colors.append(event.color)
+        }
+        eventMap[key] = colors
+      }
+    } catch {}
+
+    // Sync todos with due dates (prefixed with "todo:" for widget differentiation)
+    let todoDescriptor = FetchDescriptor<TodoItem>(
+      predicate: #Predicate { todo in
+        todo.isCompleted == false && todo.parentTodo == nil && todo.dueDate != nil
+      }
+    )
+
+    do {
+      let todos = try context.fetch(todoDescriptor)
+      for todo in todos {
+        guard let dueDate = todo.dueDate,
+          dueDate >= rangeStart && dueDate <= rangeEnd
+        else { continue }
+        let key = formatter.string(from: dueDate)
+        var colors = eventMap[key] ?? []
+        if colors.count < 6 {
+          let todoColor = todo.category?.color ?? "green"
+          colors.append("todo:\(todoColor)")
         }
         eventMap[key] = colors
       }

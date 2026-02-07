@@ -149,7 +149,8 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     // We start from the nearest future interval-aligned time
     let startRef = now
     let elapsed = startRef.timeIntervalSince(startRef)
-    nextFire = startRef.addingTimeInterval(repeatInterval - elapsed.truncatingRemainder(dividingBy: repeatInterval))
+    nextFire = startRef.addingTimeInterval(
+      repeatInterval - elapsed.truncatingRemainder(dividingBy: repeatInterval))
 
     var index = 0
     let maxNotifications = 50  // iOS limit per app is 64 total pending

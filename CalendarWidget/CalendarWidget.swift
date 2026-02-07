@@ -269,6 +269,25 @@ enum WidgetColorScheme {
 
 // MARK: - Event Color Mapping
 
+/// Parsed widget color entry – distinguishes events from todos
+struct WidgetColorEntry {
+  let color: Color
+  let isTodo: Bool
+
+  /// For gradient arcs on todo items: a lighter companion color
+  var gradientEndColor: Color {
+    color.opacity(0.4)
+  }
+}
+
+func parseWidgetColorEntry(_ name: String) -> WidgetColorEntry {
+  if name.hasPrefix("todo:") {
+    let colorName = String(name.dropFirst(5))
+    return WidgetColorEntry(color: widgetEventColor(colorName), isTodo: true)
+  }
+  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false)
+}
+
 func widgetEventColor(_ name: String) -> Color {
   switch name.lowercased() {
   case "blue": return Color(red: 10 / 255, green: 132 / 255, blue: 255 / 255)
@@ -640,10 +659,12 @@ struct DayCell: View {
   private let ringGap: CGFloat = 1.0
 
   var body: some View {
+    let entries = day.eventColors.map { parseWidgetColorEntry($0) }
+
     ZStack {
-      if !day.eventColors.isEmpty {
+      if !entries.isEmpty {
         EventRing(
-          colors: day.eventColors.map { widgetEventColor($0) },
+          entries: entries,
           size: size,
           lineWidth: ringLineWidth,
           ringGap: ringGap
@@ -658,10 +679,10 @@ struct DayCell: View {
   }
 }
 
-// MARK: - Event Ring (Concentric Circles & Arcs)
+// MARK: - Event Ring (Concentric Circles & Arcs, Gradient for Todos)
 
 struct EventRing: View {
-  let colors: [Color]
+  let entries: [WidgetColorEntry]
   let size: CGFloat
   let lineWidth: CGFloat
   let ringGap: CGFloat
@@ -669,53 +690,65 @@ struct EventRing: View {
   private let arcGapDegrees: Double = 8.0
 
   var body: some View {
-    let count = colors.count
+    let count = entries.count
 
     Canvas { context, canvasSize in
       let center = CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2)
       let outerRadius = (min(canvasSize.width, canvasSize.height) - lineWidth) / 2
 
       if count <= 2 {
-        // ≤2 events: separate concentric full circles
+        // ≤2 items: separate concentric full circles
         for i in 0..<count {
+          let entry = entries[i]
           let radius = outerRadius - CGFloat(i) * (lineWidth + ringGap)
           var path = Path()
           path.addArc(
             center: center, radius: radius, startAngle: .degrees(0), endAngle: .degrees(360),
             clockwise: false)
-          context.stroke(
-            path, with: .color(colors[i]), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-          )
+
+          if entry.isTodo {
+            // Gradient stroke for todo items
+            let gradient = Gradient(colors: [entry.color, entry.gradientEndColor])
+            context.stroke(
+              path,
+              with: .conicGradient(gradient, center: center, angle: .degrees(-90)),
+              style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
+          } else {
+            context.stroke(
+              path, with: .color(entry.color),
+              style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+            )
+          }
         }
       } else {
-        // >2 events: arcs distributed across 2 concentric rings, inner to outer
+        // >2 items: arcs distributed across 2 concentric rings
         let ringCount = 2
-        var rings: [[Color]] = Array(repeating: [], count: ringCount)
+        var rings: [[WidgetColorEntry]] = Array(repeating: [], count: ringCount)
 
-        // Distribute events filling inner rings first
         let basePerRing = count / ringCount
         let remainder = count % ringCount
         var idx = 0
         for r in 0..<ringCount {
           let n = basePerRing + (r < remainder ? 1 : 0)
           for _ in 0..<n {
-            rings[r].append(colors[idx])
+            rings[r].append(entries[idx])
             idx += 1
           }
         }
 
         for ringIdx in 0..<ringCount {
-          let ringColors = rings[ringIdx]
-          if ringColors.isEmpty { continue }
-          // rings[0] = inner data → innermost visual ring
+          let ringEntries = rings[ringIdx]
+          if ringEntries.isEmpty { continue }
           let visualIdx = ringCount - 1 - ringIdx
           let radius = outerRadius - CGFloat(visualIdx) * (lineWidth + ringGap)
 
-          let arcCount = ringColors.count
+          let arcCount = ringEntries.count
           let totalGap = Double(arcCount) * arcGapDegrees
           let arcSpan = (360.0 - totalGap) / Double(arcCount)
 
           for j in 0..<arcCount {
+            let entry = ringEntries[j]
             let startAngle = Angle.degrees(-90.0 + Double(j) * (arcSpan + arcGapDegrees))
             let endAngle = Angle.degrees(-90.0 + Double(j) * (arcSpan + arcGapDegrees) + arcSpan)
 
@@ -723,9 +756,19 @@ struct EventRing: View {
             path.addArc(
               center: center, radius: radius, startAngle: startAngle, endAngle: endAngle,
               clockwise: false)
-            context.stroke(
-              path, with: .color(ringColors[j]),
-              style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+
+            if entry.isTodo {
+              let gradient = Gradient(colors: [entry.color, entry.gradientEndColor])
+              context.stroke(
+                path,
+                with: .conicGradient(gradient, center: center, angle: startAngle),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+              )
+            } else {
+              context.stroke(
+                path, with: .color(entry.color),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+            }
           }
         }
       }
