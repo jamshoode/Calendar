@@ -100,12 +100,15 @@ struct EventListView: View {
         }
       }
     }
-    .padding()
+    .padding(.horizontal, 16)
+    .padding(.vertical, 14)
     .frame(maxHeight: .infinity, alignment: .top)
-    .glassBackground(cornerRadius: 20)
-    .padding(.horizontal)
-    .padding(.top, 12)
-    .padding(.bottom, 50)
+    .background(
+      RoundedRectangle(cornerRadius: 20)
+        .fill(.ultraThinMaterial)
+    )
+    .padding(.horizontal, 12)
+    .padding(.top, 8)
   }
 }
 

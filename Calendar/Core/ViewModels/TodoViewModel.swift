@@ -1,6 +1,7 @@
 import Combine
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 class TodoViewModel: ObservableObject {
 
@@ -74,6 +75,8 @@ class TodoViewModel: ObservableObject {
     if dueDate != nil && reminderInterval != nil {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
+
+    syncTodoCountToWidget(context: context)
   }
 
   func updateTodo(
@@ -106,12 +109,15 @@ class TodoViewModel: ObservableObject {
     if dueDate != nil && reminderInterval != nil {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
+
+    syncTodoCountToWidget(context: context)
   }
 
   func deleteTodo(_ todo: TodoItem, context: ModelContext) {
     NotificationService.shared.cancelTodoNotification(id: todo.id)
     context.delete(todo)
     try? context.save()
+    syncTodoCountToWidget(context: context)
   }
 
   func toggleCompletion(_ todo: TodoItem, context: ModelContext) {
@@ -164,6 +170,7 @@ class TodoViewModel: ObservableObject {
     }
 
     try? context.save()
+    syncTodoCountToWidget(context: context)
   }
 
   func addSubtask(to parent: TodoItem, title: String, context: ModelContext) {
@@ -238,5 +245,18 @@ class TodoViewModel: ObservableObject {
       }
       NotificationService.shared.syncTodoNotifications(todos: todosWithReminders)
     } catch {}
+  }
+
+  func syncTodoCountToWidget(context: ModelContext) {
+    let descriptor = FetchDescriptor<TodoItem>(
+      predicate: #Predicate { todo in
+        todo.isCompleted == false && todo.parentTodo == nil
+      }
+    )
+    let count = (try? context.fetchCount(descriptor)) ?? 0
+    let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
+    defaults?.set(count, forKey: "incompleteTodoCount")
+    defaults?.synchronize()
+    WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
   }
 }

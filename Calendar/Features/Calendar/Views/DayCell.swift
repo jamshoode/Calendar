@@ -9,16 +9,18 @@ struct DayCell: View {
   var todos: [TodoItem] = []
 
   var body: some View {
-    VStack(spacing: 4) {
+    VStack(spacing: 2) {
       Text(date.formattedDay)
-        .font(.system(size: 16, weight: isToday ? .bold : .regular))
+        .font(.system(size: 15, weight: isToday ? .bold : .medium))
         .foregroundColor(textColor)
-        .frame(width: 32, height: 32)
+        .frame(width: 34, height: 34)
         .background(
           Circle()
-            .fill(
-              isSelected
-                ? Color.accentColor : (isToday ? Color.accentColor.opacity(0.2) : Color.clear))
+            .fill(backgroundColor)
+        )
+        .overlay(
+          Circle()
+            .strokeBorder(isToday && !isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
         )
 
       HStack(spacing: 2) {
@@ -30,9 +32,20 @@ struct DayCell: View {
           TodoIndicator(count: todos.count)
         }
       }
+      .frame(height: 8)
     }
-    .frame(height: 50)
-    .opacity(isCurrentMonth ? 1.0 : 0.4)
+    .frame(height: 44)
+    .frame(maxWidth: .infinity)
+    .contentShape(Rectangle())
+    .opacity(isCurrentMonth ? 1.0 : 0.3)
+  }
+
+  private var backgroundColor: Color {
+    if isSelected {
+      return .accentColor
+    } else {
+      return .clear
+    }
   }
 
   private var textColor: Color {

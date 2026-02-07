@@ -5,7 +5,9 @@ struct CalendarView: View {
   @StateObject private var viewModel = CalendarViewModel()
   @StateObject private var todoViewModel = TodoViewModel()
   @Query(sort: \Event.date) private var events: [Event]
-  @Query(filter: #Predicate<TodoItem> { $0.parentTodo == nil && $0.dueDate != nil }, sort: \TodoItem.dueDate)
+  @Query(
+    filter: #Predicate<TodoItem> { $0.parentTodo == nil && $0.dueDate != nil },
+    sort: \TodoItem.dueDate)
   private var todosWithDueDate: [TodoItem]
   @Environment(\.modelContext) private var modelContext
 
@@ -19,7 +21,7 @@ struct CalendarView: View {
     let endOfMonth = viewModel.currentMonth.endOfMonth
     return events.filter { $0.date >= startOfMonth && $0.date <= endOfMonth }
   }
-  
+
   private var todosForMonth: [TodoItem] {
     let startOfMonth = viewModel.currentMonth.startOfMonth
     let endOfMonth = viewModel.currentMonth.endOfMonth
@@ -32,12 +34,13 @@ struct CalendarView: View {
   var body: some View {
     ZStack {
       VStack(spacing: 0) {
+        // Month Navigation Header
         MonthHeaderView(
           currentMonth: viewModel.currentMonth,
           onPrevious: viewModel.moveToPreviousMonth,
           onNext: viewModel.moveToNextMonth,
           onTitleTap: {
-            withAnimation {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
               showingDatePicker.toggle()
             }
           }
@@ -46,8 +49,11 @@ struct CalendarView: View {
         .accessibilityLabel(
           Localization.string(.calendarFor(viewModel.currentMonth.formattedMonthYear)))
 
+        // Weekday Labels
         WeekdayHeaderView()
+          .padding(.top, 8)
 
+        // Calendar Grid - Fixed height for 6 rows
         MonthView(
           currentMonth: viewModel.currentMonth,
           selectedDate: viewModel.selectedDate,
@@ -60,12 +66,14 @@ struct CalendarView: View {
             }
           }
         )
+        .frame(height: 288)  // Fixed height: 6 rows × 48px (44 cell + 4 spacing)
         .swipeGesture(
           onLeft: viewModel.moveToNextMonth,
           onRight: viewModel.moveToPreviousMonth
         )
         .accessibilityHint("Swipe left or right to change months")
 
+        // Event List Section
         EventListView(
           date: viewModel.selectedDate ?? Date(),
           events: eventsForSelectedDate,
@@ -86,18 +94,16 @@ struct CalendarView: View {
             editingTodo = todo
           }
         )
-
       }
-      .padding(.top, 16)
-      .padding(.bottom, 12)
       .blur(radius: showingDatePicker ? 4 : 0)
       .disabled(showingDatePicker)
 
+      // Date Picker Overlay
       if showingDatePicker {
         Color.black.opacity(0.3)
           .ignoresSafeArea()
           .onTapGesture {
-            withAnimation {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
               showingDatePicker = false
             }
           }
@@ -110,7 +116,7 @@ struct CalendarView: View {
         .zIndex(1)
       }
 
-      // Floating "Jump to Today" Button
+      // Floating "Jump to Today" Button - Fixed position above tab bar
       if !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
         || !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month)
       {
@@ -119,7 +125,7 @@ struct CalendarView: View {
           HStack {
             Spacer()
             Button(action: {
-              withAnimation {
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 let today = Date()
                 viewModel.selectDate(today)
                 viewModel.currentMonth = today
@@ -127,22 +133,23 @@ struct CalendarView: View {
             }) {
               HStack(spacing: 6) {
                 Image(systemName: "arrow.counterclockwise")
-                  .font(.system(size: 14, weight: .bold))
+                  .font(.system(size: 13, weight: .bold))
                 Text("Today")
-                  .font(.system(size: 14, weight: .semibold))
+                  .font(.system(size: 13, weight: .semibold))
               }
               .foregroundColor(.primary)
-              .padding(.horizontal, 16)
-              .padding(.vertical, 10)
-              .glassBackground(cornerRadius: 30)
-              .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
+              .padding(.horizontal, 14)
+              .padding(.vertical, 8)
+              .background(.ultraThinMaterial)
+              .clipShape(Capsule())
+              .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
             }
-            .padding(.trailing, 20)
-            .padding(.bottom, 20)
-            .transition(.move(edge: .trailing).combined(with: .opacity))
           }
+          .padding(.trailing, 16)
+          .padding(.bottom, 60)
         }
-        .zIndex(2)  // Ensure it floats above everything
+        .transition(.scale.combined(with: .opacity))
+        .zIndex(2)
       }
     }
     // Prevent layout animations on the entire VStack when selectedDate changes
@@ -195,7 +202,7 @@ struct CalendarView: View {
     let dateToCheck = viewModel.selectedDate ?? Date()
     return events.filter { $0.date.isSameDay(as: dateToCheck) }
   }
-  
+
   private var todosForSelectedDate: [TodoItem] {
     let dateToCheck = viewModel.selectedDate ?? Date()
     return todosWithDueDate.filter { todo in
@@ -247,45 +254,53 @@ struct MonthHeaderView: View {
   var onTitleTap: (() -> Void)? = nil
 
   var body: some View {
-    HStack {
+    HStack(spacing: 0) {
       Button(action: onPrevious) {
         Image(systemName: "chevron.left")
-          .font(.title2)
+          .font(.system(size: 18, weight: .semibold))
           .foregroundColor(.primary)
+          .frame(width: 44, height: 44)
+          .contentShape(Rectangle())
       }
+      .buttonStyle(.plain)
       .accessibilityLabel(Localization.string(.previousMonth))
 
       Spacer()
 
       Button(action: { onTitleTap?() }) {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
           Text(currentMonth.formattedMonthYear)
-            .font(.system(size: 20, weight: .semibold))
+            .font(.system(size: 18, weight: .bold))
             .foregroundColor(.primary)
 
           if onTitleTap != nil {
             Image(systemName: "chevron.down")
-              .font(.caption)
+              .font(.system(size: 12, weight: .semibold))
               .foregroundColor(.secondary)
           }
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.primary.opacity(0.05))
+        .clipShape(Capsule())
       }
+      .buttonStyle(.plain)
       .accessibilityAddTraits(.isHeader)
 
       Spacer()
 
       Button(action: onNext) {
         Image(systemName: "chevron.right")
-          .font(.title2)
+          .font(.system(size: 18, weight: .semibold))
           .foregroundColor(.primary)
+          .frame(width: 44, height: 44)
+          .contentShape(Rectangle())
       }
+      .buttonStyle(.plain)
       .accessibilityLabel(Localization.string(.nextMonth))
     }
-    .padding(.horizontal)
-    .padding(.vertical, 12)
-    .glassBackground(cornerRadius: 16)
-    .padding(.horizontal)
-    .padding(.top, 8)
+    .padding(.horizontal, 8)
+    .padding(.vertical, 4)
   }
 }
 
@@ -293,32 +308,21 @@ struct WeekdayHeaderView: View {
   private var weekdays: [String] {
     var calendar = Calendar.current
     calendar.locale = Localization.locale
-    // Adjust to match "Mon...Sun" order or system order.
-    // Our sample code has Mon-Sun hardcoded effectively.
-    // Let's rely on formatter.shortStandaloneWeekdaySymbols
     let symbols = calendar.shortStandaloneWeekdaySymbols
-    // Default symbols usually start Sunday.
-    // If we want Mon-Sun:
-    // This is complex to get perfectly right for "Mon...Sun" if the UI expects exactly that order.
-    // But for simplicity and correctness in UA/EN, UA usually starts Monday. EN/US starts Sunday.
-    // However, the previous code hardcoded Mon...Sun.
-    // If I switch to locale based, the order might change (Sun..Sat).
-    // If the grid (MonthView) expects Mon-Start, I must ensure this array matches Mon-Start.
-    // Let's assume Mon-Start for visual consistency with previous design if it was 7 columns fixed.
-    // Shifting Sunday to end:
+    // Monday-start: shift Sunday to end
     return Array(symbols.dropFirst()) + [symbols.first!]
   }
 
   var body: some View {
-    HStack {
+    HStack(spacing: 0) {
       ForEach(weekdays, id: \.self) { day in
-        Text(day)
-          .font(.system(size: 14, weight: .medium))
+        Text(day.prefix(3).uppercased())
+          .font(.system(size: 11, weight: .semibold))
           .foregroundColor(.secondary)
           .frame(maxWidth: .infinity)
       }
     }
-    .padding(.horizontal, 8)
-    .padding(.vertical, 8)
+    .padding(.horizontal, 12)
+    .padding(.vertical, 6)
   }
 }

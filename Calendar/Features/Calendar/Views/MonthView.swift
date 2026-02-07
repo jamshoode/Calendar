@@ -9,6 +9,7 @@ struct MonthView: View {
 
   private let calendar = Calendar.current
   private let daysInWeek = 7
+  private let totalRows = 6  // Always 6 rows for consistent layout
 
   private var days: [Date?] {
     let startOfMonth = currentMonth.startOfMonth
@@ -25,14 +26,20 @@ struct MonthView: View {
       currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
     }
 
-    let remainingCells = (7 - (days.count % 7)) % 7
-    days.append(contentsOf: Array(repeating: nil, count: remainingCells))
+    // Always pad to exactly 42 cells (6 rows × 7 days) for consistent layout
+    let totalCells = totalRows * daysInWeek
+    let remainingCells = totalCells - days.count
+    if remainingCells > 0 {
+      days.append(contentsOf: Array(repeating: nil, count: remainingCells))
+    }
 
     return days
   }
 
   var body: some View {
-    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: daysInWeek), spacing: 8) {
+    LazyVGrid(
+      columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: daysInWeek), spacing: 4
+    ) {
       ForEach(Array(days.enumerated()), id: \.offset) { index, date in
         if let date = date {
           let isCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
@@ -54,11 +61,11 @@ struct MonthView: View {
           }
         } else {
           Color.clear
-            .frame(height: 50)
+            .frame(height: 44)
         }
       }
     }
-    .padding(.horizontal, 8)
+    .padding(.horizontal, 12)
   }
 
   private func eventsForDate(_ date: Date) -> [Event] {

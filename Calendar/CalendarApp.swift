@@ -13,6 +13,32 @@ struct CalendarApp: App {
 
   @StateObject private var appState = AppState()
 
+  private static let sharedModelContainer: ModelContainer = {
+    let schema = Schema([
+      Event.self, TimerSession.self, Alarm.self, TimerPreset.self, TodoItem.self,
+      TodoCategory.self,
+    ])
+
+    // Try app group container first (where data was previously stored),
+    // fall back to default sandbox if the group isn't available
+    if let groupURL = FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: "group.com.shoode.calendar")
+    {
+      let storeURL =
+        groupURL
+        .appendingPathComponent("Library")
+        .appendingPathComponent("Application Support")
+        .appendingPathComponent("default.store")
+      let config = ModelConfiguration(schema: schema, url: storeURL)
+      if let container = try? ModelContainer(for: schema, configurations: [config]) {
+        return container
+      }
+    }
+
+    let config = ModelConfiguration(schema: schema, groupContainer: .none)
+    return try! ModelContainer(for: schema, configurations: [config])
+  }()
+
   var body: some Scene {
     #if os(macOS)
       MenuBarExtra("Calendar", systemImage: "calendar") {
@@ -20,10 +46,7 @@ struct CalendarApp: App {
           .frame(width: 350, height: 500)
       }
       .menuBarExtraStyle(.window)
-      .modelContainer(for: [
-        Event.self, TimerSession.self, Alarm.self, TimerPreset.self, TodoItem.self,
-        TodoCategory.self,
-      ])
+      .modelContainer(Self.sharedModelContainer)
     #else
       WindowGroup {
         ContentView()
@@ -33,10 +56,7 @@ struct CalendarApp: App {
             .preferredColorScheme(debugSettings.themeOverride.colorScheme)
           #endif
       }
-      .modelContainer(for: [
-        Event.self, TimerSession.self, Alarm.self, TimerPreset.self, TodoItem.self,
-        TodoCategory.self,
-      ])
+      .modelContainer(Self.sharedModelContainer)
     #endif
   }
 }
