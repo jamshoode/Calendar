@@ -113,6 +113,7 @@ struct AddEventView: View {
       )
       #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
       #endif
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {

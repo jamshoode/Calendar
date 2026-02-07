@@ -150,6 +150,12 @@ struct Localization {
     case build
     case mode
     case debugSettings
+
+    // Repeat Reminder
+    case repeatReminder
+    case repeatReminderOff
+    case everyNMinutes(Int)
+    case repeatReminderFromDate
   }
 
   static func string(_ key: Key) -> String {
@@ -388,6 +394,16 @@ struct Localization {
       return lang == .ukrainian ? "Режим" : "Mode"
     case .debugSettings:
       return lang == .ukrainian ? "Налаштування налагодження" : "Debug Settings"
+
+    // Repeat Reminder
+    case .repeatReminder:
+      return lang == .ukrainian ? "Повторне нагадування" : "Repeat Reminder"
+    case .repeatReminderOff:
+      return lang == .ukrainian ? "Вимкнено" : "Off"
+    case .everyNMinutes(let n):
+      return lang == .ukrainian ? "Кожні \(n) хв" : "Every \(n) min"
+    case .repeatReminderFromDate:
+      return lang == .ukrainian ? "Нагадувати з" : "Remind from"
     }
   }
 }

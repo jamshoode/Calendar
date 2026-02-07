@@ -10,7 +10,7 @@ struct AddTodoSheet: View {
   let onSave:
     (
       String, String?, Priority, Date?, TimeInterval?, TodoCategory?, RecurrenceType?, Int, [Int]?,
-      Date?, [String]
+      Date?, [String], TimeInterval?, Date?
     ) -> Void
   let onDelete: (() -> Void)?
 
@@ -26,6 +26,8 @@ struct AddTodoSheet: View {
   @State private var recurrenceEndDate: Date?
   @State private var subtaskTitles: [String] = []
   @State private var newSubtaskTitle: String = ""
+  @State private var repeatReminderInterval: TimeInterval = 0
+  @State private var repeatReminderStartDate: Date = Date()
 
   private var reminders: [(String, TimeInterval)] {
     [
@@ -45,7 +47,7 @@ struct AddTodoSheet: View {
     onSave:
       @escaping (
         String, String?, Priority, Date?, TimeInterval?, TodoCategory?, RecurrenceType?, Int,
-        [Int]?, Date?, [String]
+        [Int]?, Date?, [String], TimeInterval?, Date?
       ) -> Void,
     onDelete: (() -> Void)? = nil
   ) {
@@ -66,6 +68,8 @@ struct AddTodoSheet: View {
       _recurrenceInterval = State(initialValue: todo.recurrenceInterval)
       _recurrenceEndDate = State(initialValue: todo.recurrenceEndDate)
       _subtaskTitles = State(initialValue: todo.subtasks?.map { $0.title } ?? [])
+      _repeatReminderInterval = State(initialValue: todo.reminderRepeatInterval ?? 0)
+      _repeatReminderStartDate = State(initialValue: todo.dueDate ?? Date())
     }
   }
 
@@ -119,6 +123,23 @@ struct AddTodoSheet: View {
               ForEach(reminders, id: \.1) { label, value in
                 Text(label).tag(value)
               }
+            }
+
+            // Repeat reminder every N minutes until due date
+            Picker(Localization.string(.repeatReminder), selection: $repeatReminderInterval) {
+              Text(Localization.string(.repeatReminderOff)).tag(TimeInterval(0))
+              Text(Localization.string(.everyNMinutes(15))).tag(TimeInterval(15 * 60))
+              Text(Localization.string(.everyNMinutes(30))).tag(TimeInterval(30 * 60))
+              Text(Localization.string(.everyNMinutes(45))).tag(TimeInterval(45 * 60))
+              Text(Localization.string(.everyNMinutes(60))).tag(TimeInterval(60 * 60))
+            }
+
+            if repeatReminderInterval > 0 {
+              DatePicker(
+                Localization.string(.repeatReminderFromDate),
+                selection: $repeatReminderStartDate,
+                displayedComponents: [.date, .hourAndMinute]
+              )
             }
           }
         }
@@ -178,6 +199,7 @@ struct AddTodoSheet: View {
       .navigationTitle(todo == nil ? Localization.string(.addTodo) : Localization.string(.editTodo))
       #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        .scrollDismissesKeyboard(.interactively)
       #endif
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
@@ -204,6 +226,8 @@ struct AddTodoSheet: View {
   }
 
   private func saveTodo() {
+    let repeatInterval = hasDueDate && repeatReminderInterval > 0 ? repeatReminderInterval : nil
+    let repeatStart = hasDueDate && repeatReminderInterval > 0 ? repeatReminderStartDate : nil
     onSave(
       title,
       notes.isEmpty ? nil : notes,
@@ -215,7 +239,9 @@ struct AddTodoSheet: View {
       recurrenceInterval,
       nil,
       recurrenceEndDate,
-      subtaskTitles
+      subtaskTitles,
+      repeatInterval,
+      repeatStart
     )
     dismiss()
   }

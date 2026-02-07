@@ -47,6 +47,7 @@ class TodoItem {
   var priority: String
   var dueDate: Date?
   var reminderInterval: TimeInterval?
+  var reminderRepeatInterval: TimeInterval?
   var createdAt: Date
   var sortOrder: Int
   var isPinned: Bool
@@ -87,6 +88,7 @@ class TodoItem {
     priority: Priority = .medium,
     dueDate: Date? = nil,
     reminderInterval: TimeInterval? = nil,
+    reminderRepeatInterval: TimeInterval? = nil,
     category: TodoCategory? = nil,
     parentTodo: TodoItem? = nil,
     recurrenceType: RecurrenceType? = nil,
@@ -103,6 +105,7 @@ class TodoItem {
     self.priority = priority.rawValue
     self.dueDate = dueDate
     self.reminderInterval = reminderInterval
+    self.reminderRepeatInterval = reminderRepeatInterval
     self.createdAt = Date()
     self.sortOrder = sortOrder
     self.isPinned = false

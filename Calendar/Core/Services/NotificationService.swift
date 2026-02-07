@@ -111,29 +111,86 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
   func scheduleTodoNotification(todo: TodoItem) {
     guard let dueDate = todo.dueDate else { return }
+
+    // Schedule the main reminder (before due date)
     let offset = todo.reminderInterval ?? 0
-    let notifyDate = dueDate.addingTimeInterval(-offset)
+    if offset > 0 {
+      let notifyDate = dueDate.addingTimeInterval(-offset)
+      if notifyDate > Date() {
+        let content = UNMutableNotificationContent()
+        content.title = todo.title
+        content.body = "Due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
+        content.sound = .default
 
-    guard notifyDate > Date() else { return }
+        let components = Calendar.current.dateComponents(
+          [.year, .month, .day, .hour, .minute, .second], from: notifyDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let identifier = "todo-\(todo.id.uuidString)"
 
-    let content = UNMutableNotificationContent()
-    content.title = todo.title
-    content.body = "Due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
-    content.sound = .default
+        let request = UNNotificationRequest(
+          identifier: identifier, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+      }
+    }
 
-    let components = Calendar.current.dateComponents(
-      [.year, .month, .day, .hour, .minute, .second], from: notifyDate)
-    let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-    let identifier = "todo-\(todo.id.uuidString)"
+    // Schedule repeat reminders (every N minutes from start date until due date)
+    if let repeatInterval = todo.reminderRepeatInterval, repeatInterval > 0 {
+      scheduleRepeatReminders(todo: todo, dueDate: dueDate, repeatInterval: repeatInterval)
+    }
+  }
 
-    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-    UNUserNotificationCenter.current().add(request)
+  private func scheduleRepeatReminders(
+    todo: TodoItem, dueDate: Date, repeatInterval: TimeInterval
+  ) {
+    let now = Date()
+    // Start from the due date minus some window, or from now if that's already past
+    var nextFire = now > dueDate ? now : now
+    // Walk forward in intervals of repeatInterval, starting from a logical point
+    // We start from the nearest future interval-aligned time
+    let startRef = now
+    let elapsed = startRef.timeIntervalSince(startRef)
+    nextFire = startRef.addingTimeInterval(repeatInterval - elapsed.truncatingRemainder(dividingBy: repeatInterval))
+
+    var index = 0
+    let maxNotifications = 50  // iOS limit per app is 64 total pending
+
+    while nextFire < dueDate && index < maxNotifications {
+      if nextFire > now {
+        let content = UNMutableNotificationContent()
+        content.title = todo.title
+        content.body =
+          "Reminder — due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
+        content.sound = .default
+
+        let components = Calendar.current.dateComponents(
+          [.year, .month, .day, .hour, .minute, .second], from: nextFire)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let identifier = "todo-repeat-\(todo.id.uuidString)-\(index)"
+
+        let request = UNNotificationRequest(
+          identifier: identifier, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+      }
+      nextFire = nextFire.addingTimeInterval(repeatInterval)
+      index += 1
+    }
   }
 
   func cancelTodoNotification(id: UUID) {
+    // Cancel main reminder
     UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [
       "todo-\(id.uuidString)"
     ])
+    // Cancel all repeat reminders for this todo
+    UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+      let repeatIds = requests.filter {
+        $0.identifier.hasPrefix("todo-repeat-\(id.uuidString)")
+      }.map { $0.identifier }
+      if !repeatIds.isEmpty {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+          withIdentifiers: repeatIds)
+      }
+    }
   }
 
   func syncTodoNotifications(todos: [TodoItem]) {

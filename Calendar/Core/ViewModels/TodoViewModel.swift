@@ -43,6 +43,7 @@ class TodoViewModel: ObservableObject {
     priority: Priority,
     dueDate: Date?,
     reminderInterval: TimeInterval?,
+    reminderRepeatInterval: TimeInterval?,
     category: TodoCategory?,
     parentTodo: TodoItem?,
     recurrenceType: RecurrenceType?,
@@ -57,6 +58,7 @@ class TodoViewModel: ObservableObject {
       priority: priority,
       dueDate: dueDate,
       reminderInterval: reminderInterval,
+      reminderRepeatInterval: reminderRepeatInterval,
       parentTodo: parentTodo,
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,
@@ -72,7 +74,7 @@ class TodoViewModel: ObservableObject {
 
     try? context.save()
 
-    if dueDate != nil && reminderInterval != nil {
+    if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
 
@@ -86,6 +88,7 @@ class TodoViewModel: ObservableObject {
     priority: Priority,
     dueDate: Date?,
     reminderInterval: TimeInterval?,
+    reminderRepeatInterval: TimeInterval?,
     category: TodoCategory?,
     recurrenceType: RecurrenceType?,
     recurrenceInterval: Int,
@@ -98,6 +101,7 @@ class TodoViewModel: ObservableObject {
     todo.priorityEnum = priority
     todo.dueDate = dueDate
     todo.reminderInterval = reminderInterval
+    todo.reminderRepeatInterval = reminderRepeatInterval
     todo.category = category
     todo.recurrenceTypeEnum = recurrenceType
     todo.recurrenceInterval = recurrenceInterval
@@ -106,7 +110,7 @@ class TodoViewModel: ObservableObject {
     try? context.save()
 
     NotificationService.shared.cancelTodoNotification(id: todo.id)
-    if dueDate != nil && reminderInterval != nil {
+    if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
 
@@ -134,6 +138,7 @@ class TodoViewModel: ObservableObject {
           priority: todo.priorityEnum,
           dueDate: nextDue,
           reminderInterval: todo.reminderInterval,
+          reminderRepeatInterval: todo.reminderRepeatInterval,
           category: todo.category,
           parentTodo: nil,
           recurrenceType: todo.recurrenceTypeEnum,
@@ -158,13 +163,14 @@ class TodoViewModel: ObservableObject {
           }
         }
 
-        if newTodo.reminderInterval != nil {
+        if newTodo.reminderInterval != nil || newTodo.reminderRepeatInterval != nil {
           NotificationService.shared.scheduleTodoNotification(todo: newTodo)
         }
       }
     } else {
       todo.completedAt = nil
-      if todo.dueDate != nil && todo.reminderInterval != nil {
+      if todo.dueDate != nil && (todo.reminderInterval != nil || todo.reminderRepeatInterval != nil)
+      {
         NotificationService.shared.scheduleTodoNotification(todo: todo)
       }
     }
