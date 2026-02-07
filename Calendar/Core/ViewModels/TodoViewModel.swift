@@ -44,6 +44,7 @@ class TodoViewModel: ObservableObject {
     dueDate: Date?,
     reminderInterval: TimeInterval?,
     reminderRepeatInterval: TimeInterval?,
+    reminderRepeatCount: Int?,
     category: TodoCategory?,
     parentTodo: TodoItem?,
     recurrenceType: RecurrenceType?,
@@ -59,6 +60,7 @@ class TodoViewModel: ObservableObject {
       dueDate: dueDate,
       reminderInterval: reminderInterval,
       reminderRepeatInterval: reminderRepeatInterval,
+      reminderRepeatCount: reminderRepeatCount,
       parentTodo: parentTodo,
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,
@@ -90,6 +92,7 @@ class TodoViewModel: ObservableObject {
     dueDate: Date?,
     reminderInterval: TimeInterval?,
     reminderRepeatInterval: TimeInterval?,
+    reminderRepeatCount: Int?,
     category: TodoCategory?,
     recurrenceType: RecurrenceType?,
     recurrenceInterval: Int,
@@ -103,6 +106,7 @@ class TodoViewModel: ObservableObject {
     todo.dueDate = dueDate
     todo.reminderInterval = reminderInterval
     todo.reminderRepeatInterval = reminderRepeatInterval
+    todo.reminderRepeatCount = reminderRepeatCount
     todo.category = category
     todo.recurrenceTypeEnum = recurrenceType
     todo.recurrenceInterval = recurrenceInterval
@@ -142,6 +146,7 @@ class TodoViewModel: ObservableObject {
           dueDate: nextDue,
           reminderInterval: todo.reminderInterval,
           reminderRepeatInterval: todo.reminderRepeatInterval,
+          reminderRepeatCount: todo.reminderRepeatCount,
           category: todo.category,
           parentTodo: nil,
           recurrenceType: todo.recurrenceTypeEnum,

@@ -273,19 +273,58 @@ enum WidgetColorScheme {
 struct WidgetColorEntry {
   let color: Color
   let isTodo: Bool
+  let gradientEndColor: Color
 
-  /// For gradient arcs on todo items: a lighter companion color
-  var gradientEndColor: Color {
-    color.opacity(0.4)
+  /// Build a clean 3-stop gradient that avoids muddy mid-tones
+  var todoGradient: Gradient {
+    let mid = blendBright(color, gradientEndColor)
+    return Gradient(colors: [color, mid, gradientEndColor])
   }
+}
+
+/// Picks a bright midpoint: max of each RGB channel → avoids dark/muddy blending
+private func blendBright(_ a: Color, _ b: Color) -> Color {
+  let ra = UIColor(a)
+  let rb = UIColor(b)
+  var r1: CGFloat = 0
+  var g1: CGFloat = 0
+  var b1: CGFloat = 0
+  var a1: CGFloat = 0
+  var r2: CGFloat = 0
+  var g2: CGFloat = 0
+  var b2: CGFloat = 0
+  var a2: CGFloat = 0
+  ra.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+  rb.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+  return Color(
+    red: Double(max(r1, r2)),
+    green: Double(max(g1, g2)),
+    blue: Double(min(b1, b2) * 0.5)
+  )
 }
 
 func parseWidgetColorEntry(_ name: String) -> WidgetColorEntry {
   if name.hasPrefix("todo:") {
-    let colorName = String(name.dropFirst(5))
-    return WidgetColorEntry(color: widgetEventColor(colorName), isTodo: true)
+    // Format: "todo:categoryColor:priority"
+    let parts = name.dropFirst(5).split(separator: ":", maxSplits: 1)
+    let catColor = parts.count > 0 ? String(parts[0]) : "green"
+    let priKey = parts.count > 1 ? String(parts[1]) : "medium"
+    return WidgetColorEntry(
+      color: widgetEventColor(catColor),
+      isTodo: true,
+      gradientEndColor: widgetPriorityColor(priKey)
+    )
   }
-  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false)
+  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false, gradientEndColor: .clear)
+}
+
+func widgetPriorityColor(_ priority: String) -> Color {
+  switch priority.lowercased() {
+  case "high": return Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255)  // red
+  case "medium": return Color(red: 255 / 255, green: 149 / 255, blue: 0 / 255)  // orange
+  case "low": return Color(red: 48 / 255, green: 209 / 255, blue: 88 / 255)  // green
+  default: return Color(red: 255 / 255, green: 149 / 255, blue: 0 / 255)
+  }
 }
 
 func widgetEventColor(_ name: String) -> Color {
@@ -707,11 +746,10 @@ struct EventRing: View {
             clockwise: false)
 
           if entry.isTodo {
-            // Gradient stroke for todo items
-            let gradient = Gradient(colors: [entry.color, entry.gradientEndColor])
+            // Gradient stroke for todo items: category → bright mid → priority
             context.stroke(
               path,
-              with: .conicGradient(gradient, center: center, angle: .degrees(-90)),
+              with: .conicGradient(entry.todoGradient, center: center, angle: .degrees(-90)),
               style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
           } else {
@@ -758,10 +796,9 @@ struct EventRing: View {
               clockwise: false)
 
             if entry.isTodo {
-              let gradient = Gradient(colors: [entry.color, entry.gradientEndColor])
               context.stroke(
                 path,
-                with: .conicGradient(gradient, center: center, angle: startAngle),
+                with: .conicGradient(entry.todoGradient, center: center, angle: startAngle),
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
               )
             } else {

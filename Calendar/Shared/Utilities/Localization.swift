@@ -156,6 +156,7 @@ struct Localization {
     case repeatReminderOff
     case everyNMinutes(Int)
     case repeatReminderFromDate
+    case repeatReminderCount
   }
 
   static func string(_ key: Key) -> String {
@@ -404,6 +405,8 @@ struct Localization {
       return lang == .ukrainian ? "Кожні \(n) хв" : "Every \(n) min"
     case .repeatReminderFromDate:
       return lang == .ukrainian ? "Нагадувати з" : "Remind from"
+    case .repeatReminderCount:
+      return lang == .ukrainian ? "Кількість разів" : "Times"
     }
   }
 }

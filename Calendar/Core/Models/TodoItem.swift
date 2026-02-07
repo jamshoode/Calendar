@@ -48,6 +48,7 @@ class TodoItem {
   var dueDate: Date?
   var reminderInterval: TimeInterval?
   var reminderRepeatInterval: TimeInterval?
+  var reminderRepeatCount: Int?
   var createdAt: Date
   var sortOrder: Int
   var isPinned: Bool
@@ -89,6 +90,7 @@ class TodoItem {
     dueDate: Date? = nil,
     reminderInterval: TimeInterval? = nil,
     reminderRepeatInterval: TimeInterval? = nil,
+    reminderRepeatCount: Int? = nil,
     category: TodoCategory? = nil,
     parentTodo: TodoItem? = nil,
     recurrenceType: RecurrenceType? = nil,
@@ -106,6 +108,7 @@ class TodoItem {
     self.dueDate = dueDate
     self.reminderInterval = reminderInterval
     self.reminderRepeatInterval = reminderRepeatInterval
+    self.reminderRepeatCount = reminderRepeatCount
     self.createdAt = Date()
     self.sortOrder = sortOrder
     self.isPinned = false

@@ -178,12 +178,12 @@ struct TodoView: View {
     .sheet(isPresented: $showingAddTodo) {
       AddTodoSheet(categories: categories) {
         title, notes, priority, dueDate, reminder, category, recType, recInterval, recDays, recEnd,
-        subtasks, repeatInterval, repeatStart in
+        subtasks, repeatInterval, repeatCount in
         createTodo(
           title: title, notes: notes, priority: priority, dueDate: dueDate, reminder: reminder,
           category: category, recType: recType, recInterval: recInterval, recDays: recDays,
           recEnd: recEnd, subtasks: subtasks, repeatInterval: repeatInterval,
-          repeatStart: repeatStart)
+          repeatCount: repeatCount)
       }
     }
     .sheet(isPresented: $showingAddCategory) {
@@ -197,12 +197,12 @@ struct TodoView: View {
         categories: categories,
         onSave: {
           title, notes, priority, dueDate, reminder, category, recType, recInterval, recDays,
-          recEnd, subtasks, repeatInterval, repeatStart in
+          recEnd, subtasks, repeatInterval, repeatCount in
           updateTodo(
             todo, title: title, notes: notes, priority: priority, dueDate: dueDate,
             reminder: reminder, category: category, recType: recType, recInterval: recInterval,
             recDays: recDays, recEnd: recEnd, subtasks: subtasks, repeatInterval: repeatInterval,
-            repeatStart: repeatStart)
+            repeatCount: repeatCount)
         },
         onDelete: {
           viewModel.deleteTodo(todo, context: modelContext)
@@ -225,7 +225,7 @@ struct TodoView: View {
   private func createTodo(
     title: String, notes: String?, priority: Priority, dueDate: Date?, reminder: TimeInterval?,
     category: TodoCategory?, recType: RecurrenceType?, recInterval: Int, recDays: [Int]?,
-    recEnd: Date?, subtasks: [String], repeatInterval: TimeInterval?, repeatStart: Date?
+    recEnd: Date?, subtasks: [String], repeatInterval: TimeInterval?, repeatCount: Int?
   ) {
     viewModel.createTodo(
       title: title,
@@ -234,6 +234,7 @@ struct TodoView: View {
       dueDate: dueDate,
       reminderInterval: reminder,
       reminderRepeatInterval: repeatInterval,
+      reminderRepeatCount: repeatCount,
       category: category,
       parentTodo: nil,
       recurrenceType: recType,
@@ -260,7 +261,7 @@ struct TodoView: View {
     _ todo: TodoItem, title: String, notes: String?, priority: Priority, dueDate: Date?,
     reminder: TimeInterval?, category: TodoCategory?, recType: RecurrenceType?, recInterval: Int,
     recDays: [Int]?, recEnd: Date?, subtasks: [String], repeatInterval: TimeInterval?,
-    repeatStart: Date?
+    repeatCount: Int?
   ) {
     viewModel.updateTodo(
       todo,
@@ -270,6 +271,7 @@ struct TodoView: View {
       dueDate: dueDate,
       reminderInterval: reminder,
       reminderRepeatInterval: repeatInterval,
+      reminderRepeatCount: repeatCount,
       category: category,
       recurrenceType: recType,
       recurrenceInterval: recInterval,

@@ -112,7 +112,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
   func scheduleTodoNotification(todo: TodoItem) {
     guard let dueDate = todo.dueDate else { return }
 
-    // Schedule the main reminder (before due date)
+    // Schedule the main reminder at the due date
     let offset = todo.reminderInterval ?? 0
     if offset > 0 {
       let notifyDate = dueDate.addingTimeInterval(-offset)
@@ -133,47 +133,38 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
       }
     }
 
-    // Schedule repeat reminders (every N minutes from start date until due date)
+    // Schedule repeat reminders (every N minutes from due date, X times)
     if let repeatInterval = todo.reminderRepeatInterval, repeatInterval > 0 {
-      scheduleRepeatReminders(todo: todo, dueDate: dueDate, repeatInterval: repeatInterval)
+      let count = todo.reminderRepeatCount ?? 3
+      scheduleRepeatReminders(
+        todo: todo, dueDate: dueDate, repeatInterval: repeatInterval, count: count)
     }
   }
 
   private func scheduleRepeatReminders(
-    todo: TodoItem, dueDate: Date, repeatInterval: TimeInterval
+    todo: TodoItem, dueDate: Date, repeatInterval: TimeInterval, count: Int
   ) {
     let now = Date()
-    // Start from the due date minus some window, or from now if that's already past
-    var nextFire = now > dueDate ? now : now
-    // Walk forward in intervals of repeatInterval, starting from a logical point
-    // We start from the nearest future interval-aligned time
-    let startRef = now
-    let elapsed = startRef.timeIntervalSince(startRef)
-    nextFire = startRef.addingTimeInterval(
-      repeatInterval - elapsed.truncatingRemainder(dividingBy: repeatInterval))
+    let maxNotifications = min(count, 50)
 
-    var index = 0
-    let maxNotifications = 50  // iOS limit per app is 64 total pending
+    for i in 1...maxNotifications {
+      let fireDate = dueDate.addingTimeInterval(repeatInterval * Double(i))
+      guard fireDate > now else { continue }
 
-    while nextFire < dueDate && index < maxNotifications {
-      if nextFire > now {
-        let content = UNMutableNotificationContent()
-        content.title = todo.title
-        content.body =
-          "Reminder — due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
-        content.sound = .default
+      let content = UNMutableNotificationContent()
+      content.title = todo.title
+      content.body =
+        "Reminder \(i)/\(maxNotifications) — due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
+      content.sound = .default
 
-        let components = Calendar.current.dateComponents(
-          [.year, .month, .day, .hour, .minute, .second], from: nextFire)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-        let identifier = "todo-repeat-\(todo.id.uuidString)-\(index)"
+      let components = Calendar.current.dateComponents(
+        [.year, .month, .day, .hour, .minute, .second], from: fireDate)
+      let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+      let identifier = "todo-repeat-\(todo.id.uuidString)-\(i)"
 
-        let request = UNNotificationRequest(
-          identifier: identifier, content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request)
-      }
-      nextFire = nextFire.addingTimeInterval(repeatInterval)
-      index += 1
+      let request = UNNotificationRequest(
+        identifier: identifier, content: content, trigger: trigger)
+      UNUserNotificationCenter.current().add(request)
     }
   }
 

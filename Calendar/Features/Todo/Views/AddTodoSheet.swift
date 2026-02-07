@@ -10,7 +10,7 @@ struct AddTodoSheet: View {
   let onSave:
     (
       String, String?, Priority, Date?, TimeInterval?, TodoCategory?, RecurrenceType?, Int, [Int]?,
-      Date?, [String], TimeInterval?, Date?
+      Date?, [String], TimeInterval?, Int?
     ) -> Void
   let onDelete: (() -> Void)?
 
@@ -19,7 +19,7 @@ struct AddTodoSheet: View {
   @State private var priority: Priority = .medium
   @State private var hasDueDate: Bool = false
   @State private var dueDate: Date = Date()
-  @State private var reminderSelection: TimeInterval = 0
+  @State private var reminderEnabled: Bool = false
   @State private var selectedCategory: TodoCategory?
   @State private var recurrenceType: RecurrenceType?
   @State private var recurrenceInterval: Int = 1
@@ -27,19 +27,7 @@ struct AddTodoSheet: View {
   @State private var subtaskTitles: [String] = []
   @State private var newSubtaskTitle: String = ""
   @State private var repeatReminderInterval: TimeInterval = 0
-  @State private var repeatReminderStartDate: Date = Date()
-
-  private var reminders: [(String, TimeInterval)] {
-    [
-      (Localization.string(.none), 0),
-      (Localization.string(.atTimeOfEvent), 0.1),
-      (Localization.string(.minutesBefore(15)), 15 * 60),
-      (Localization.string(.minutesBefore(30)), 30 * 60),
-      (Localization.string(.hoursBefore(1)), 60 * 60),
-      (Localization.string(.hoursBefore(2)), 2 * 60 * 60),
-      (Localization.string(.daysBefore(1)), 24 * 60 * 60),
-    ]
-  }
+  @State private var repeatReminderCount: Int = 3
 
   init(
     todo: TodoItem? = nil,
@@ -47,7 +35,7 @@ struct AddTodoSheet: View {
     onSave:
       @escaping (
         String, String?, Priority, Date?, TimeInterval?, TodoCategory?, RecurrenceType?, Int,
-        [Int]?, Date?, [String], TimeInterval?, Date?
+        [Int]?, Date?, [String], TimeInterval?, Int?
       ) -> Void,
     onDelete: (() -> Void)? = nil
   ) {
@@ -62,14 +50,14 @@ struct AddTodoSheet: View {
       _priority = State(initialValue: todo.priorityEnum)
       _hasDueDate = State(initialValue: todo.dueDate != nil)
       _dueDate = State(initialValue: todo.dueDate ?? Date())
-      _reminderSelection = State(initialValue: todo.reminderInterval ?? 0)
+      _reminderEnabled = State(initialValue: (todo.reminderInterval ?? 0) > 0)
       _selectedCategory = State(initialValue: todo.category)
       _recurrenceType = State(initialValue: todo.recurrenceTypeEnum)
       _recurrenceInterval = State(initialValue: todo.recurrenceInterval)
       _recurrenceEndDate = State(initialValue: todo.recurrenceEndDate)
       _subtaskTitles = State(initialValue: todo.subtasks?.map { $0.title } ?? [])
       _repeatReminderInterval = State(initialValue: todo.reminderRepeatInterval ?? 0)
-      _repeatReminderStartDate = State(initialValue: todo.dueDate ?? Date())
+      _repeatReminderCount = State(initialValue: todo.reminderRepeatCount ?? 3)
     }
   }
 
@@ -119,27 +107,25 @@ struct AddTodoSheet: View {
               Localization.string(.dueDate), selection: $dueDate,
               displayedComponents: [.date, .hourAndMinute])
 
-            Picker(Localization.string(.reminder), selection: $reminderSelection) {
-              ForEach(reminders, id: \.1) { label, value in
-                Text(label).tag(value)
+            Toggle(Localization.string(.reminder), isOn: $reminderEnabled)
+
+            if reminderEnabled {
+              // Repeat reminder every N minutes from due date
+              Picker(Localization.string(.repeatReminder), selection: $repeatReminderInterval) {
+                Text(Localization.string(.repeatReminderOff)).tag(TimeInterval(0))
+                Text(Localization.string(.everyNMinutes(15))).tag(TimeInterval(15 * 60))
+                Text(Localization.string(.everyNMinutes(30))).tag(TimeInterval(30 * 60))
+                Text(Localization.string(.everyNMinutes(45))).tag(TimeInterval(45 * 60))
+                Text(Localization.string(.everyNMinutes(60))).tag(TimeInterval(60 * 60))
               }
-            }
 
-            // Repeat reminder every N minutes until due date
-            Picker(Localization.string(.repeatReminder), selection: $repeatReminderInterval) {
-              Text(Localization.string(.repeatReminderOff)).tag(TimeInterval(0))
-              Text(Localization.string(.everyNMinutes(15))).tag(TimeInterval(15 * 60))
-              Text(Localization.string(.everyNMinutes(30))).tag(TimeInterval(30 * 60))
-              Text(Localization.string(.everyNMinutes(45))).tag(TimeInterval(45 * 60))
-              Text(Localization.string(.everyNMinutes(60))).tag(TimeInterval(60 * 60))
-            }
-
-            if repeatReminderInterval > 0 {
-              DatePicker(
-                Localization.string(.repeatReminderFromDate),
-                selection: $repeatReminderStartDate,
-                displayedComponents: [.date, .hourAndMinute]
-              )
+              if repeatReminderInterval > 0 {
+                Stepper(
+                  "\(Localization.string(.repeatReminderCount)): \(repeatReminderCount)",
+                  value: $repeatReminderCount,
+                  in: 1...20
+                )
+              }
             }
           }
         }
@@ -226,14 +212,16 @@ struct AddTodoSheet: View {
   }
 
   private func saveTodo() {
-    let repeatInterval = hasDueDate && repeatReminderInterval > 0 ? repeatReminderInterval : nil
-    let repeatStart = hasDueDate && repeatReminderInterval > 0 ? repeatReminderStartDate : nil
+    let repeatInterval =
+      hasDueDate && reminderEnabled && repeatReminderInterval > 0 ? repeatReminderInterval : nil
+    let repeatCount =
+      hasDueDate && reminderEnabled && repeatReminderInterval > 0 ? repeatReminderCount : nil
     onSave(
       title,
       notes.isEmpty ? nil : notes,
       priority,
       hasDueDate ? dueDate : nil,
-      hasDueDate && reminderSelection > 0 ? reminderSelection : nil,
+      hasDueDate && reminderEnabled ? 0.1 : nil,
       selectedCategory,
       hasDueDate ? recurrenceType : nil,
       recurrenceInterval,
@@ -241,7 +229,7 @@ struct AddTodoSheet: View {
       recurrenceEndDate,
       subtaskTitles,
       repeatInterval,
-      repeatStart
+      repeatCount
     )
     dismiss()
   }

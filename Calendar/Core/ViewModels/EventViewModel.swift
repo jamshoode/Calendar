@@ -97,8 +97,9 @@ class EventViewModel {
         let key = formatter.string(from: dueDate)
         var colors = eventMap[key] ?? []
         if colors.count < 6 {
-          let todoColor = todo.category?.color ?? "green"
-          colors.append("todo:\(todoColor)")
+          let catColor = todo.category?.color ?? "green"
+          let priKey = todo.priority  // "low", "medium", "high"
+          colors.append("todo:\(catColor):\(priKey)")
         }
         eventMap[key] = colors
       }
