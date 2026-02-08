@@ -94,6 +94,15 @@ struct CalendarView: View {
           },
           onTodoTap: { todo in
             editingTodo = todo
+          },
+          showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
+            || !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
+          onJumpToToday: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+              let today = Date()
+              viewModel.selectDate(today)
+              viewModel.currentMonth = today
+            }
           }
         )
       }
@@ -118,42 +127,6 @@ struct CalendarView: View {
         .zIndex(1)
       }
 
-      // Floating "Jump to Today" Button - Fixed position above tab bar
-      if !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
-        || !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month)
-      {
-        VStack {
-          Spacer()
-          HStack {
-            Spacer()
-            Button(action: {
-              withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                let today = Date()
-                viewModel.selectDate(today)
-                viewModel.currentMonth = today
-              }
-            }) {
-              HStack(spacing: 6) {
-                Image(systemName: "arrow.counterclockwise")
-                  .font(.system(size: 13, weight: .bold))
-                Text("Today")
-                  .font(.system(size: 13, weight: .semibold))
-              }
-              .foregroundColor(.primary)
-              .padding(.horizontal, 14)
-              .padding(.vertical, 8)
-              .background(.ultraThinMaterial)
-              .clipShape(Capsule())
-              .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
-            }
-          }
-          .padding(.trailing, 16)
-          .padding(.bottom, 60)
-        }
-        .transition(.scale.combined(with: .opacity))
-        .zIndex(2)
-      }
-
       // Event Detail Floating Window
       if let event = detailEvent {
         Color.black.opacity(0.25)
@@ -172,20 +145,24 @@ struct CalendarView: View {
               detailEvent = nil
             }
           },
-          onEdit: event.isHoliday ? nil : {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-              detailEvent = nil
+          onEdit: event.isHoliday
+            ? nil
+            : {
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                detailEvent = nil
+              }
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                editingEvent = event
+              }
+            },
+          onDelete: event.isHoliday
+            ? nil
+            : {
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                detailEvent = nil
+              }
+              deleteEvent(event)
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-              editingEvent = event
-            }
-          },
-          onDelete: event.isHoliday ? nil : {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-              detailEvent = nil
-            }
-            deleteEvent(event)
-          }
         )
         .transition(.scale(scale: 0.9).combined(with: .opacity))
         .zIndex(4)

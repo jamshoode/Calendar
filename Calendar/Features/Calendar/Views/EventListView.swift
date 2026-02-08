@@ -9,6 +9,8 @@ struct EventListView: View {
   let onAdd: () -> Void
   var onTodoToggle: ((TodoItem) -> Void)?
   var onTodoTap: ((TodoItem) -> Void)?
+  var showJumpToToday: Bool = false
+  var onJumpToToday: (() -> Void)?
 
   private var incompleteTodos: [TodoItem] {
     todos.filter { !$0.isCompleted }
@@ -105,6 +107,27 @@ struct EventListView: View {
     .padding(.horizontal, 16)
     .padding(.vertical, 14)
     .frame(maxHeight: .infinity, alignment: .top)
+    .overlay(alignment: .bottomTrailing) {
+      if showJumpToToday, let onJumpToToday = onJumpToToday {
+        Button(action: onJumpToToday) {
+          HStack(spacing: 6) {
+            Image(systemName: "arrow.counterclockwise")
+              .font(.system(size: 13, weight: .bold))
+            Text("Today")
+              .font(.system(size: 13, weight: .semibold))
+          }
+          .foregroundColor(.primary)
+          .padding(.horizontal, 14)
+          .padding(.vertical, 8)
+          .background(.ultraThinMaterial)
+          .clipShape(Capsule())
+          .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+        }
+        .padding(.trailing, 8)
+        .padding(.bottom, 8)
+        .transition(.scale.combined(with: .opacity))
+      }
+    }
     .background(
       RoundedRectangle(cornerRadius: 20)
         .fill(.ultraThinMaterial)
