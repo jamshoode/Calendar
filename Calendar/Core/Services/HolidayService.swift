@@ -148,7 +148,9 @@ final class HolidayService {
     dateFormatter.dateFormat = "yyyy-MM-dd"
     // Also try ISO8601 with time component
     let isoFormatter = ISO8601DateFormatter()
-    isoFormatter.formatOptions = [.withFullDate, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+    isoFormatter.formatOptions = [
+      .withFullDate, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime,
+    ]
 
     await MainActor.run {
       for holiday in holidays {
@@ -200,32 +202,24 @@ final class HolidayService {
     }
   }
 
-  /// Check if auto-sync should run (>30 days since last sync or 1st of month without sync this month).
+  /// Check if auto-sync should run (only at the start of a new month).
   func shouldAutoSync() -> Bool {
     guard defaults.string(forKey: Constants.Holiday.apiKeyKey) != nil,
       defaults.string(forKey: Constants.Holiday.countryCodeKey) != nil
     else { return false }
 
     guard let lastSync = defaults.object(forKey: Constants.Holiday.lastSyncDateKey) as? Date else {
-      return true  // never synced
+      return false
     }
 
     let calendar = Calendar.current
-    let daysSince = calendar.dateComponents([.day], from: lastSync, to: Date()).day ?? 0
-
-    if daysSince > 30 { return true }
-
-    // Also sync if it's a new month and we haven't synced this month
     let lastSyncMonth = calendar.component(.month, from: lastSync)
     let lastSyncYear = calendar.component(.year, from: lastSync)
     let currentMonth = calendar.component(.month, from: Date())
     let currentYear = calendar.component(.year, from: Date())
 
-    if currentYear > lastSyncYear || currentMonth > lastSyncMonth {
-      return true
-    }
-
-    return false
+    // Sync if we're in a new month compared to the last sync
+    return currentYear > lastSyncYear || currentMonth > lastSyncMonth
   }
 
   /// Look up language for a country code from the static map.

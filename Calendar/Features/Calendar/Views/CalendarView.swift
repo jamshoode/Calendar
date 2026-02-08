@@ -15,6 +15,7 @@ struct CalendarView: View {
   @State private var showingDatePicker = false
   @State private var editingEvent: Event?
   @State private var editingTodo: TodoItem?
+  @State private var detailEvent: Event?
 
   private var eventsForMonth: [Event] {
     let startOfMonth = viewModel.currentMonth.startOfMonth
@@ -79,8 +80,7 @@ struct CalendarView: View {
           events: eventsForSelectedDate,
           todos: todosForSelectedDate,
           onEdit: { event in
-            guard !event.isHoliday else { return }
-            editingEvent = event
+            detailEvent = event
           },
           onDelete: { event in
             guard !event.isHoliday else { return }
@@ -153,7 +153,45 @@ struct CalendarView: View {
         .transition(.scale.combined(with: .opacity))
         .zIndex(2)
       }
+
+      // Event Detail Floating Window
+      if let event = detailEvent {
+        Color.black.opacity(0.25)
+          .ignoresSafeArea()
+          .onTapGesture {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+              detailEvent = nil
+            }
+          }
+          .zIndex(3)
+
+        EventDetailPopover(
+          event: event,
+          onDismiss: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+              detailEvent = nil
+            }
+          },
+          onEdit: event.isHoliday ? nil : {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+              detailEvent = nil
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+              editingEvent = event
+            }
+          },
+          onDelete: event.isHoliday ? nil : {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+              detailEvent = nil
+            }
+            deleteEvent(event)
+          }
+        )
+        .transition(.scale(scale: 0.9).combined(with: .opacity))
+        .zIndex(4)
+      }
     }
+    .animation(.spring(response: 0.3, dampingFraction: 0.85), value: detailEvent?.id)
     // Prevent layout animations on the entire VStack when selectedDate changes
     .animation(nil, value: viewModel.selectedDate)
     .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)

@@ -9,16 +9,24 @@ struct SettingsSheet: View {
   #endif
 
   // Holiday settings stored in shared UserDefaults
-  @AppStorage(Constants.Holiday.apiKeyKey, store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  @AppStorage(
+    Constants.Holiday.apiKeyKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var holidayApiKey: String = ""
 
-  @AppStorage(Constants.Holiday.countryCodeKey, store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  @AppStorage(
+    Constants.Holiday.countryCodeKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var holidayCountryCode: String = ""
 
-  @AppStorage(Constants.Holiday.countryNameKey, store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  @AppStorage(
+    Constants.Holiday.countryNameKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var holidayCountryName: String = ""
 
-  @AppStorage(Constants.Holiday.languageNameKey, store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  @AppStorage(
+    Constants.Holiday.languageNameKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var holidayLanguageName: String = ""
 
   @State private var isSyncing = false
@@ -134,9 +142,11 @@ struct SettingsSheet: View {
               .font(.system(size: 14))
               .foregroundColor(.primary)
             Spacer()
-            Text(holidayCountryName.isEmpty ? Localization.string(.holidayNone) : holidayCountryName)
-              .font(.system(size: 14))
-              .foregroundColor(.secondary)
+            Text(
+              holidayCountryName.isEmpty ? Localization.string(.holidayNone) : holidayCountryName
+            )
+            .font(.system(size: 14))
+            .foregroundColor(.secondary)
             Image(systemName: "chevron.right")
               .font(.system(size: 12, weight: .semibold))
               .foregroundColor(.secondary)
@@ -165,8 +175,11 @@ struct SettingsSheet: View {
                 ProgressView()
                   .scaleEffect(0.8)
               }
-              Text(isSyncing ? Localization.string(.holidaySyncing) : Localization.string(.holidaySyncNow))
-                .font(.system(size: 14, weight: .medium))
+              Text(
+                isSyncing
+                  ? Localization.string(.holidaySyncing) : Localization.string(.holidaySyncNow)
+              )
+              .font(.system(size: 14, weight: .medium))
             }
           }
           .disabled(isSyncing || holidayApiKey.isEmpty || holidayCountryCode.isEmpty)
@@ -181,7 +194,8 @@ struct SettingsSheet: View {
           if let syncMessage = syncMessage {
             Text(syncMessage)
               .font(.system(size: 12))
-              .foregroundColor(syncMessage == Localization.string(.holidaySyncSuccess) ? .green : .red)
+              .foregroundColor(
+                syncMessage == Localization.string(.holidaySyncSuccess) ? .green : .red)
           }
         }
         .padding(.horizontal, 16)
