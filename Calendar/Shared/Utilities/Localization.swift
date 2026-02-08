@@ -157,6 +157,22 @@ struct Localization {
     case everyNMinutes(Int)
     case repeatReminderFromDate
     case repeatReminderCount
+
+    // Holidays
+    case holidays
+    case holidayCountry
+    case holidayLanguage
+    case holidayApiKey
+    case holidayNone
+    case holidaySyncNow
+    case holidayLastSync
+    case holidaySearchCountry
+    case holidaySyncing
+    case holidaySyncSuccess
+    case holidaySyncError
+    case holiday
+    case holidayNever
+    case holidayApiKeyPlaceholder
   }
 
   static func string(_ key: Key) -> String {
@@ -407,6 +423,36 @@ struct Localization {
       return lang == .ukrainian ? "Нагадувати з" : "Remind from"
     case .repeatReminderCount:
       return lang == .ukrainian ? "Кількість разів" : "Times"
+
+    // Holidays
+    case .holidays:
+      return lang == .ukrainian ? "Свята" : "Holidays"
+    case .holidayCountry:
+      return lang == .ukrainian ? "Країна" : "Country"
+    case .holidayLanguage:
+      return lang == .ukrainian ? "Мова" : "Language"
+    case .holidayApiKey:
+      return lang == .ukrainian ? "API ключ" : "API Key"
+    case .holidayNone:
+      return lang == .ukrainian ? "Не вибрано" : "None"
+    case .holidaySyncNow:
+      return lang == .ukrainian ? "Синхронізувати" : "Sync Now"
+    case .holidayLastSync:
+      return lang == .ukrainian ? "Остання синхронізація" : "Last Sync"
+    case .holidaySearchCountry:
+      return lang == .ukrainian ? "Пошук країни" : "Search country"
+    case .holidaySyncing:
+      return lang == .ukrainian ? "Синхронізація..." : "Syncing..."
+    case .holidaySyncSuccess:
+      return lang == .ukrainian ? "Синхронізовано" : "Synced"
+    case .holidaySyncError:
+      return lang == .ukrainian ? "Помилка синхронізації" : "Sync Error"
+    case .holiday:
+      return lang == .ukrainian ? "Свято" : "Holiday"
+    case .holidayNever:
+      return lang == .ukrainian ? "Ніколи" : "Never"
+    case .holidayApiKeyPlaceholder:
+      return lang == .ukrainian ? "Введіть API ключ" : "Enter API key"
     }
   }
 }
