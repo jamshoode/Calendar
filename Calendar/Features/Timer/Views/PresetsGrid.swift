@@ -38,7 +38,7 @@ struct PresetButton: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 60)
-            .glassBackground(cornerRadius: 12)
+            .cardStyle()
         }
         .buttonStyle(.plain)
     }

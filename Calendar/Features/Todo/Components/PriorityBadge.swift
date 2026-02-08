@@ -6,26 +6,18 @@ struct PriorityBadge: View {
   var body: some View {
     Text(priority.displayName)
       .font(.system(size: 10, weight: .semibold))
-      .foregroundColor(foregroundColor)
+      .foregroundColor(.white)
       .padding(.horizontal, 8)
       .padding(.vertical, 4)
-      .background(backgroundColor)
+      .background(color)
       .clipShape(Capsule())
   }
 
-  private var foregroundColor: Color {
+  var color: Color {
     switch priority {
-    case .high: return .white
-    case .medium: return .white
-    case .low: return .white
-    }
-  }
-
-  private var backgroundColor: Color {
-    switch priority {
-    case .high: return .red
-    case .medium: return .orange
-    case .low: return .blue
+    case .high: return .priorityHigh
+    case .medium: return .priorityMedium
+    case .low: return .priorityLow
     }
   }
 }

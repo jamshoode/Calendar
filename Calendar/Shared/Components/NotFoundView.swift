@@ -5,19 +5,19 @@ struct NotFoundView: View {
         VStack(spacing: 24) {
             Image(systemName: "questionmark.circle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.textTertiary)
             
             Text(Localization.string(.pageNotFound))
-                .font(.system(size: 28, weight: .bold))
-                .foregroundColor(.primary)
+                .font(Typography.largeTitle)
+                .foregroundColor(Color.textPrimary)
             
             Text(Localization.string(.selectTabPrompt))
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .font(Typography.body)
+                .foregroundColor(Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(40)
-        .glassEffect()
+        .cardStyle()
         .padding()
     }
 }

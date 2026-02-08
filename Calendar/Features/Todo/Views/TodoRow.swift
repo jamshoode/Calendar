@@ -18,14 +18,15 @@ struct TodoRow: View {
         VStack(alignment: .leading, spacing: 4) {
           HStack(spacing: 8) {
             Text(todo.title)
-              .font(.system(size: 16, weight: .medium))
+              .font(Typography.body)
+              .fontWeight(.medium)
               .strikethrough(todo.isCompleted)
-              .foregroundColor(todo.isCompleted ? .secondary : .primary)
+              .foregroundColor(todo.isCompleted ? Color.textTertiary : Color.textPrimary)
 
             if todo.isRecurring {
               Image(systemName: "repeat")
                 .font(.system(size: 12))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.textTertiary)
             }
           }
 
@@ -35,7 +36,7 @@ struct TodoRow: View {
                 Image(systemName: "calendar")
                   .font(.system(size: 10))
                 Text(dueDate.formatted(date: .abbreviated, time: .shortened))
-                  .font(.system(size: 12))
+                  .font(Typography.caption)
               }
               .foregroundColor(dueDateColor(dueDate))
             }
@@ -47,6 +48,12 @@ struct TodoRow: View {
         }
 
         Spacer()
+
+        if todo.isPinned {
+          Image(systemName: "pin.fill")
+            .font(.system(size: 10))
+            .foregroundColor(Color.textTertiary)
+        }
       }
       .contentShape(Rectangle())
       .onTapGesture(perform: onTap)
@@ -65,8 +72,9 @@ struct TodoRow: View {
       }
     }
     .padding(.vertical, 12)
-    .padding(.horizontal, 16)
-    .glassBackground(cornerRadius: 12)
+    .padding(.horizontal, Spacing.md)
+    .background(Color.surfaceCard)
+    .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
     .swipeActions(edge: .trailing) {
       Button(role: .destructive, action: onDelete) {
         Label(Localization.string(.delete), systemImage: "trash")
@@ -75,9 +83,9 @@ struct TodoRow: View {
   }
 
   private func dueDateColor(_ date: Date) -> Color {
-    if todo.isCompleted { return .secondary }
-    if date < Date() { return .red }
-    if Calendar.current.isDateInToday(date) { return .orange }
-    return .secondary
+    if todo.isCompleted { return Color.textTertiary }
+    if date < Date() { return .priorityHigh }
+    if Calendar.current.isDateInToday(date) { return .priorityMedium }
+    return Color.textSecondary
   }
 }

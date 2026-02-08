@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+// MARK: - Sort Order
+
 enum TodoSortOrder: String, CaseIterable {
   case manual
   case newestFirst
@@ -11,6 +13,20 @@ enum TodoSortOrder: String, CaseIterable {
     case .manual: return Localization.string(.manual)
     case .newestFirst: return Localization.string(.newestFirst)
     case .oldestFirst: return Localization.string(.oldestFirst)
+    }
+  }
+}
+
+// MARK: - Filter
+
+enum TodoFilter: String, CaseIterable {
+  case all, queued, completed
+
+  var label: String {
+    switch self {
+    case .all: return Localization.string(.all)
+    case .queued: return Localization.string(.queued)
+    case .completed: return Localization.string(.completed)
     }
   }
 }
@@ -27,6 +43,8 @@ struct TodoView: View {
   @State private var editingTodo: TodoItem?
   @State private var editingCategory: TodoCategory?
   @State private var sortOrder: TodoSortOrder = .manual
+  @State private var filter: TodoFilter = .all
+  @State private var searchText: String = ""
   @State private var draggedTodo: TodoItem?
   @State private var draggedCategory: TodoCategory?
   @State private var dropTargetCategory: TodoCategory?
@@ -35,8 +53,34 @@ struct TodoView: View {
     allTodosRaw.filter { !$0.isSubtask }
   }
 
+  private var filteredTodos: [TodoItem] {
+    var result = allTodos
+
+    // Apply search
+    if !searchText.isEmpty {
+      result = result.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    // Apply filter
+    switch filter {
+    case .all: break
+    case .queued: result = result.filter { !$0.isCompleted }
+    case .completed: result = result.filter { $0.isCompleted }
+    }
+
+    return result
+  }
+
   private var isListEmpty: Bool {
     allTodos.isEmpty && categories.filter({ $0.name != TodoViewModel.noCategoryName }).isEmpty
+  }
+
+  // Summary counts
+  private var totalCount: Int { allTodos.count }
+  private var completedCount: Int { allTodos.filter(\.isCompleted).count }
+  private var queuedCount: Int { allTodos.filter { !$0.isCompleted }.count }
+  private var overdueCount: Int {
+    allTodos.filter { !$0.isCompleted && ($0.dueDate ?? .distantFuture) < Date() }.count
   }
 
   private var pinnedCategories: [TodoCategory] {
@@ -52,21 +96,21 @@ struct TodoView: View {
   }
 
   private var pinnedUncategorizedTodos: [TodoItem] {
-    let todos = allTodos.filter {
+    let todos = filteredTodos.filter {
       ($0.category == nil || $0.category?.name == TodoViewModel.noCategoryName) && $0.isPinned
     }
     return sortTodos(todos)
   }
 
   private var unpinnedUncategorizedTodos: [TodoItem] {
-    let todos = allTodos.filter {
+    let todos = filteredTodos.filter {
       ($0.category == nil || $0.category?.name == TodoViewModel.noCategoryName) && !$0.isPinned
     }
     return sortTodos(todos)
   }
 
   private func todosForCategory(_ category: TodoCategory) -> [TodoItem] {
-    let todos = allTodos.filter { $0.category?.id == category.id }
+    let todos = filteredTodos.filter { $0.category?.id == category.id }
     return sortTodos(todos)
   }
 
@@ -93,15 +137,50 @@ struct TodoView: View {
       } else {
         ScrollView {
           LazyVStack(spacing: 12) {
-            sortDropdown
-              .padding(.bottom, 8)
+            // Search bar
+            HStack(spacing: 10) {
+              Image(systemName: "magnifyingglass")
+                .font(.system(size: 15))
+                .foregroundColor(Color.textTertiary)
 
+              TextField(Localization.string(.search), text: $searchText)
+                .font(Typography.body)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(Color.secondaryFill)
+            .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
+
+            // Summary cards row
+            HStack(spacing: 10) {
+              SummaryCard(label: Localization.string(.all), count: totalCount, color: .accentColor)
+              SummaryCard(label: Localization.string(.queued), count: queuedCount, color: .statusInProgress)
+              SummaryCard(label: Localization.string(.completed), count: completedCount, color: .statusCompleted)
+              if overdueCount > 0 {
+                SummaryCard(label: Localization.string(.overdue), count: overdueCount, color: .priorityHigh)
+              }
+            }
+
+            // Filter + sort row
+            HStack {
+              Picker("", selection: $filter) {
+                ForEach(TodoFilter.allCases, id: \.self) { f in
+                  Text(f.label).tag(f)
+                }
+              }
+              .pickerStyle(.segmented)
+
+              sortDropdown
+            }
+
+            // Content
             if !pinnedCategories.isEmpty || !pinnedUncategorizedTodos.isEmpty {
               VStack(alignment: .leading, spacing: 8) {
                 Text(Localization.string(.pinned))
-                  .font(.system(size: 14, weight: .medium))
-                  .foregroundColor(.secondary)
-                  .padding(.horizontal, 16)
+                  .font(Typography.caption)
+                  .fontWeight(.medium)
+                  .foregroundColor(Color.textTertiary)
+                  .padding(.horizontal, Spacing.md)
 
                 ForEach(pinnedCategories, id: \.id) { category in
                   draggableCategoryCard(category: category)
@@ -116,18 +195,17 @@ struct TodoView: View {
             if (!pinnedCategories.isEmpty || !pinnedUncategorizedTodos.isEmpty)
               && (!unpinnedCategories.isEmpty || !unpinnedUncategorizedTodos.isEmpty)
             {
-              Rectangle()
-                .fill(Color.separator)
-                .frame(height: 1)
-                .padding(.vertical, 8)
+              Divider()
+                .padding(.vertical, 4)
             }
 
             if !unpinnedUncategorizedTodos.isEmpty {
               VStack(alignment: .leading, spacing: 8) {
                 Text(Localization.string(.noCategory))
-                  .font(.system(size: 14, weight: .medium))
-                  .foregroundColor(.secondary)
-                  .padding(.horizontal, 16)
+                  .font(Typography.caption)
+                  .fontWeight(.medium)
+                  .foregroundColor(Color.textTertiary)
+                  .padding(.horizontal, Spacing.md)
 
                 ForEach(unpinnedUncategorizedTodos, id: \.id) { todo in
                   draggableTodoRow(todo: todo)
@@ -144,6 +222,7 @@ struct TodoView: View {
           .padding(.bottom, 100)
         }
 
+        // FAB
         VStack {
           Spacer()
           HStack {
@@ -163,7 +242,7 @@ struct TodoView: View {
                 .frame(width: 56, height: 56)
                 .background(Color.accentColor)
                 .clipShape(Circle())
-                .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 5)
+                .shadow(color: Color.shadowColor, radius: 10, x: 0, y: 5)
             }
             .padding(.trailing, 20)
             .padding(.bottom, 20)
@@ -292,34 +371,30 @@ struct TodoView: View {
   }
 
   private var sortDropdown: some View {
-    HStack {
-      Menu {
-        ForEach(TodoSortOrder.allCases, id: \.self) { order in
-          Button(action: { sortOrder = order }) {
-            HStack {
-              Text(order.label)
-              if sortOrder == order {
-                Image(systemName: "checkmark")
-              }
+    Menu {
+      ForEach(TodoSortOrder.allCases, id: \.self) { order in
+        Button(action: { sortOrder = order }) {
+          HStack {
+            Text(order.label)
+            if sortOrder == order {
+              Image(systemName: "checkmark")
             }
           }
         }
-      } label: {
-        HStack(spacing: 8) {
-          Image(systemName: "arrow.up.arrow.down")
-            .font(.system(size: 14, weight: .medium))
-          Text(sortOrder.label)
-            .font(.system(size: 14, weight: .medium))
-            .frame(minWidth: 80, alignment: .center)
-          Image(systemName: "chevron.down")
-            .font(.system(size: 12, weight: .medium))
-        }
-        .foregroundColor(.secondary)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .glassBackground(cornerRadius: 10)
       }
-      Spacer()
+    } label: {
+      HStack(spacing: 6) {
+        Image(systemName: "arrow.up.arrow.down")
+          .font(.system(size: 13, weight: .medium))
+        Text(sortOrder.label)
+          .font(Typography.caption)
+          .fontWeight(.medium)
+      }
+      .foregroundColor(Color.textSecondary)
+      .padding(.horizontal, 10)
+      .padding(.vertical, 6)
+      .background(Color.secondaryFill)
+      .clipShape(RoundedRectangle(cornerRadius: 8))
     }
   }
 
@@ -389,7 +464,8 @@ struct TodoView: View {
       Text(category.name)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .glassBackground()
+        .background(Color.surfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
     }
     .overlay(
       RoundedRectangle(cornerRadius: 16)
@@ -464,27 +540,23 @@ struct EmptyTodoView: View {
         Circle()
           .fill(Color.accentColor.opacity(0.1))
           .frame(width: 140, height: 140)
-          .overlay(
-            Circle()
-              .stroke(Color.accentColor.opacity(0.2), lineWidth: 1)
-          )
 
         Image(systemName: "checkmark.circle")
           .font(.system(size: 64))
           .foregroundColor(.accentColor)
-          .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 5)
       }
       .padding(.bottom, 10)
       .accessibilityHidden(true)
 
       VStack(spacing: 12) {
         Text(Localization.string(.noTodos))
-          .font(.title2.weight(.bold))
-          .foregroundColor(.primary)
+          .font(Typography.title)
+          .fontWeight(.bold)
+          .foregroundColor(Color.textPrimary)
 
         Text(Localization.string(.tapToAddTodo))
-          .font(.body)
-          .foregroundColor(.secondary)
+          .font(Typography.body)
+          .foregroundColor(Color.textSecondary)
           .multilineTextAlignment(.center)
           .padding(.horizontal, 40)
       }
@@ -509,11 +581,35 @@ struct EmptyTodoView: View {
         .background(
           Capsule()
             .fill(Color.accentColor)
-            .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 5)
+            .shadow(color: Color.shadowColor, radius: 10, x: 0, y: 5)
         )
       }
       .padding(.top, 20)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+}
+
+// MARK: - Summary Card
+
+private struct SummaryCard: View {
+  let label: String
+  let count: Int
+  let color: Color
+
+  var body: some View {
+    VStack(spacing: 4) {
+      Text("\(count)")
+        .font(.system(size: 20, weight: .bold))
+        .foregroundColor(color)
+
+      Text(label)
+        .font(Typography.badge)
+        .foregroundColor(Color.textTertiary)
+    }
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, 10)
+    .background(Color.surfaceCard)
+    .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
   }
 }

@@ -77,7 +77,7 @@ struct AlarmCard: View {
             }
         }
         .padding(24)
-        .glassBackground(cornerRadius: 24)
+        .cardStyle()
         .sheet(isPresented: $showingTimePicker) {
             TimePickerView(initialTime: alarm.time) { time in
                 alarm.time = time

@@ -142,6 +142,11 @@ struct Localization {
     case oldestFirst
     case manual
 
+    // Filter / Search
+    case search
+    case all
+    case overdue
+
     // Pin
     case pin
     case unpin
@@ -431,6 +436,12 @@ struct Localization {
       return lang == .ukrainian ? "Спочатку старі" : "Oldest first"
     case .manual:
       return lang == .ukrainian ? "Вручну" : "Manual"
+    case .search:
+      return lang == .ukrainian ? "Пошук" : "Search"
+    case .all:
+      return lang == .ukrainian ? "Всі" : "All"
+    case .overdue:
+      return lang == .ukrainian ? "Прострочені" : "Overdue"
     case .pin:
       return lang == .ukrainian ? "Закріпити" : "Pin"
     case .unpin:
