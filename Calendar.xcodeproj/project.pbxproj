@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0002F4E0001007F8DEB /* HolidayService.swift */; };
 		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
 		F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE42F34F4AA008B6601 /* TodoCategory.swift */; };
 		F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE52F34F4AA008B6601 /* TodoItem.swift */; };
@@ -139,6 +140,7 @@
 		F593C0EA2F33C234007F8DEB /* TimerPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPreset.swift; sourceTree = "<group>"; };
 		F593C0EB2F33C234007F8DEB /* TimerSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerSession.swift; sourceTree = "<group>"; };
 		F593C0ED2F33C234007F8DEB /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
+		F5A1B0002F4E0001007F8DEB /* HolidayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayService.swift; sourceTree = "<group>"; };
 		F593C0EE2F33C234007F8DEB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewModel.swift; sourceTree = "<group>"; };
 		F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 			isa = PBXGroup;
 			children = (
 				F593C0ED2F33C234007F8DEB /* AudioService.swift */,
+				F5A1B0002F4E0001007F8DEB /* HolidayService.swift */,
 				F593C0EE2F33C234007F8DEB /* NotificationService.swift */,
 			);
 			path = Services;
@@ -750,6 +753,7 @@
 				F593C13D2F33C234007F8DEB /* AdaptiveTabBar.swift in Sources */,
 				F593C13E2F33C234007F8DEB /* GlassCard.swift in Sources */,
 				F593C13F2F33C234007F8DEB /* AudioService.swift in Sources */,
+				F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */,
 				F593C1402F33C234007F8DEB /* TimerControls.swift in Sources */,
 				F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */,
 				F593C1422F33C234007F8DEB /* Constants.swift in Sources */,
