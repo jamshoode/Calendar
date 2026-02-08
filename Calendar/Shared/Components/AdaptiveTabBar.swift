@@ -12,7 +12,7 @@ struct AdaptiveTabBar: View {
       NavigationStack {
         CalendarView()
           .navigationTitle(Localization.string(.tabCalendar))
-          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarTitleDisplayMode(.large)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -31,7 +31,7 @@ struct AdaptiveTabBar: View {
       NavigationStack {
         TodoView()
           .navigationTitle(Localization.string(.tabTodo))
-          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarTitleDisplayMode(.large)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -42,7 +42,7 @@ struct AdaptiveTabBar: View {
           }
       }
       .tabItem {
-        Image(systemName: "checkmark.circle")
+        Image(systemName: "list.bullet")
         Text(Localization.string(.tabTodo))
       }
       .tag(AppState.Tab.tasks)
@@ -50,7 +50,7 @@ struct AdaptiveTabBar: View {
       NavigationStack {
         ExpensesView()
           .navigationTitle(Localization.string(.tabExpenses))
-          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarTitleDisplayMode(.large)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -61,14 +61,15 @@ struct AdaptiveTabBar: View {
           }
       }
       .tabItem {
-        Image(systemName: "dollarsign.circle")
+        Image(systemName: "dollarsign")
         Text(Localization.string(.tabExpenses))
       }
       .tag(AppState.Tab.expenses)
 
       NavigationStack {
         ClockView()
-          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarTitleDisplayMode(.large)
+          .navigationTitle(Localization.string(.tabClock))
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
