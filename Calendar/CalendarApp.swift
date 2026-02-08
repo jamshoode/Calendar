@@ -136,6 +136,7 @@ struct CalendarApp: App {
 
 struct ContentView: View {
   @EnvironmentObject var appState: AppState
+  @Environment(\.modelContext) private var modelContext
 
   var body: some View {
     Group {
@@ -144,6 +145,16 @@ struct ContentView: View {
       #else
         AdaptiveSidebar()
       #endif
+    }
+    .onAppear {
+      autoSyncHolidaysIfNeeded()
+    }
+  }
+
+  private func autoSyncHolidaysIfNeeded() {
+    guard HolidayService.shared.shouldAutoSync() else { return }
+    Task {
+      try? await HolidayService.shared.syncHolidays(context: modelContext)
     }
   }
 }
