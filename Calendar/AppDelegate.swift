@@ -9,18 +9,6 @@
       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
       NotificationService.shared.requestAuthorization()
-
-      // Dark blue-black background beneath all SwiftUI content
-      let bgColor = UIColor(Color.darkBackground)
-      UIWindow.appearance().backgroundColor = bgColor
-
-      // Match navigation bar backgrounds
-      let navAppearance = UINavigationBarAppearance()
-      navAppearance.configureWithOpaqueBackground()
-      navAppearance.backgroundColor = bgColor
-      UINavigationBar.appearance().standardAppearance = navAppearance
-      UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-
       return true
     }
 
