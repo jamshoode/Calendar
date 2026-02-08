@@ -12,6 +12,8 @@ struct EventListView: View {
   var showJumpToToday: Bool = false
   var onJumpToToday: (() -> Void)?
 
+  @State private var showingDetailSheet = false
+
   private var incompleteTodos: [TodoItem] {
     todos.filter { !$0.isCompleted }
   }
@@ -21,75 +23,59 @@ struct EventListView: View {
     return Calendar.current.isDateInToday(date)
   }
 
+  /// Combined items for preview (events first, then todos) — max 2
+  private var allItemCount: Int {
+    events.count + incompleteTodos.count
+  }
+
+  private var previewEvents: [Event] {
+    Array(events.prefix(2))
+  }
+
+  private var previewTodos: [TodoItem] {
+    let remaining = max(0, 2 - events.count)
+    return Array(incompleteTodos.prefix(remaining))
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      // Section header
-      HStack(alignment: .firstTextBaseline) {
-        VStack(alignment: .leading, spacing: 2) {
-          if isToday {
-            Text("Today")
-              .font(Typography.headline)
-              .foregroundColor(.accentColor)
-          }
-          if let date {
-            Text(date.formattedDate)
-              .font(isToday ? Typography.caption : Typography.headline)
-              .foregroundColor(isToday ? Color.textSecondary : Color.textPrimary)
+      // Section header — tappable to expand
+      headerView
+        .contentShape(Rectangle())
+        .onTapGesture {
+          if allItemCount > 0 {
+            showingDetailSheet = true
           }
         }
-
-        Spacer()
-
-        HStack(spacing: 8) {
-          if !events.isEmpty {
-            Text(Localization.string(.eventsCount(events.count)))
-              .font(Typography.caption)
-              .foregroundColor(Color.textTertiary)
-          }
-
-          Button(action: onAdd) {
-            Image(systemName: "plus.circle.fill")
-              .font(.system(size: 22))
-              .foregroundColor(.accentColor)
-          }
-          .accessibilityLabel(Localization.string(.addEvent))
-        }
-      }
-      .padding(.horizontal, 16)
-      .padding(.top, 14)
-      .padding(.bottom, 10)
 
       if events.isEmpty && incompleteTodos.isEmpty {
-        Spacer()
         emptyState
-        Spacer()
+          .frame(height: 80)
       } else {
-        ScrollView {
-          LazyVStack(spacing: 6) {
-            ForEach(events) { event in
-              EventRow(event: event)
-                .onTapGesture { onEdit(event) }
-                .if(!event.isHoliday) { view in
-                  view.swipeActions(edge: .trailing) {
-                    Button(role: .destructive) {
-                      onDelete(event)
-                    } label: {
-                      Label(Localization.string(.delete), systemImage: "trash")
-                    }
-                  }
-                }
-            }
-
-            if !incompleteTodos.isEmpty {
-              todoSection
-            }
+        // Compact preview: max 2 items
+        VStack(spacing: 4) {
+          ForEach(previewEvents) { event in
+            CompactEventRow(event: event)
+              .onTapGesture { onEdit(event) }
           }
-          .padding(.horizontal, 16)
-          .padding(.bottom, 14)
+
+          ForEach(previewTodos) { todo in
+            CompactTodoRow(todo: todo, onToggle: { onTodoToggle?(todo) })
+              .onTapGesture { onTodoTap?(todo) }
+          }
+
+          if allItemCount > 2 {
+            Text("+\(allItemCount - 2) more")
+              .font(Typography.caption)
+              .foregroundColor(.textTertiary)
+              .frame(maxWidth: .infinity, alignment: .center)
+              .padding(.top, 2)
+          }
         }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
       }
     }
-    .frame(maxHeight: .infinity, alignment: .top)
     .overlay(alignment: .bottomTrailing) {
       jumpToTodayButton
     }
@@ -99,50 +85,78 @@ struct EventListView: View {
     )
     .padding(.horizontal, 12)
     .padding(.top, 8)
+    .sheet(isPresented: $showingDetailSheet) {
+      EventListDetailSheet(
+        date: date,
+        events: events,
+        todos: incompleteTodos,
+        isToday: isToday,
+        onEdit: onEdit,
+        onDelete: onDelete,
+        onAdd: onAdd,
+        onTodoToggle: onTodoToggle,
+        onTodoTap: onTodoTap
+      )
+      .presentationDetents([.medium, .large])
+      .presentationDragIndicator(.visible)
+    }
+  }
+
+  // MARK: - Header
+
+  private var headerView: some View {
+    HStack(alignment: .firstTextBaseline) {
+      VStack(alignment: .leading, spacing: 2) {
+        if isToday {
+          Text("Today")
+            .font(Typography.headline)
+            .foregroundColor(.accentColor)
+        }
+        if let date {
+          Text(date.formattedDate)
+            .font(isToday ? Typography.caption : Typography.headline)
+            .foregroundColor(isToday ? Color.textSecondary : Color.textPrimary)
+        }
+      }
+
+      Spacer()
+
+      HStack(spacing: 8) {
+        if !events.isEmpty {
+          Text(Localization.string(.eventsCount(events.count)))
+            .font(Typography.caption)
+            .foregroundColor(Color.textTertiary)
+        }
+
+        Button(action: onAdd) {
+          Image(systemName: "plus.circle.fill")
+            .font(.system(size: 22))
+            .foregroundColor(.accentColor)
+        }
+        .accessibilityLabel(Localization.string(.addEvent))
+      }
+    }
+    .padding(.horizontal, 16)
+    .padding(.top, 14)
+    .padding(.bottom, 10)
   }
 
   // MARK: - Empty State
 
   private var emptyState: some View {
     Button(action: onAdd) {
-      VStack(spacing: 8) {
+      VStack(spacing: 6) {
         Image(systemName: "calendar.badge.plus")
-          .font(.system(size: 36))
+          .font(.system(size: 28))
           .foregroundColor(Color.textTertiary)
         Text(Localization.string(.noEvents))
-          .font(Typography.body)
-          .foregroundColor(Color.textSecondary)
-        Text(Localization.string(.tapToAdd))
           .font(Typography.caption)
-          .foregroundColor(Color.textTertiary)
+          .foregroundColor(Color.textSecondary)
       }
-      .frame(maxWidth: .infinity, minHeight: 100)
+      .frame(maxWidth: .infinity)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-  }
-
-  // MARK: - Todo Section
-
-  private var todoSection: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      HStack {
-        Text(Localization.string(.tabTodo))
-          .font(Typography.caption)
-          .fontWeight(.semibold)
-          .foregroundColor(Color.textTertiary)
-        Spacer()
-      }
-      .padding(.top, 8)
-
-      ForEach(incompleteTodos) { todo in
-        EventListTodoRow(
-          todo: todo,
-          onToggle: { onTodoToggle?(todo) },
-          onTap: { onTodoTap?(todo) }
-        )
-      }
-    }
   }
 
   // MARK: - Jump to Today
@@ -171,14 +185,149 @@ struct EventListView: View {
   }
 }
 
-// MARK: - Event Row (with left color bar)
+// MARK: - Compact Event Row (smaller for preview)
+
+struct CompactEventRow: View {
+  let event: Event
+
+  var body: some View {
+    HStack(spacing: 0) {
+      RoundedRectangle(cornerRadius: 2)
+        .fill(Color.eventColor(named: event.color))
+        .frame(width: 3)
+        .padding(.vertical, 3)
+
+      HStack(spacing: 8) {
+        Text(event.title)
+          .font(Typography.body)
+          .foregroundColor(Color.textPrimary)
+          .lineLimit(1)
+
+        if event.isHoliday {
+          Image(systemName: "star.fill")
+            .font(.system(size: 9))
+            .foregroundColor(.eventTeal)
+        }
+
+        Spacer()
+
+        Text(event.date.formatted(date: .omitted, time: .shortened))
+          .font(Typography.caption)
+          .foregroundColor(Color.textSecondary)
+      }
+      .padding(.horizontal, 10)
+      .padding(.vertical, 8)
+    }
+    .background(event.isHoliday ? Color.eventTeal.opacity(0.06) : Color.backgroundSecondary)
+    .clipShape(RoundedRectangle(cornerRadius: 8))
+  }
+}
+
+// MARK: - Compact Todo Row
+
+struct CompactTodoRow: View {
+  let todo: TodoItem
+  let onToggle: () -> Void
+
+  var body: some View {
+    HStack(spacing: 8) {
+      Button(action: onToggle) {
+        Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
+          .font(.system(size: 16))
+          .foregroundColor(priorityColor)
+      }
+      .buttonStyle(.plain)
+
+      Text(todo.title)
+        .font(Typography.body)
+        .foregroundColor(Color.textPrimary)
+        .lineLimit(1)
+
+      Spacer()
+
+      PriorityBadge(priority: todo.priorityEnum)
+    }
+    .padding(.horizontal, 10)
+    .padding(.vertical, 8)
+    .background(Color.backgroundSecondary)
+    .clipShape(RoundedRectangle(cornerRadius: 8))
+  }
+
+  private var priorityColor: Color {
+    switch todo.priorityEnum {
+    case .high: return .priorityHigh
+    case .medium: return .priorityMedium
+    case .low: return .priorityLow
+    }
+  }
+}
+
+// MARK: - Detail Sheet (full event list)
+
+struct EventListDetailSheet: View {
+  let date: Date?
+  let events: [Event]
+  let todos: [TodoItem]
+  let isToday: Bool
+  let onEdit: (Event) -> Void
+  let onDelete: (Event) -> Void
+  let onAdd: () -> Void
+  var onTodoToggle: ((TodoItem) -> Void)?
+  var onTodoTap: ((TodoItem) -> Void)?
+
+  var body: some View {
+    NavigationStack {
+      ScrollView {
+        LazyVStack(spacing: 6) {
+          ForEach(events) { event in
+            EventRow(event: event)
+              .onTapGesture { onEdit(event) }
+          }
+
+          if !todos.isEmpty {
+            HStack {
+              Text(Localization.string(.tabTodo))
+                .font(Typography.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(Color.textTertiary)
+              Spacer()
+            }
+            .padding(.top, 8)
+
+            ForEach(todos) { todo in
+              EventListTodoRow(
+                todo: todo,
+                onToggle: { onTodoToggle?(todo) },
+                onTap: { onTodoTap?(todo) }
+              )
+            }
+          }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+      }
+      .navigationTitle(isToday ? "Today" : (date?.formattedDate ?? ""))
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button(action: onAdd) {
+            Image(systemName: "plus.circle.fill")
+              .font(.system(size: 22))
+              .foregroundColor(.accentColor)
+          }
+        }
+      }
+    }
+  }
+}
+
+// MARK: - Full-size Event Row (for detail sheet)
 
 struct EventRow: View {
   let event: Event
 
   var body: some View {
     HStack(spacing: 0) {
-      // Color bar
       RoundedRectangle(cornerRadius: 2)
         .fill(Color.eventColor(named: event.color))
         .frame(width: 4)
@@ -223,7 +372,7 @@ struct EventRow: View {
   }
 }
 
-// MARK: - Todo Row
+// MARK: - Full-size Todo Row (for detail sheet)
 
 struct EventListTodoRow: View {
   let todo: TodoItem
