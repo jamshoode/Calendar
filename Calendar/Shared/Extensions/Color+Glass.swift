@@ -5,6 +5,9 @@ extension Color {
   static let glassBorder = Color.white.opacity(0.2)
   static let glassHighlight = Color.white.opacity(0.3)
 
+  /// Dark desaturated blue-black — gives glass elements depth to blur against
+  static let darkBackground = Color(red: 15 / 255, green: 17 / 255, blue: 23 / 255)
+
   static let eventBlue = Color.blue
   static let eventGreen = Color.green
   static let eventOrange = Color.orange

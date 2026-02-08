@@ -91,7 +91,7 @@ struct CalendarApp: App {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color.darkBackground)
 
         Divider()
 
@@ -110,7 +110,7 @@ struct CalendarApp: App {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
-      .background(Color(nsColor: .windowBackgroundColor))
+      .background(Color.darkBackground)
     }
   }
 

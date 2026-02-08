@@ -96,7 +96,8 @@ struct CalendarView: View {
             editingTodo = todo
           },
           showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
-            || !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
+            || !Calendar.current.isDate(
+              viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
           onJumpToToday: {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
               let today = Date()

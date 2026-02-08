@@ -7,6 +7,15 @@ struct AdaptiveTabBar: View {
   #endif
   @State private var showingSettings = false
 
+  init() {
+    // Customize UITabBar appearance to use dark blue-black background
+    let appearance = UITabBarAppearance()
+    appearance.configureWithOpaqueBackground()
+    appearance.backgroundColor = UIColor(Color.darkBackground)
+    UITabBar.appearance().standardAppearance = appearance
+    UITabBar.appearance().scrollEdgeAppearance = appearance
+  }
+
   private var currentTabTitle: String {
     switch appState.selectedTab {
     case .calendar:
@@ -23,41 +32,46 @@ struct AdaptiveTabBar: View {
   }
 
   var body: some View {
-    VStack(spacing: 0) {
-      TopBarView(title: currentTabTitle) {
-        withAnimation(.easeInOut(duration: 0.25)) {
-          showingSettings = true
+    ZStack {
+      Color.darkBackground
+        .ignoresSafeArea()
+
+      VStack(spacing: 0) {
+        TopBarView(title: currentTabTitle) {
+          withAnimation(.easeInOut(duration: 0.25)) {
+            showingSettings = true
+          }
         }
-      }
 
-      TabView(selection: $appState.selectedTab) {
-        CalendarView()
-          .tabItem {
-            Image(systemName: "calendar")
-            Text(Localization.string(.tabCalendar))
-          }
-          .tag(AppState.Tab.calendar)
+        TabView(selection: $appState.selectedTab) {
+          CalendarView()
+            .tabItem {
+              Image(systemName: "calendar")
+              Text(Localization.string(.tabCalendar))
+            }
+            .tag(AppState.Tab.calendar)
 
-        TodoView()
-          .tabItem {
-            Image(systemName: "checkmark.circle")
-            Text(Localization.string(.tabTodo))
-          }
-          .tag(AppState.Tab.todo)
+          TodoView()
+            .tabItem {
+              Image(systemName: "checkmark.circle")
+              Text(Localization.string(.tabTodo))
+            }
+            .tag(AppState.Tab.todo)
 
-        TimerView()
-          .tabItem {
-            Image(systemName: "timer")
-            Text(Localization.string(.tabTimer))
-          }
-          .tag(AppState.Tab.timer)
+          TimerView()
+            .tabItem {
+              Image(systemName: "timer")
+              Text(Localization.string(.tabTimer))
+            }
+            .tag(AppState.Tab.timer)
 
-        AlarmView()
-          .tabItem {
-            Image(systemName: "alarm")
-            Text(Localization.string(.tabAlarm))
-          }
-          .tag(AppState.Tab.alarm)
+          AlarmView()
+            .tabItem {
+              Image(systemName: "alarm")
+              Text(Localization.string(.tabAlarm))
+            }
+            .tag(AppState.Tab.alarm)
+        }
       }
     }
     .sideSheet(isPresented: $showingSettings) {
