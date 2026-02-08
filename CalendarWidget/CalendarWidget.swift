@@ -273,34 +273,17 @@ enum WidgetColorScheme {
 struct WidgetColorEntry {
   let color: Color
   let isTodo: Bool
-  let gradientEndColor: Color
+  let priority: String  // "high", "medium", "low" (only for todos)
 
-  /// Build a clean 3-stop gradient that avoids muddy mid-tones
-  var todoGradient: Gradient {
-    let mid = blendBright(color, gradientEndColor)
-    return Gradient(colors: [color, mid, gradientEndColor])
+  /// Priority color for alternating dashes
+  var priorityColor: Color {
+    switch priority.lowercased() {
+    case "high": return Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255)  // red
+    case "medium": return Color(red: 255 / 255, green: 204 / 255, blue: 0 / 255)  // yellow
+    case "low": return Color(red: 48 / 255, green: 209 / 255, blue: 88 / 255)  // green
+    default: return Color(red: 255 / 255, green: 204 / 255, blue: 0 / 255)
+    }
   }
-}
-
-/// Picks a bright midpoint: max of each RGB channel → avoids dark/muddy blending
-private func blendBright(_ a: Color, _ b: Color) -> Color {
-  let ra = UIColor(a)
-  let rb = UIColor(b)
-  var r1: CGFloat = 0
-  var g1: CGFloat = 0
-  var b1: CGFloat = 0
-  var a1: CGFloat = 0
-  var r2: CGFloat = 0
-  var g2: CGFloat = 0
-  var b2: CGFloat = 0
-  var a2: CGFloat = 0
-  ra.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
-  rb.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
-  return Color(
-    red: Double(max(r1, r2)),
-    green: Double(max(g1, g2)),
-    blue: Double(min(b1, b2) * 0.5)
-  )
 }
 
 func parseWidgetColorEntry(_ name: String) -> WidgetColorEntry {
@@ -312,19 +295,10 @@ func parseWidgetColorEntry(_ name: String) -> WidgetColorEntry {
     return WidgetColorEntry(
       color: widgetEventColor(catColor),
       isTodo: true,
-      gradientEndColor: widgetPriorityColor(priKey)
+      priority: priKey
     )
   }
-  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false, gradientEndColor: .clear)
-}
-
-func widgetPriorityColor(_ priority: String) -> Color {
-  switch priority.lowercased() {
-  case "high": return Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255)  // red
-  case "medium": return Color(red: 255 / 255, green: 149 / 255, blue: 0 / 255)  // orange
-  case "low": return Color(red: 48 / 255, green: 209 / 255, blue: 88 / 255)  // green
-  default: return Color(red: 255 / 255, green: 149 / 255, blue: 0 / 255)
-  }
+  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false, priority: "")
 }
 
 func widgetEventColor(_ name: String) -> Color {
@@ -718,7 +692,7 @@ struct DayCell: View {
   }
 }
 
-// MARK: - Event Ring (Concentric Circles & Arcs, Gradient for Todos)
+// MARK: - Event Ring (Concentric Circles & Arcs, Alternating Dashes for Todos)
 
 struct EventRing: View {
   let entries: [WidgetColorEntry]
@@ -728,6 +702,30 @@ struct EventRing: View {
 
   private let arcGapDegrees: Double = 8.0
 
+  /// Draws alternating colored dash segments along a circular arc
+  private static func drawAlternatingDashes(
+    context: GraphicsContext, center: CGPoint, radius: CGFloat,
+    startDeg: Double, endDeg: Double,
+    colorA: Color, colorB: Color,
+    lineWidth: CGFloat, dashDeg: Double = 20, gapDeg: Double = 8
+  ) {
+    var cursor = startDeg
+    var toggle = false
+    while cursor < endDeg {
+      let segEnd = min(cursor + dashDeg, endDeg)
+      var path = Path()
+      path.addArc(
+        center: center, radius: radius,
+        startAngle: .degrees(cursor), endAngle: .degrees(segEnd),
+        clockwise: false)
+      context.stroke(
+        path, with: .color(toggle ? colorB : colorA),
+        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+      toggle.toggle()
+      cursor = segEnd + gapDeg
+    }
+  }
+
   var body: some View {
     let count = entries.count
 
@@ -736,31 +734,29 @@ struct EventRing: View {
       let outerRadius = (min(canvasSize.width, canvasSize.height) - lineWidth) / 2
 
       if count <= 2 {
-        // ≤2 items: separate concentric full circles
         for i in 0..<count {
           let entry = entries[i]
           let radius = outerRadius - CGFloat(i) * (lineWidth + ringGap)
-          var path = Path()
-          path.addArc(
-            center: center, radius: radius, startAngle: .degrees(0), endAngle: .degrees(360),
-            clockwise: false)
 
           if entry.isTodo {
-            // Gradient stroke for todo items: category → bright mid → priority
-            context.stroke(
-              path,
-              with: .conicGradient(entry.todoGradient, center: center, angle: .degrees(-90)),
-              style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-            )
+            // Alternating colored dashes: category / priority
+            Self.drawAlternatingDashes(
+              context: context, center: center, radius: radius,
+              startDeg: 0, endDeg: 360,
+              colorA: entry.color, colorB: entry.priorityColor,
+              lineWidth: lineWidth)
           } else {
+            var path = Path()
+            path.addArc(
+              center: center, radius: radius,
+              startAngle: .degrees(0), endAngle: .degrees(360),
+              clockwise: false)
             context.stroke(
               path, with: .color(entry.color),
-              style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-            )
+              style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
           }
         }
       } else {
-        // >2 items: arcs distributed across 2 concentric rings
         let ringCount = 2
         var rings: [[WidgetColorEntry]] = Array(repeating: [], count: ringCount)
 
@@ -787,21 +783,21 @@ struct EventRing: View {
 
           for j in 0..<arcCount {
             let entry = ringEntries[j]
-            let startAngle = Angle.degrees(-90.0 + Double(j) * (arcSpan + arcGapDegrees))
-            let endAngle = Angle.degrees(-90.0 + Double(j) * (arcSpan + arcGapDegrees) + arcSpan)
-
-            var path = Path()
-            path.addArc(
-              center: center, radius: radius, startAngle: startAngle, endAngle: endAngle,
-              clockwise: false)
+            let startDeg = -90.0 + Double(j) * (arcSpan + arcGapDegrees)
+            let endDeg = startDeg + arcSpan
 
             if entry.isTodo {
-              context.stroke(
-                path,
-                with: .conicGradient(entry.todoGradient, center: center, angle: startAngle),
-                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-              )
+              Self.drawAlternatingDashes(
+                context: context, center: center, radius: radius,
+                startDeg: startDeg, endDeg: endDeg,
+                colorA: entry.color, colorB: entry.priorityColor,
+                lineWidth: lineWidth)
             } else {
+              var path = Path()
+              path.addArc(
+                center: center, radius: radius,
+                startAngle: .degrees(startDeg), endAngle: .degrees(endDeg),
+                clockwise: false)
               context.stroke(
                 path, with: .color(entry.color),
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
