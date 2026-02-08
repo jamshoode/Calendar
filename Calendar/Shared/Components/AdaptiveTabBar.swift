@@ -32,46 +32,45 @@ struct AdaptiveTabBar: View {
   }
 
   var body: some View {
-    ZStack {
-      Color.darkBackground
-        .ignoresSafeArea()
+    VStack(spacing: 0) {
+      TopBarView(title: currentTabTitle) {
+        withAnimation(.easeInOut(duration: 0.25)) {
+          showingSettings = true
+        }
+      }
 
-      VStack(spacing: 0) {
-        TopBarView(title: currentTabTitle) {
-          withAnimation(.easeInOut(duration: 0.25)) {
-            showingSettings = true
+      TabView(selection: $appState.selectedTab) {
+        CalendarView()
+          .background(Color.darkBackground)
+          .tabItem {
+            Image(systemName: "calendar")
+            Text(Localization.string(.tabCalendar))
           }
-        }
+          .tag(AppState.Tab.calendar)
 
-        TabView(selection: $appState.selectedTab) {
-          CalendarView()
-            .tabItem {
-              Image(systemName: "calendar")
-              Text(Localization.string(.tabCalendar))
-            }
-            .tag(AppState.Tab.calendar)
+        TodoView()
+          .background(Color.darkBackground)
+          .tabItem {
+            Image(systemName: "checkmark.circle")
+            Text(Localization.string(.tabTodo))
+          }
+          .tag(AppState.Tab.todo)
 
-          TodoView()
-            .tabItem {
-              Image(systemName: "checkmark.circle")
-              Text(Localization.string(.tabTodo))
-            }
-            .tag(AppState.Tab.todo)
+        TimerView()
+          .background(Color.darkBackground)
+          .tabItem {
+            Image(systemName: "timer")
+            Text(Localization.string(.tabTimer))
+          }
+          .tag(AppState.Tab.timer)
 
-          TimerView()
-            .tabItem {
-              Image(systemName: "timer")
-              Text(Localization.string(.tabTimer))
-            }
-            .tag(AppState.Tab.timer)
-
-          AlarmView()
-            .tabItem {
-              Image(systemName: "alarm")
-              Text(Localization.string(.tabAlarm))
-            }
-            .tag(AppState.Tab.alarm)
-        }
+        AlarmView()
+          .background(Color.darkBackground)
+          .tabItem {
+            Image(systemName: "alarm")
+            Text(Localization.string(.tabAlarm))
+          }
+          .tag(AppState.Tab.alarm)
       }
     }
     .sideSheet(isPresented: $showingSettings) {
