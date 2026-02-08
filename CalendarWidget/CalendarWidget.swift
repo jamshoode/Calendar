@@ -310,6 +310,7 @@ func widgetEventColor(_ name: String) -> Color {
   case "purple": return Color(red: 175 / 255, green: 82 / 255, blue: 222 / 255)
   case "pink": return Color(red: 255 / 255, green: 45 / 255, blue: 85 / 255)
   case "yellow": return Color(red: 255 / 255, green: 204 / 255, blue: 0 / 255)
+  case "teal": return Color(red: 50 / 255, green: 173 / 255, blue: 230 / 255)
   default: return Color(red: 10 / 255, green: 132 / 255, blue: 255 / 255)
   }
 }

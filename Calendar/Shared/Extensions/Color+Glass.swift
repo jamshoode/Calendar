@@ -12,6 +12,7 @@ extension Color {
     static let eventPurple = Color.purple
     static let eventPink = Color.pink
     static let eventYellow = Color.yellow
+    static let eventTeal = Color(red: 50 / 255, green: 173 / 255, blue: 230 / 255)
     
     static func eventColor(named name: String) -> Color {
         switch name.lowercased() {
@@ -22,6 +23,7 @@ extension Color {
         case "purple": return .eventPurple
         case "pink": return .eventPink
         case "yellow": return .eventYellow
+        case "teal": return .eventTeal
         default: return .eventBlue
         }
     }
