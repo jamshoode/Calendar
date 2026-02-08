@@ -12,7 +12,11 @@ class Event {
     
     var reminderInterval: TimeInterval?
     
-    init(date: Date, title: String, notes: String? = nil, color: String = "blue", reminderInterval: TimeInterval? = nil) {
+    // Holiday support
+    var isHoliday: Bool = false
+    var holidayId: String?
+    
+    init(date: Date, title: String, notes: String? = nil, color: String = "blue", reminderInterval: TimeInterval? = nil, isHoliday: Bool = false, holidayId: String? = nil) {
         self.id = UUID()
         self.date = date
         self.title = title
@@ -20,5 +24,7 @@ class Event {
         self.color = color
         self.reminderInterval = reminderInterval
         self.createdAt = Date()
+        self.isHoliday = isHoliday
+        self.holidayId = holidayId
     }
 }
