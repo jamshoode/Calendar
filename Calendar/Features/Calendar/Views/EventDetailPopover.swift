@@ -8,123 +8,139 @@ struct EventDetailPopover: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      // Header with color bar
-      HStack(spacing: 12) {
-        RoundedRectangle(cornerRadius: 3)
-          .fill(Color.eventColor(named: event.color))
-          .frame(width: 6, height: 40)
+      // Color category bar at top
+      RoundedRectangle(cornerRadius: 0)
+        .fill(Color.eventColor(named: event.color))
+        .frame(height: 6)
 
-        VStack(alignment: .leading, spacing: 4) {
-          HStack(spacing: 6) {
-            Text(event.title)
-              .font(.system(size: 18, weight: .bold))
-              .foregroundColor(.primary)
-              .fixedSize(horizontal: false, vertical: true)
+      // Header
+      VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .top) {
+          VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+              Text(event.title)
+                .font(Typography.title)
+                .foregroundColor(Color.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
 
-            if event.isHoliday {
-              Image(systemName: "star.fill")
-                .font(.system(size: 12))
-                .foregroundColor(.eventTeal)
+              if event.isHoliday {
+                Image(systemName: "star.fill")
+                  .font(.system(size: 12))
+                  .foregroundColor(.eventTeal)
+              }
             }
+
+            Text(
+              event.date.formatted(
+                .dateTime.weekday(.wide).day().month(.wide).hour().minute()
+                  .locale(Localization.locale))
+            )
+            .font(Typography.caption)
+            .foregroundColor(Color.textSecondary)
           }
 
-          Text(
-            event.date.formatted(
-              .dateTime.weekday(.wide).day().month(.wide).hour().minute()
-                .locale(Localization.locale))
-          )
-          .font(.system(size: 13))
-          .foregroundColor(.secondary)
+          Spacer()
+
+          Button(action: onDismiss) {
+            Image(systemName: "xmark.circle.fill")
+              .font(.system(size: 24))
+              .foregroundColor(Color.textTertiary)
+          }
+          .buttonStyle(.plain)
         }
 
-        Spacer()
-
-        Button(action: onDismiss) {
-          Image(systemName: "xmark.circle.fill")
-            .font(.system(size: 22))
-            .foregroundColor(.secondary.opacity(0.6))
+        // Reminder badge
+        if let reminder = event.reminderInterval, reminder > 0 {
+          HStack(spacing: 6) {
+            Image(systemName: "bell.fill")
+              .font(.system(size: 11))
+            Text(reminderLabel(reminder))
+              .font(Typography.caption)
+          }
+          .foregroundColor(Color.textSecondary)
+          .padding(.horizontal, 10)
+          .padding(.vertical, 4)
+          .background(Color.secondaryFill)
+          .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
       }
-      .padding(.horizontal, 18)
-      .padding(.top, 18)
-      .padding(.bottom, 14)
+      .padding(Spacing.md)
 
       // Notes
       if let notes = event.notes, !notes.isEmpty {
         Divider()
-          .padding(.horizontal, 18)
+          .padding(.horizontal, Spacing.md)
 
         ScrollView {
           Text(notes)
-            .font(.system(size: 15))
+            .font(Typography.body)
             .foregroundColor(Color.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
+            .padding(Spacing.md)
         }
         .frame(maxHeight: 200)
       }
 
-      // Action buttons (only for non-holiday events)
-      if !event.isHoliday {
-        Divider()
-          .padding(.horizontal, 18)
+      // Actions
+      Divider()
+        .padding(.horizontal, Spacing.md)
 
-        HStack(spacing: 16) {
-          if let onEdit = onEdit {
+      if !event.isHoliday {
+        HStack(spacing: Spacing.md) {
+          if let onEdit {
             Button(action: onEdit) {
-              HStack(spacing: 6) {
-                Image(systemName: "pencil")
-                  .font(.system(size: 14, weight: .medium))
-                Text(Localization.string(.edit))
-                  .font(.system(size: 14, weight: .medium))
-              }
-              .foregroundColor(.accentColor)
+              Label(Localization.string(.edit), systemImage: "pencil")
+                .font(Typography.body)
+                .fontWeight(.medium)
+                .foregroundColor(.accentColor)
             }
             .buttonStyle(.plain)
           }
 
           Spacer()
 
-          if let onDelete = onDelete {
+          if let onDelete {
             Button(action: onDelete) {
-              HStack(spacing: 6) {
-                Image(systemName: "trash")
-                  .font(.system(size: 14, weight: .medium))
-                Text(Localization.string(.delete))
-                  .font(.system(size: 14, weight: .medium))
-              }
-              .foregroundColor(.red)
+              Label(Localization.string(.delete), systemImage: "trash")
+                .font(Typography.body)
+                .fontWeight(.medium)
+                .foregroundColor(.priorityHigh)
             }
             .buttonStyle(.plain)
           }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 14)
+        .padding(Spacing.md)
       } else {
-        // Holiday label
         HStack(spacing: 6) {
           Image(systemName: "star.fill")
             .font(.system(size: 12))
             .foregroundColor(.eventTeal)
           Text(Localization.string(.holiday))
-            .font(.system(size: 13, weight: .medium))
+            .font(Typography.caption)
+            .fontWeight(.medium)
             .foregroundColor(.eventTeal)
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 12)
+        .padding(Spacing.md)
       }
     }
     .background(Color.surfaceElevated)
-    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    .clipShape(RoundedRectangle(cornerRadius: Spacing.cardRadius, style: .continuous))
     .overlay(
-      RoundedRectangle(cornerRadius: 16, style: .continuous)
+      RoundedRectangle(cornerRadius: Spacing.cardRadius, style: .continuous)
         .stroke(Color.border, lineWidth: 0.5)
     )
     .shadow(color: Color.shadowColor, radius: 20, x: 0, y: 8)
     .padding(.horizontal, 24)
     .frame(maxWidth: 400)
+  }
+
+  private func reminderLabel(_ interval: TimeInterval) -> String {
+    if interval < 1 { return Localization.string(.atTimeOfEvent) }
+    let minutes = Int(interval / 60)
+    if minutes < 60 { return Localization.string(.minutesBefore(minutes)) }
+    let hours = minutes / 60
+    if hours < 24 { return Localization.string(.hoursBefore(hours)) }
+    return Localization.string(.daysBefore(hours / 24))
   }
 }

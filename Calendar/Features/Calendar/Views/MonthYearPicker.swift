@@ -40,12 +40,12 @@ struct MonthYearPicker: View {
             }) {
                 HStack {
                     Text("\(String(tempYear))")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.primary)
+                        .font(Typography.largeTitle)
+                        .foregroundColor(Color.textPrimary)
                     
                     Image(systemName: "chevron.right")
                         .rotationEffect(displayMode == .year ? .degrees(90) : .degrees(0))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color.textTertiary)
                 }
             }
             .buttonStyle(.plain)
@@ -59,14 +59,15 @@ struct MonthYearPicker: View {
                             selectDate()
                         }) {
                             Text(months[index])
-                                .font(.system(size: 16, weight: .medium))
+                                .font(Typography.body)
+                                .fontWeight(.medium)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    RoundedRectangle(cornerRadius: Spacing.smallRadius)
                                         .fill(tempMonth == index ? Color.accentColor : Color.clear)
                                 )
-                                .foregroundColor(tempMonth == index ? .white : .primary)
+                                .foregroundColor(tempMonth == index ? .white : Color.textPrimary)
                         }
                     }
                 }
@@ -84,7 +85,7 @@ struct MonthYearPicker: View {
                                 }) {
                                     Text(String(year))
                                         .font(.system(size: 24, weight: year == tempYear ? .bold : .regular))
-                                        .foregroundColor(year == tempYear ? .accentColor : .primary)
+                                        .foregroundColor(year == tempYear ? .accentColor : Color.textPrimary)
                                         .padding(.vertical, 8)
                                         .frame(maxWidth: .infinity)
                                 }
@@ -101,8 +102,13 @@ struct MonthYearPicker: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .padding(24)
-        .glassBackground(cornerRadius: 24)
+        .padding(Spacing.lg)
+        .background(Color.surfaceElevated)
+        .clipShape(RoundedRectangle(cornerRadius: Spacing.sheetRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: Spacing.sheetRadius)
+                .stroke(Color.border, lineWidth: 0.5)
+        )
         .padding(.horizontal, 40)
         .shadow(color: Color.shadowColor, radius: 20, x: 0, y: 10)
     }

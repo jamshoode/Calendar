@@ -1,6 +1,20 @@
 import SwiftData
 import SwiftUI
 
+// MARK: - View Mode
+
+enum CalendarViewMode: String, CaseIterable {
+  case grid, list, timeline
+
+  var icon: String {
+    switch self {
+    case .grid: return "square.grid.2x2"
+    case .list: return "list.bullet"
+    case .timeline: return "clock"
+    }
+  }
+}
+
 struct CalendarView: View {
   @StateObject private var viewModel = CalendarViewModel()
   @StateObject private var todoViewModel = TodoViewModel()
@@ -11,6 +25,7 @@ struct CalendarView: View {
   private var todosWithDueDate: [TodoItem]
   @Environment(\.modelContext) private var modelContext
 
+  @State private var viewMode: CalendarViewMode = .grid
   @State private var showingAddEvent = false
   @State private var showingDatePicker = false
   @State private var editingEvent: Event?
@@ -35,9 +50,10 @@ struct CalendarView: View {
   var body: some View {
     ZStack {
       VStack(spacing: 0) {
-        // Month Navigation Header
+        // Month Navigation Header with view-mode toggle
         MonthHeaderView(
           currentMonth: viewModel.currentMonth,
+          viewMode: $viewMode,
           onPrevious: viewModel.moveToPreviousMonth,
           onNext: viewModel.moveToNextMonth,
           onTitleTap: {
@@ -50,62 +66,86 @@ struct CalendarView: View {
         .accessibilityLabel(
           Localization.string(.calendarFor(viewModel.currentMonth.formattedMonthYear)))
 
-        // Weekday Labels
-        WeekdayHeaderView()
-          .padding(.top, 8)
+        // Weekday Labels (for grid mode)
+        if viewMode == .grid {
+          WeekdayHeaderView()
+            .padding(.top, 8)
+        }
 
-        // Calendar Grid - Fixed height for 6 rows
-        MonthView(
-          currentMonth: viewModel.currentMonth,
-          selectedDate: viewModel.selectedDate,
-          events: eventsForMonth,
-          todos: todosForMonth,
-          onSelectDate: { date in
-            viewModel.selectDate(date)
-            if showingDatePicker {
-              withAnimation { showingDatePicker = false }
+        // View Mode Content
+        switch viewMode {
+        case .grid:
+          // Calendar Grid - Fixed height for 6 rows
+          MonthView(
+            currentMonth: viewModel.currentMonth,
+            selectedDate: viewModel.selectedDate,
+            events: eventsForMonth,
+            todos: todosForMonth,
+            onSelectDate: { date in
+              viewModel.selectDate(date)
+              if showingDatePicker {
+                withAnimation { showingDatePicker = false }
+              }
             }
-          }
-        )
-        .frame(height: 288)  // Fixed height: 6 rows × 48px (44 cell + 4 spacing)
-        .swipeGesture(
-          onLeft: viewModel.moveToNextMonth,
-          onRight: viewModel.moveToPreviousMonth
-        )
-        .accessibilityHint("Swipe left or right to change months")
+          )
+          .frame(height: 288)
+          .swipeGesture(
+            onLeft: viewModel.moveToNextMonth,
+            onRight: viewModel.moveToPreviousMonth
+          )
+          .accessibilityHint("Swipe left or right to change months")
 
-        // Event List Section
-        EventListView(
-          date: viewModel.selectedDate ?? Date(),
-          events: eventsForSelectedDate,
-          todos: todosForSelectedDate,
-          onEdit: { event in
-            detailEvent = event
-          },
-          onDelete: { event in
-            guard !event.isHoliday else { return }
-            deleteEvent(event)
-          },
-          onAdd: {
-            showingAddEvent = true
-          },
-          onTodoToggle: { todo in
-            todoViewModel.toggleCompletion(todo, context: modelContext)
-          },
-          onTodoTap: { todo in
-            editingTodo = todo
-          },
-          showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
-            || !Calendar.current.isDate(
-              viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
-          onJumpToToday: {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-              let today = Date()
-              viewModel.selectDate(today)
-              viewModel.currentMonth = today
+          // Event List Section
+          EventListView(
+            date: viewModel.selectedDate ?? Date(),
+            events: eventsForSelectedDate,
+            todos: todosForSelectedDate,
+            onEdit: { event in
+              detailEvent = event
+            },
+            onDelete: { event in
+              guard !event.isHoliday else { return }
+              deleteEvent(event)
+            },
+            onAdd: {
+              showingAddEvent = true
+            },
+            onTodoToggle: { todo in
+              todoViewModel.toggleCompletion(todo, context: modelContext)
+            },
+            onTodoTap: { todo in
+              editingTodo = todo
+            },
+            showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
+              || !Calendar.current.isDate(
+                viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
+            onJumpToToday: {
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                let today = Date()
+                viewModel.selectDate(today)
+                viewModel.currentMonth = today
+              }
             }
-          }
-        )
+          )
+
+        case .list:
+          CalendarListView(
+            currentMonth: viewModel.currentMonth,
+            events: eventsForMonth,
+            todos: todosForMonth,
+            onEventTap: { event in detailEvent = event },
+            onDateSelect: { date in viewModel.selectDate(date) }
+          )
+
+        case .timeline:
+          CalendarTimelineView(
+            selectedDate: viewModel.selectedDate ?? Date(),
+            events: eventsForSelectedDate,
+            onEventTap: { event in detailEvent = event },
+            onDateSelect: { date in viewModel.selectDate(date) },
+            currentMonth: viewModel.currentMonth
+          )
+        }
       }
       .blur(radius: showingDatePicker ? 4 : 0)
       .disabled(showingDatePicker)
@@ -267,58 +307,80 @@ struct CalendarView: View {
 
 struct MonthHeaderView: View {
   let currentMonth: Date
+  @Binding var viewMode: CalendarViewMode
   let onPrevious: () -> Void
   let onNext: () -> Void
   var onTitleTap: (() -> Void)? = nil
 
   var body: some View {
-    HStack(spacing: 0) {
-      Button(action: onPrevious) {
-        Image(systemName: "chevron.left")
-          .font(.system(size: 18, weight: .semibold))
-          .foregroundColor(.primary)
-          .frame(width: 44, height: 44)
-          .contentShape(Rectangle())
-      }
-      .buttonStyle(.plain)
-      .accessibilityLabel(Localization.string(.previousMonth))
+    VStack(spacing: 8) {
+      // Top row: Large title + view mode icons
+      HStack(alignment: .firstTextBaseline) {
+        Button(action: { onTitleTap?() }) {
+          HStack(spacing: 6) {
+            Text(currentMonth.formattedMonthYear)
+              .font(Typography.largeTitle)
+              .foregroundColor(Color.textPrimary)
 
-      Spacer()
-
-      Button(action: { onTitleTap?() }) {
-        HStack(spacing: 6) {
-          Text(currentMonth.formattedMonthYear)
-            .font(.system(size: 18, weight: .bold))
-            .foregroundColor(.primary)
-
-          if onTitleTap != nil {
-            Image(systemName: "chevron.down")
-              .font(.system(size: 12, weight: .semibold))
-              .foregroundColor(.secondary)
+            if onTitleTap != nil {
+              Image(systemName: "chevron.down")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(Color.textTertiary)
+            }
           }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.secondaryFill)
-        .clipShape(Capsule())
-      }
-      .buttonStyle(.plain)
-      .accessibilityAddTraits(.isHeader)
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(.isHeader)
 
-      Spacer()
+        Spacer()
 
-      Button(action: onNext) {
-        Image(systemName: "chevron.right")
-          .font(.system(size: 18, weight: .semibold))
-          .foregroundColor(.primary)
-          .frame(width: 44, height: 44)
-          .contentShape(Rectangle())
+        // View mode toggle
+        HStack(spacing: 4) {
+          ForEach(CalendarViewMode.allCases, id: \.self) { mode in
+            Button {
+              withAnimation(.easeInOut(duration: 0.2)) {
+                viewMode = mode
+              }
+            } label: {
+              Image(systemName: mode.icon)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(viewMode == mode ? Color.textPrimary : Color.textTertiary)
+                .frame(width: 32, height: 32)
+                .background(viewMode == mode ? Color.secondaryFill : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+          }
+        }
       }
-      .buttonStyle(.plain)
-      .accessibilityLabel(Localization.string(.nextMonth))
+
+      // Bottom row: month nav arrows
+      HStack(spacing: 0) {
+        Button(action: onPrevious) {
+          Image(systemName: "chevron.left")
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundColor(Color.textSecondary)
+            .frame(width: 36, height: 36)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Localization.string(.previousMonth))
+
+        Spacer()
+
+        Button(action: onNext) {
+          Image(systemName: "chevron.right")
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundColor(Color.textSecondary)
+            .frame(width: 36, height: 36)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Localization.string(.nextMonth))
+      }
     }
-    .padding(.horizontal, 8)
-    .padding(.vertical, 4)
+    .padding(.horizontal, 16)
+    .padding(.top, 8)
   }
 }
 

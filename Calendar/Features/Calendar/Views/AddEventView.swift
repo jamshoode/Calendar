@@ -140,8 +140,6 @@ struct ColorCircle: View {
   let isSelected: Bool
   let action: () -> Void
 
-  @Environment(\.colorScheme) var colorScheme
-
   var body: some View {
     Button(action: action) {
       Circle()
@@ -149,10 +147,7 @@ struct ColorCircle: View {
         .frame(width: 40, height: 40)
         .overlay(
           Circle()
-            .stroke(
-              colorScheme == .dark ? Color(red: 44 / 255, green: 44 / 255, blue: 46 / 255) : .white,
-              lineWidth: isSelected ? 3 : 0
-            )
+            .stroke(Color.backgroundPrimary, lineWidth: isSelected ? 3 : 0)
         )
     }
     .buttonStyle(.plain)

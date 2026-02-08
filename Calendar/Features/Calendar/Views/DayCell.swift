@@ -41,11 +41,7 @@ struct DayCell: View {
   }
 
   private var backgroundColor: Color {
-    if isSelected {
-      return .accentColor
-    } else {
-      return .clear
-    }
+    isSelected ? .accentColor : .clear
   }
 
   private var textColor: Color {
@@ -54,7 +50,7 @@ struct DayCell: View {
     } else if isToday {
       return .accentColor
     } else {
-      return .primary
+      return Color.textPrimary
     }
   }
 }
@@ -64,7 +60,7 @@ struct TodoIndicator: View {
 
   var body: some View {
     Circle()
-      .fill(Color.orange)
+      .fill(Color.statusInProgress)
       .frame(width: 6, height: 6)
   }
 }

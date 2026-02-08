@@ -20,6 +20,9 @@
 		F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */; };
 		F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */; };
 		F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0182F4E000D007F8DEB /* ClockView.swift */; };
+		F5A1B01B2F4E000E007F8DEB /* CalendarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */; };
+		F5A1B01D2F4E000F007F8DEB /* CalendarTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */; };
+		F5A1B01F2F4E0010007F8DEB /* WeekStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */; };
 		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
 		F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE42F34F4AA008B6601 /* TodoCategory.swift */; };
 		F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE52F34F4AA008B6601 /* TodoItem.swift */; };
@@ -165,6 +168,9 @@
 		F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseSheet.swift; sourceTree = "<group>"; };
 		F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRow.swift; sourceTree = "<group>"; };
 		F5A1B0182F4E000D007F8DEB /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
+		F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarListView.swift; sourceTree = "<group>"; };
+		F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTimelineView.swift; sourceTree = "<group>"; };
+		F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekStrip.swift; sourceTree = "<group>"; };
 		F593C0EE2F33C234007F8DEB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewModel.swift; sourceTree = "<group>"; };
 		F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
@@ -417,6 +423,7 @@
 			children = (
 				F593C0FC2F33C234007F8DEB /* EventIndicator.swift */,
 				F593C0FD2F33C234007F8DEB /* SwipeGestureModifier.swift */,
+				F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -425,6 +432,8 @@
 			isa = PBXGroup;
 			children = (
 				F593C0FF2F33C234007F8DEB /* AddEventView.swift */,
+				F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */,
+				F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */,
 				F593C1002F33C234007F8DEB /* CalendarView.swift */,
 				F593C1012F33C234007F8DEB /* DayCell.swift */,
 				F593C1022F33C234007F8DEB /* EventListView.swift */,
@@ -849,6 +858,9 @@
 				F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */,
 				F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */,
 				F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */,
+				F5A1B01B2F4E000E007F8DEB /* CalendarListView.swift in Sources */,
+				F5A1B01D2F4E000F007F8DEB /* CalendarTimelineView.swift in Sources */,
+				F5A1B01F2F4E0010007F8DEB /* WeekStrip.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
