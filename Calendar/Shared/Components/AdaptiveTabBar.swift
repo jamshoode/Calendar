@@ -11,8 +11,7 @@ struct AdaptiveTabBar: View {
     TabView(selection: $appState.selectedTab) {
       NavigationStack {
         CalendarView()
-          .navigationTitle(Localization.string(.tabCalendar))
-          .navigationBarTitleDisplayMode(.large)
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -30,8 +29,7 @@ struct AdaptiveTabBar: View {
 
       NavigationStack {
         TodoView()
-          .navigationTitle(Localization.string(.tabTodo))
-          .navigationBarTitleDisplayMode(.large)
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -49,8 +47,7 @@ struct AdaptiveTabBar: View {
 
       NavigationStack {
         ExpensesView()
-          .navigationTitle(Localization.string(.tabExpenses))
-          .navigationBarTitleDisplayMode(.large)
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -68,8 +65,7 @@ struct AdaptiveTabBar: View {
 
       NavigationStack {
         ClockView()
-          .navigationBarTitleDisplayMode(.large)
-          .navigationTitle(Localization.string(.tabClock))
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
