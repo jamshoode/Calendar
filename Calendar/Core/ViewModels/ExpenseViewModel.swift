@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-class ExpenseViewModel: ObservableObject {
+class ExpenseViewModel {
 
   func addExpense(
     title: String,

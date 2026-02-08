@@ -8,19 +8,19 @@ struct AdaptiveSidebar: View {
     NavigationSplitView {
       List(selection: $appState.selectedTab) {
         NavigationLink(value: AppState.Tab.calendar) {
-          Label("Calendar", systemImage: "calendar")
+          Label(Localization.string(.tabCalendar), systemImage: "calendar")
         }
 
-        NavigationLink(value: AppState.Tab.todo) {
-          Label("Todo", systemImage: "checkmark.circle")
+        NavigationLink(value: AppState.Tab.tasks) {
+          Label(Localization.string(.tabTodo), systemImage: "checkmark.circle")
         }
 
-        NavigationLink(value: AppState.Tab.timer) {
-          Label("Timer", systemImage: "timer")
+        NavigationLink(value: AppState.Tab.expenses) {
+          Label(Localization.string(.tabExpenses), systemImage: "banknote")
         }
 
-        NavigationLink(value: AppState.Tab.alarm) {
-          Label("Alarm", systemImage: "alarm")
+        NavigationLink(value: AppState.Tab.clock) {
+          Label(Localization.string(.tabClock), systemImage: "clock")
         }
       }
       .navigationTitle(Localization.string(.tabCalendar))
@@ -28,12 +28,12 @@ struct AdaptiveSidebar: View {
       switch appState.selectedTab {
       case .calendar:
         CalendarView()
-      case .todo:
+      case .tasks:
         TodoView()
-      case .timer:
-        TimerView()
-      case .alarm:
-        AlarmView()
+      case .expenses:
+        ExpensesView()
+      case .clock:
+        ClockView()
       case nil:
         NotFoundView()
       }

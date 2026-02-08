@@ -72,7 +72,6 @@
 		F593C13B2F33C234007F8DEB /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1022F33C234007F8DEB /* EventListView.swift */; };
 		F593C13C2F33C234007F8DEB /* TimerDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1072F33C234007F8DEB /* TimerDisplay.swift */; };
 		F593C13D2F33C234007F8DEB /* AdaptiveTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */; };
-		F593C13E2F33C234007F8DEB /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1142F33C234007F8DEB /* GlassCard.swift */; };
 		F593C13F2F33C234007F8DEB /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0ED2F33C234007F8DEB /* AudioService.swift */; };
 		F593C1402F33C234007F8DEB /* TimerControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1062F33C234007F8DEB /* TimerControls.swift */; };
 		F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F62F33C234007F8DEB /* AlarmToggle.swift */; };
@@ -196,7 +195,6 @@
 		F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveTabBar.swift; sourceTree = "<group>"; };
 		F593C1122F33C234007F8DEB /* GlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackground.swift; sourceTree = "<group>"; };
 		F593C1132F33C234007F8DEB /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
-		F593C1142F33C234007F8DEB /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		F593C1162F33C234007F8DEB /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
 		F593C1172F33C234007F8DEB /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		F593C1182F33C234007F8DEB /* View+Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Glass.swift"; sourceTree = "<group>"; };
@@ -490,23 +488,23 @@
 				F593C0FB2F33C234007F8DEB /* Alarm */,
 				F593C1052F33C234007F8DEB /* Calendar */,
 				F593C10E2F33C234007F8DEB /* Timer */,
-				F5A1B01A2F4E000E007F8DEB /* Expenses */,
-				F5A1B01D2F4E000F007F8DEB /* Clock */,
+				F5A1B0202F4E0011007F8DEB /* Expenses */,
+				F5A1B0232F4E0014007F8DEB /* Clock */,
 			);
 			name = Features;
 			path = Calendar/Features;
 			sourceTree = "<group>";
 		};
-		F5A1B01A2F4E000E007F8DEB /* Expenses */ = {
+		F5A1B0202F4E0011007F8DEB /* Expenses */ = {
 			isa = PBXGroup;
 			children = (
-				F5A1B01B2F4E000E007F8DEB /* Views */,
-				F5A1B01C2F4E000E007F8DEB /* Components */,
+				F5A1B0212F4E0012007F8DEB /* Views */,
+				F5A1B0222F4E0013007F8DEB /* Components */,
 			);
 			path = Expenses;
 			sourceTree = "<group>";
 		};
-		F5A1B01B2F4E000E007F8DEB /* Views */ = {
+		F5A1B0212F4E0012007F8DEB /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */,
@@ -515,7 +513,7 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		F5A1B01C2F4E000E007F8DEB /* Components */ = {
+		F5A1B0222F4E0013007F8DEB /* Components */ = {
 			isa = PBXGroup;
 			children = (
 				F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */,
@@ -523,15 +521,15 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		F5A1B01D2F4E000F007F8DEB /* Clock */ = {
+		F5A1B0232F4E0014007F8DEB /* Clock */ = {
 			isa = PBXGroup;
 			children = (
-				F5A1B01E2F4E000F007F8DEB /* Views */,
+				F5A1B0242F4E0015007F8DEB /* Views */,
 			);
 			path = Clock;
 			sourceTree = "<group>";
 		};
-		F5A1B01E2F4E000F007F8DEB /* Views */ = {
+		F5A1B0242F4E0015007F8DEB /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				F5A1B0182F4E000D007F8DEB /* ClockView.swift */,
@@ -546,7 +544,6 @@
 				F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */,
 				F593C1122F33C234007F8DEB /* GlassBackground.swift */,
 				F593C1132F33C234007F8DEB /* GlassButton.swift */,
-				F593C1142F33C234007F8DEB /* GlassCard.swift */,
 				F556A0352F33CD160071D8B8 /* NotFoundView.swift */,
 				F554EFFF2F34F99C008B6601 /* TopBarView.swift */,
 				F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */,
@@ -602,7 +599,7 @@
 			children = (
 				F593C1CA2F33C57E007F8DEB /* AppState.swift */,
 			);
-			path = App;
+			path = Calendar/App;
 			sourceTree = "<group>";
 		};
 		F5BCFC982F34C45D0025B2E6 /* Debug */ = {
@@ -836,7 +833,6 @@
 				F593C13B2F33C234007F8DEB /* EventListView.swift in Sources */,
 				F593C13C2F33C234007F8DEB /* TimerDisplay.swift in Sources */,
 				F593C13D2F33C234007F8DEB /* AdaptiveTabBar.swift in Sources */,
-				F593C13E2F33C234007F8DEB /* GlassCard.swift in Sources */,
 				F593C13F2F33C234007F8DEB /* AudioService.swift in Sources */,
 				F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */,
 				F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */,

@@ -29,12 +29,5 @@ extension View {
   func cardStyle(cornerRadius: CGFloat = Spacing.cardRadius, filled: Bool = true) -> some View {
     modifier(CardStyle(cornerRadius: cornerRadius, filled: filled))
   }
-
-  /// Legacy bridge — maps old glassBackground calls to new cardStyle
-  func glassBackground(cornerRadius: CGFloat = Spacing.cardRadius, material: Material = .thin)
-    -> some View
-  {
-    modifier(CardStyle(cornerRadius: cornerRadius))
-  }
 }
 
