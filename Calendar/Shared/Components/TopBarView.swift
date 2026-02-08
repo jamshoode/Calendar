@@ -7,22 +7,22 @@ struct TopBarView: View {
   var body: some View {
     HStack {
       Text(title)
-        .font(.system(size: 20, weight: .semibold))
-        .foregroundColor(.primary)
+        .font(Typography.title)
+        .foregroundColor(.textPrimary)
 
       Spacer()
 
       Button(action: onMenuTap) {
-        Image(systemName: "line.3.horizontal")
+        Image(systemName: "gearshape")
           .font(.system(size: 20, weight: .medium))
-          .foregroundColor(.primary)
+          .foregroundColor(.textSecondary)
           .frame(width: 44, height: 44)
           .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, Spacing.md)
     .frame(height: 56)
-    .background(.thinMaterial)
+    .background(Color.backgroundPrimary)
   }
 }

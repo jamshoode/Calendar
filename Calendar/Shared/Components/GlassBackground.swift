@@ -1,28 +1,40 @@
 import SwiftUI
 
-struct GlassBackground: ViewModifier {
-  let cornerRadius: CGFloat
-  let material: Material
+// MARK: - CardStyle
+// Flat solid surfaces using system-adaptive colors — no glass/material
 
-  init(cornerRadius: CGFloat = 20, material: Material = .thinMaterial) {
+struct CardStyle: ViewModifier {
+  let cornerRadius: CGFloat
+  let filled: Bool
+
+  init(cornerRadius: CGFloat = Spacing.cardRadius, filled: Bool = true) {
     self.cornerRadius = cornerRadius
-    self.material = material
+    self.filled = filled
   }
 
   func body(content: Content) -> some View {
     content
-      .background(material)
-      .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+      .background(
+        RoundedRectangle(cornerRadius: cornerRadius)
+          .fill(filled ? Color.surfaceCard : Color.clear)
+      )
       .overlay(
         RoundedRectangle(cornerRadius: cornerRadius)
-          .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+          .stroke(Color.border, lineWidth: 0.5)
       )
   }
 }
 
 extension View {
-  func glassBackground(cornerRadius: CGFloat = 20, material: Material = .thinMaterial) -> some View
+  func cardStyle(cornerRadius: CGFloat = Spacing.cardRadius, filled: Bool = true) -> some View {
+    modifier(CardStyle(cornerRadius: cornerRadius, filled: filled))
+  }
+
+  /// Legacy bridge — maps old glassBackground calls to new cardStyle
+  func glassBackground(cornerRadius: CGFloat = Spacing.cardRadius, material: Material = .thin)
+    -> some View
   {
-    modifier(GlassBackground(cornerRadius: cornerRadius, material: material))
+    modifier(CardStyle(cornerRadius: cornerRadius))
   }
 }
+

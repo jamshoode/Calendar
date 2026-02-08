@@ -112,7 +112,7 @@ struct CalendarView: View {
 
       // Date Picker Overlay
       if showingDatePicker {
-        Color.black.opacity(0.3)
+        Color.backgroundScrim
           .ignoresSafeArea()
           .onTapGesture {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -130,7 +130,7 @@ struct CalendarView: View {
 
       // Event Detail Floating Window
       if let event = detailEvent {
-        Color.black.opacity(0.25)
+        Color.backgroundScrim
           .ignoresSafeArea()
           .onTapGesture {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
@@ -299,7 +299,7 @@ struct MonthHeaderView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.primary.opacity(0.05))
+        .background(Color.secondaryFill)
         .clipShape(Capsule())
       }
       .buttonStyle(.plain)

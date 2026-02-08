@@ -119,9 +119,9 @@ struct EventListView: View {
           .foregroundColor(.primary)
           .padding(.horizontal, 14)
           .padding(.vertical, 8)
-          .background(.thinMaterial)
+          .background(Color.secondaryFill)
           .clipShape(Capsule())
-          .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+          .shadow(color: Color.shadowColor, radius: 8, x: 0, y: 4)
         }
         .padding(.trailing, 8)
         .padding(.bottom, 8)
@@ -130,7 +130,7 @@ struct EventListView: View {
     }
     .background(
       RoundedRectangle(cornerRadius: 20)
-        .fill(.thinMaterial)
+        .fill(Color.surfaceCard)
     )
     .padding(.horizontal, 12)
     .padding(.top, 8)
@@ -215,7 +215,7 @@ struct EventRow: View {
       Spacer()
     }
     .padding()
-    .background(event.isHoliday ? Color.eventTeal.opacity(0.08) : Color.white.opacity(0.05))
+    .background(event.isHoliday ? Color.eventTeal.opacity(0.08) : Color.surfaceCard)
     .clipShape(RoundedRectangle(cornerRadius: 12))
   }
 }

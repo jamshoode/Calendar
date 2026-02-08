@@ -117,7 +117,7 @@ struct TodoView: View {
               && (!unpinnedCategories.isEmpty || !unpinnedUncategorizedTodos.isEmpty)
             {
               Rectangle()
-                .fill(Color.primary.opacity(0.3))
+                .fill(Color.separator)
                 .frame(height: 1)
                 .padding(.vertical, 8)
             }

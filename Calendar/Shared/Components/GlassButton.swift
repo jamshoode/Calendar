@@ -21,21 +21,21 @@ struct GlassButton: View {
   }
 
   private var content: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: Spacing.xs) {
       if let icon = icon {
         Image(systemName: icon)
           .font(.system(size: 16, weight: .semibold))
       }
       Text(title)
-        .font(.system(size: 16, weight: .semibold))
+        .font(Typography.headline)
     }
-    .padding(.horizontal, 20)
-    .padding(.vertical, 12)
-    .foregroundColor(isPrimary ? .white : .primary)
+    .padding(.horizontal, Spacing.lg)
+    .padding(.vertical, Spacing.sm)
+    .foregroundColor(isPrimary ? .white : .textPrimary)
     .background(backgroundView)
     .overlay(
-      RoundedRectangle(cornerRadius: 12)
-        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+      RoundedRectangle(cornerRadius: Spacing.smallRadius)
+        .stroke(Color.border, lineWidth: 0.5)
     )
   }
 
@@ -43,10 +43,10 @@ struct GlassButton: View {
   private var backgroundView: some View {
     if isPrimary {
       Color.accentColor
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
     } else {
-      RoundedRectangle(cornerRadius: 12)
-        .fill(.thinMaterial)
+      RoundedRectangle(cornerRadius: Spacing.smallRadius)
+        .fill(Color.secondaryFill)
     }
   }
 }

@@ -58,7 +58,7 @@ struct EventDetailPopover: View {
         ScrollView {
           Text(notes)
             .font(.system(size: 15))
-            .foregroundColor(.primary.opacity(0.85))
+            .foregroundColor(Color.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 18)
@@ -117,13 +117,13 @@ struct EventDetailPopover: View {
         .padding(.vertical, 12)
       }
     }
-    .background(.thinMaterial)
+    .background(Color.surfaceElevated)
     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     .overlay(
       RoundedRectangle(cornerRadius: 16, style: .continuous)
-        .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+        .stroke(Color.border, lineWidth: 0.5)
     )
-    .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 8)
+    .shadow(color: Color.shadowColor, radius: 20, x: 0, y: 8)
     .padding(.horizontal, 24)
     .frame(maxWidth: 400)
   }

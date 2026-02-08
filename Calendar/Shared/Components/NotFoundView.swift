@@ -24,5 +24,5 @@ struct NotFoundView: View {
 
 #Preview {
     NotFoundView()
-        .background(Color.gray.opacity(0.1))
+        .background(Color.backgroundPrimary)
 }

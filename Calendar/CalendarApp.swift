@@ -16,7 +16,7 @@ struct CalendarApp: App {
   private static let sharedModelContainer: ModelContainer = {
     let schema = Schema([
       Event.self, TimerSession.self, Alarm.self, TimerPreset.self, TodoItem.self,
-      TodoCategory.self,
+      TodoCategory.self, Expense.self,
     ])
 
     // Try app group container first (where data was previously stored),
@@ -91,7 +91,7 @@ struct CalendarApp: App {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
-        .background(Color.darkBackground)
+        .background(Color.backgroundPrimary)
 
         Divider()
 
@@ -110,7 +110,7 @@ struct CalendarApp: App {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
-      .background(Color.darkBackground)
+      .background(Color.backgroundPrimary)
     }
   }
 

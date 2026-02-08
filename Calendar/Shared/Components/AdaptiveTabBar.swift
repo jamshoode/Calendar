@@ -7,73 +7,93 @@ struct AdaptiveTabBar: View {
   #endif
   @State private var showingSettings = false
 
-  init() {
-    // Customize UITabBar appearance to use dark blue-black background
-    let appearance = UITabBarAppearance()
-    appearance.configureWithOpaqueBackground()
-    appearance.backgroundColor = UIColor(Color.darkBackground)
-    UITabBar.appearance().standardAppearance = appearance
-    UITabBar.appearance().scrollEdgeAppearance = appearance
-  }
-
-  private var currentTabTitle: String {
-    switch appState.selectedTab {
-    case .calendar:
-      return Localization.string(.tabCalendar)
-    case .todo:
-      return Localization.string(.tabTodo)
-    case .timer:
-      return Localization.string(.tabTimer)
-    case .alarm:
-      return Localization.string(.tabAlarm)
-    case .none:
-      return ""
-    }
-  }
-
   var body: some View {
-    VStack(spacing: 0) {
-      TopBarView(title: currentTabTitle) {
-        withAnimation(.easeInOut(duration: 0.25)) {
-          showingSettings = true
-        }
-      }
-
-      TabView(selection: $appState.selectedTab) {
+    TabView(selection: $appState.selectedTab) {
+      NavigationStack {
         CalendarView()
-          .background(Color.darkBackground)
-          .tabItem {
-            Image(systemName: "calendar")
-            Text(Localization.string(.tabCalendar))
+          .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+              Text(Localization.string(.tabCalendar))
+                .font(Typography.title)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+              Button(action: { showingSettings = true }) {
+                Image(systemName: "gearshape")
+                  .foregroundColor(.textSecondary)
+              }
+            }
           }
-          .tag(AppState.Tab.calendar)
-
-        TodoView()
-          .background(Color.darkBackground)
-          .tabItem {
-            Image(systemName: "checkmark.circle")
-            Text(Localization.string(.tabTodo))
-          }
-          .tag(AppState.Tab.todo)
-
-        TimerView()
-          .background(Color.darkBackground)
-          .tabItem {
-            Image(systemName: "timer")
-            Text(Localization.string(.tabTimer))
-          }
-          .tag(AppState.Tab.timer)
-
-        AlarmView()
-          .background(Color.darkBackground)
-          .tabItem {
-            Image(systemName: "alarm")
-            Text(Localization.string(.tabAlarm))
-          }
-          .tag(AppState.Tab.alarm)
       }
+      .tabItem {
+        Image(systemName: "calendar")
+        Text(Localization.string(.tabCalendar))
+      }
+      .tag(AppState.Tab.calendar)
+
+      NavigationStack {
+        TodoView()
+          .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+              Text(Localization.string(.tabTodo))
+                .font(Typography.title)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+              Button(action: { showingSettings = true }) {
+                Image(systemName: "gearshape")
+                  .foregroundColor(.textSecondary)
+              }
+            }
+          }
+      }
+      .tabItem {
+        Image(systemName: "checkmark.circle")
+        Text(Localization.string(.tabTodo))
+      }
+      .tag(AppState.Tab.tasks)
+
+      NavigationStack {
+        ExpensesView()
+          .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+              Text(Localization.string(.tabExpenses))
+                .font(Typography.title)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+              Button(action: { showingSettings = true }) {
+                Image(systemName: "gearshape")
+                  .foregroundColor(.textSecondary)
+              }
+            }
+          }
+      }
+      .tabItem {
+        Image(systemName: "dollarsign.circle")
+        Text(Localization.string(.tabExpenses))
+      }
+      .tag(AppState.Tab.expenses)
+
+      NavigationStack {
+        ClockView()
+          .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+              Text(Localization.string(.tabClock))
+                .font(Typography.title)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+              Button(action: { showingSettings = true }) {
+                Image(systemName: "gearshape")
+                  .foregroundColor(.textSecondary)
+              }
+            }
+          }
+      }
+      .tabItem {
+        Image(systemName: "clock")
+        Text(Localization.string(.tabClock))
+      }
+      .tag(AppState.Tab.clock)
     }
-    .sideSheet(isPresented: $showingSettings) {
+    .sheet(isPresented: $showingSettings) {
       SettingsSheet(isPresented: $showingSettings)
         .environmentObject(appState)
         #if DEBUG

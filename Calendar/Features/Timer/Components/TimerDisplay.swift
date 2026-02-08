@@ -20,7 +20,7 @@ struct TimerDisplay: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.white.opacity(0.1), lineWidth: 8)
+                .stroke(Color.border, lineWidth: 8)
             
             Circle()
                 .trim(from: 0, to: progress)

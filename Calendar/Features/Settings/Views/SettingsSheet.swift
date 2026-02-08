@@ -62,42 +62,32 @@ struct SettingsSheet: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      HStack {
-        Text(Localization.string(.settings))
-          .font(.system(size: 20, weight: .bold))
+    NavigationStack {
+      List {
+        Section {
+          buildInfoSection
+        }
 
-        Spacer()
+        Section {
+          holidaySection
+        }
 
-        Button(action: {
-          withAnimation(.easeInOut(duration: 0.25)) {
+        #if DEBUG
+          Section {
+            debugSection
+          }
+        #endif
+      }
+      .navigationTitle(Localization.string(.settings))
+      #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+      #endif
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button(Localization.string(.cancel)) {
             isPresented = false
           }
-        }) {
-          Image(systemName: "xmark.circle.fill")
-            .font(.system(size: 24))
-            .foregroundColor(.secondary)
         }
-        .buttonStyle(.plain)
-      }
-      .padding(.horizontal, 20)
-      .padding(.top, 20)
-      .padding(.bottom, 16)
-
-      ScrollView {
-        VStack(alignment: .leading, spacing: 24) {
-          buildInfoSection
-
-          if appState.selectedTab == .calendar {
-            holidaySection
-          }
-
-          #if DEBUG
-            debugSection
-          #endif
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 40)
       }
     }
     .sheet(isPresented: $showCountryPicker) {
@@ -209,7 +199,7 @@ struct SettingsSheet: View {
           value: lastSyncDateFormatted
         )
       }
-      .background(Color.primary.opacity(0.05))
+      .background(Color.secondaryFill)
       .clipShape(RoundedRectangle(cornerRadius: 12))
     }
   }
@@ -248,7 +238,7 @@ struct SettingsSheet: View {
         Divider().padding(.leading, 16)
         SettingsRow(title: Localization.string(.mode), value: buildMode)
       }
-      .background(Color.primary.opacity(0.05))
+      .background(Color.secondaryFill)
       .clipShape(RoundedRectangle(cornerRadius: 12))
     }
   }
@@ -297,7 +287,7 @@ struct SettingsSheet: View {
           .padding(.horizontal, 16)
           .padding(.vertical, 12)
         }
-        .background(Color.primary.opacity(0.05))
+        .background(Color.secondaryFill)
         .clipShape(RoundedRectangle(cornerRadius: 12))
       }
     }

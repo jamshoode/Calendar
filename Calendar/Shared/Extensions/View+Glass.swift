@@ -3,15 +3,17 @@ import SwiftUI
 extension View {
   func glassEffect() -> some View {
     self
-      .background(.thinMaterial)
-      .clipShape(RoundedRectangle(cornerRadius: 16))
+      .background(Color.surfaceCard)
+      .clipShape(RoundedRectangle(cornerRadius: Spacing.cardRadius))
       .overlay(
-        RoundedRectangle(cornerRadius: 16)
-          .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+        RoundedRectangle(cornerRadius: Spacing.cardRadius)
+          .stroke(Color.border, lineWidth: 0.5)
       )
   }
 
-  func glassCard(padding: CGFloat = 16, cornerRadius: CGFloat = 20) -> some View {
+  func glassCard(padding: CGFloat = Spacing.cardPadding, cornerRadius: CGFloat = Spacing.cardRadius)
+    -> some View
+  {
     self
       .padding(padding)
       .glassEffect()

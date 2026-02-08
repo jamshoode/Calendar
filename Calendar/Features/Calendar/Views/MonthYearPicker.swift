@@ -104,7 +104,7 @@ struct MonthYearPicker: View {
         .padding(24)
         .glassBackground(cornerRadius: 24)
         .padding(.horizontal, 40)
-        .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+        .shadow(color: Color.shadowColor, radius: 20, x: 0, y: 10)
     }
     
     private func selectDate() {

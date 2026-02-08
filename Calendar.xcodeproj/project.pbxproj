@@ -10,6 +10,16 @@
 		F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0002F4E0001007F8DEB /* HolidayService.swift */; };
 		F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */; };
 		F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */; };
+		F5A1B0072F4E0004007F8DEB /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0062F4E0004007F8DEB /* Typography.swift */; };
+		F5A1B0092F4E0005007F8DEB /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0082F4E0005007F8DEB /* Spacing.swift */; };
+		F5A1B00B2F4E0006007F8DEB /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */; };
+		F5A1B00D2F4E0007007F8DEB /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00C2F4E0007007F8DEB /* Expense.swift */; };
+		F5A1B00F2F4E0008007F8DEB /* ExpenseCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */; };
+		F5A1B0112F4E0009007F8DEB /* ExpenseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */; };
+		F5A1B0132F4E000A007F8DEB /* ExpensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */; };
+		F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */; };
+		F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */; };
+		F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0182F4E000D007F8DEB /* ClockView.swift */; };
 		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
 		F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE42F34F4AA008B6601 /* TodoCategory.swift */; };
 		F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE52F34F4AA008B6601 /* TodoItem.swift */; };
@@ -44,7 +54,7 @@
 		F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1032F33C234007F8DEB /* MonthView.swift */; };
 		F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1122F33C234007F8DEB /* GlassBackground.swift */; };
 		F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FF2F33C234007F8DEB /* AddEventView.swift */; };
-		F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1162F33C234007F8DEB /* Color+Glass.swift */; };
+		F593C12E2F33C234007F8DEB /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1162F33C234007F8DEB /* Color+Theme.swift */; };
 		F593C12F2F33C234007F8DEB /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E92F33C234007F8DEB /* Event.swift */; };
 		F593C1302F33C234007F8DEB /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1172F33C234007F8DEB /* Date+Extensions.swift */; };
 		F593C1312F33C234007F8DEB /* AlarmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0F82F33C234007F8DEB /* AlarmView.swift */; };
@@ -145,6 +155,16 @@
 		F5A1B0002F4E0001007F8DEB /* HolidayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayService.swift; sourceTree = "<group>"; };
 		F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayCountryPicker.swift; sourceTree = "<group>"; };
 		F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailPopover.swift; sourceTree = "<group>"; };
+		F5A1B0062F4E0004007F8DEB /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		F5A1B0082F4E0005007F8DEB /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		F5A1B00C2F4E0007007F8DEB /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
+		F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseCategory.swift; sourceTree = "<group>"; };
+		F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseViewModel.swift; sourceTree = "<group>"; };
+		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
+		F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseSheet.swift; sourceTree = "<group>"; };
+		F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRow.swift; sourceTree = "<group>"; };
+		F5A1B0182F4E000D007F8DEB /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
 		F593C0EE2F33C234007F8DEB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewModel.swift; sourceTree = "<group>"; };
 		F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
@@ -171,7 +191,7 @@
 		F593C1122F33C234007F8DEB /* GlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackground.swift; sourceTree = "<group>"; };
 		F593C1132F33C234007F8DEB /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		F593C1142F33C234007F8DEB /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
-		F593C1162F33C234007F8DEB /* Color+Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Glass.swift"; sourceTree = "<group>"; };
+		F593C1162F33C234007F8DEB /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
 		F593C1172F33C234007F8DEB /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		F593C1182F33C234007F8DEB /* View+Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Glass.swift"; sourceTree = "<group>"; };
 		F593C11A2F33C234007F8DEB /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -326,6 +346,8 @@
 				F593C0EB2F33C234007F8DEB /* TimerSession.swift */,
 				F554EFE42F34F4AA008B6601 /* TodoCategory.swift */,
 				F554EFE52F34F4AA008B6601 /* TodoItem.swift */,
+				F5A1B00C2F4E0007007F8DEB /* Expense.swift */,
+				F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -348,6 +370,7 @@
 				F593C0F22F33C234007F8DEB /* EventViewModel.swift */,
 				F593C0F32F33C234007F8DEB /* TimerViewModel.swift */,
 				F554EFE82F34F4C8008B6601 /* TodoViewModel.swift */,
+				F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -458,9 +481,53 @@
 				F593C0FB2F33C234007F8DEB /* Alarm */,
 				F593C1052F33C234007F8DEB /* Calendar */,
 				F593C10E2F33C234007F8DEB /* Timer */,
+				F5A1B01A2F4E000E007F8DEB /* Expenses */,
+				F5A1B01D2F4E000F007F8DEB /* Clock */,
 			);
 			name = Features;
 			path = Calendar/Features;
+			sourceTree = "<group>";
+		};
+		F5A1B01A2F4E000E007F8DEB /* Expenses */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B01B2F4E000E007F8DEB /* Views */,
+				F5A1B01C2F4E000E007F8DEB /* Components */,
+			);
+			path = Expenses;
+			sourceTree = "<group>";
+		};
+		F5A1B01B2F4E000E007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */,
+				F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F5A1B01C2F4E000E007F8DEB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F5A1B01D2F4E000F007F8DEB /* Clock */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B01E2F4E000F007F8DEB /* Views */,
+			);
+			path = Clock;
+			sourceTree = "<group>";
+		};
+		F5A1B01E2F4E000F007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0182F4E000D007F8DEB /* ClockView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		F593C1152F33C234007F8DEB /* Components */ = {
@@ -474,6 +541,7 @@
 				F556A0352F33CD160071D8B8 /* NotFoundView.swift */,
 				F554EFFF2F34F99C008B6601 /* TopBarView.swift */,
 				F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */,
+				F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -481,7 +549,7 @@
 		F593C1192F33C234007F8DEB /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				F593C1162F33C234007F8DEB /* Color+Glass.swift */,
+				F593C1162F33C234007F8DEB /* Color+Theme.swift */,
 				F593C1172F33C234007F8DEB /* Date+Extensions.swift */,
 				F593C1182F33C234007F8DEB /* View+Glass.swift */,
 			);
@@ -494,6 +562,8 @@
 				F593C11A2F33C234007F8DEB /* Constants.swift */,
 				F593C11B2F33C234007F8DEB /* Formatters.swift */,
 				F556A0532F33F0BD0071D8B8 /* Localization.swift */,
+				F5A1B0062F4E0004007F8DEB /* Typography.swift */,
+				F5A1B0082F4E0005007F8DEB /* Spacing.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -729,7 +799,7 @@
 				F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */,
 				F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */,
 				F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */,
-				F593C12E2F33C234007F8DEB /* Color+Glass.swift in Sources */,
+				F593C12E2F33C234007F8DEB /* Color+Theme.swift in Sources */,
 				F554EFF62F34F4DF008B6601 /* AddCategorySheet.swift in Sources */,
 				F554EFF72F34F4DF008B6601 /* AddTodoSheet.swift in Sources */,
 				F554EFF82F34F4DF008B6601 /* SubtaskRow.swift in Sources */,
@@ -762,6 +832,9 @@
 				F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */,
 				F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */,
 				F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */,
+				F5A1B0072F4E0004007F8DEB /* Typography.swift in Sources */,
+				F5A1B0092F4E0005007F8DEB /* Spacing.swift in Sources */,
+				F5A1B00B2F4E0006007F8DEB /* StatusBadge.swift in Sources */,
 				F593C1402F33C234007F8DEB /* TimerControls.swift in Sources */,
 				F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */,
 				F593C1422F33C234007F8DEB /* Constants.swift in Sources */,
@@ -769,6 +842,13 @@
 				F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */,
 				F593C1442F33C234007F8DEB /* Alarm.swift in Sources */,
 				F593C1452F33C234007F8DEB /* EventViewModel.swift in Sources */,
+				F5A1B00D2F4E0007007F8DEB /* Expense.swift in Sources */,
+				F5A1B00F2F4E0008007F8DEB /* ExpenseCategory.swift in Sources */,
+				F5A1B0112F4E0009007F8DEB /* ExpenseViewModel.swift in Sources */,
+				F5A1B0132F4E000A007F8DEB /* ExpensesView.swift in Sources */,
+				F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */,
+				F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */,
+				F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

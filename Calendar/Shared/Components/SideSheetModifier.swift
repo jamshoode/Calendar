@@ -9,7 +9,7 @@ struct SideSheetModifier<SheetContent: View>: ViewModifier {
       content
 
       if isPresented {
-        Color.black.opacity(0.4)
+        Color.backgroundScrim
           .ignoresSafeArea()
           .onTapGesture {
             isPresented = false
@@ -24,7 +24,7 @@ struct SideSheetModifier<SheetContent: View>: ViewModifier {
           sheetContent()
             .frame(width: 280)
             .frame(maxHeight: .infinity)
-            .background(.ultraThickMaterial)
+            .background(Color.backgroundSecondary)
             .transition(.move(edge: .trailing))
         }
       }

@@ -74,6 +74,8 @@ struct Localization {
     case tabCalendar
     case tabTimer
     case tabAlarm
+    case tabExpenses
+    case tabClock
 
     // Alarm View
     case noAlarmSet
@@ -131,6 +133,8 @@ struct Localization {
     case tapToAddTodo
     case todosCount(Int)
     case completed
+    case inProgress
+    case queued
 
     // Sorting
     case sortBy
@@ -173,6 +177,32 @@ struct Localization {
     case holiday
     case holidayNever
     case holidayApiKeyPlaceholder
+
+    // Expenses
+    case expenseWeekly
+    case expenseMonthly
+    case expenseYearly
+    case expenseTotal
+    case expenseNoExpenses
+    case expenseTapToAdd
+    case expenseAdd
+    case expenseEdit
+    case expenseAmount
+    case expenseCategory
+    case expensePaymentMethod
+    case expenseMerchant
+    case expenseCash
+    case expenseCard
+    case expenseGroceries
+    case expenseHousing
+    case expenseTransportation
+    case expenseSubscriptions
+    case expenseHealthcare
+    case expenseDebt
+    case expenseEntertainment
+    case expenseDining
+    case expenseShopping
+    case expenseOther
   }
 
   static func string(_ key: Key) -> String {
@@ -273,6 +303,10 @@ struct Localization {
       return lang == .ukrainian ? "Таймер" : "Timer"
     case .tabAlarm:
       return lang == .ukrainian ? "Будильник" : "Alarm"
+    case .tabExpenses:
+      return lang == .ukrainian ? "Витрати" : "Expenses"
+    case .tabClock:
+      return lang == .ukrainian ? "Годинник" : "Clock"
 
     // Alarm View
     case .noAlarmSet:
@@ -385,6 +419,10 @@ struct Localization {
       }
     case .completed:
       return lang == .ukrainian ? "виконано" : "completed"
+    case .inProgress:
+      return lang == .ukrainian ? "в процесі" : "in progress"
+    case .queued:
+      return lang == .ukrainian ? "в черзі" : "queued"
     case .sortBy:
       return lang == .ukrainian ? "Сортувати" : "Sort by"
     case .newestFirst:
@@ -453,6 +491,56 @@ struct Localization {
       return lang == .ukrainian ? "Ніколи" : "Never"
     case .holidayApiKeyPlaceholder:
       return lang == .ukrainian ? "Введіть API ключ" : "Enter API key"
+
+    // Expenses
+    case .expenseWeekly:
+      return lang == .ukrainian ? "Тижневі" : "Weekly"
+    case .expenseMonthly:
+      return lang == .ukrainian ? "Місячні" : "Monthly"
+    case .expenseYearly:
+      return lang == .ukrainian ? "Річні" : "Yearly"
+    case .expenseTotal:
+      return lang == .ukrainian ? "Загалом" : "Total"
+    case .expenseNoExpenses:
+      return lang == .ukrainian ? "Немає витрат" : "No Expenses"
+    case .expenseTapToAdd:
+      return lang == .ukrainian ? "Натисніть +, щоб додати витрату" : "Tap + to add an expense"
+    case .expenseAdd:
+      return lang == .ukrainian ? "Додати витрату" : "Add Expense"
+    case .expenseEdit:
+      return lang == .ukrainian ? "Редагувати витрату" : "Edit Expense"
+    case .expenseAmount:
+      return lang == .ukrainian ? "Сума" : "Amount"
+    case .expenseCategory:
+      return lang == .ukrainian ? "Категорія" : "Category"
+    case .expensePaymentMethod:
+      return lang == .ukrainian ? "Спосіб оплати" : "Payment Method"
+    case .expenseMerchant:
+      return lang == .ukrainian ? "Продавець" : "Merchant"
+    case .expenseCash:
+      return lang == .ukrainian ? "Готівка" : "Cash"
+    case .expenseCard:
+      return lang == .ukrainian ? "Картка" : "Card"
+    case .expenseGroceries:
+      return lang == .ukrainian ? "Продукти" : "Groceries"
+    case .expenseHousing:
+      return lang == .ukrainian ? "Житло" : "Housing"
+    case .expenseTransportation:
+      return lang == .ukrainian ? "Транспорт" : "Transportation"
+    case .expenseSubscriptions:
+      return lang == .ukrainian ? "Підписки" : "Subscriptions"
+    case .expenseHealthcare:
+      return lang == .ukrainian ? "Здоров'я" : "Healthcare"
+    case .expenseDebt:
+      return lang == .ukrainian ? "Борги" : "Debt"
+    case .expenseEntertainment:
+      return lang == .ukrainian ? "Розваги" : "Entertainment"
+    case .expenseDining:
+      return lang == .ukrainian ? "Їжа" : "Dining"
+    case .expenseShopping:
+      return lang == .ukrainian ? "Покупки" : "Shopping"
+    case .expenseOther:
+      return lang == .ukrainian ? "Інше" : "Other"
     }
   }
 }

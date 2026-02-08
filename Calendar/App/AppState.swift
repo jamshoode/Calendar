@@ -7,9 +7,9 @@ class AppState: ObservableObject {
 
   enum Tab: String, CaseIterable, Identifiable {
     case calendar
-    case todo
-    case timer
-    case alarm
+    case tasks
+    case expenses
+    case clock
 
     var id: String { rawValue }
   }

@@ -38,7 +38,7 @@ struct ControlButton: View {
         .background(backgroundView)
         .overlay(
           Circle()
-            .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+            .stroke(Color.border, lineWidth: 0.5)
         )
     }
     .buttonStyle(.plain)
@@ -53,7 +53,7 @@ struct ControlButton: View {
         .clipShape(Circle())
     } else {
       Circle()
-        .fill(.thinMaterial)
+        .fill(Color.secondaryFill)
     }
   }
 }

@@ -6,7 +6,7 @@ struct AlarmToggle: View {
     var body: some View {
         Button(action: { isOn.toggle() }) {
             RoundedRectangle(cornerRadius: 16)
-                .fill(isOn ? Color.accentColor : Color.gray.opacity(0.3))
+                .fill(isOn ? Color.accentColor : Color.tertiaryFill)
                 .frame(width: 52, height: 32)
                 .overlay(
                     Circle()
