@@ -154,10 +154,14 @@ struct TodoView: View {
             // Summary cards row
             HStack(spacing: 10) {
               SummaryCard(label: Localization.string(.all), count: totalCount, color: .accentColor)
-              SummaryCard(label: Localization.string(.queued), count: queuedCount, color: .statusInProgress)
-              SummaryCard(label: Localization.string(.completed), count: completedCount, color: .statusCompleted)
+              SummaryCard(
+                label: Localization.string(.queued), count: queuedCount, color: .statusInProgress)
+              SummaryCard(
+                label: Localization.string(.completed), count: completedCount,
+                color: .statusCompleted)
               if overdueCount > 0 {
-                SummaryCard(label: Localization.string(.overdue), count: overdueCount, color: .priorityHigh)
+                SummaryCard(
+                  label: Localization.string(.overdue), count: overdueCount, color: .priorityHigh)
               }
             }
 

@@ -18,7 +18,9 @@ struct CalendarListView: View {
     var day = start
     while day <= end {
       let dayEvents = events.filter { $0.date.isSameDay(as: day) }
-      let dayTodos = todos.filter { ($0.dueDate ?? .distantFuture).isSameDay(as: day) && !$0.isCompleted }
+      let dayTodos = todos.filter {
+        ($0.dueDate ?? .distantFuture).isSameDay(as: day) && !$0.isCompleted
+      }
       if !dayEvents.isEmpty || !dayTodos.isEmpty {
         result.append((day, dayEvents, dayTodos))
       }

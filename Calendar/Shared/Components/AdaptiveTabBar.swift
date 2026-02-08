@@ -14,7 +14,8 @@ struct AdaptiveTabBar: View {
           .toolbar {
             ToolbarItem(placement: .topBarLeading) {
               Text(Localization.string(.tabCalendar))
-                .font(Typography.title)
+                .font(Typography.headline)
+                .foregroundColor(.textSecondary)
             }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -35,7 +36,8 @@ struct AdaptiveTabBar: View {
           .toolbar {
             ToolbarItem(placement: .topBarLeading) {
               Text(Localization.string(.tabTodo))
-                .font(Typography.title)
+                .font(Typography.headline)
+                .foregroundColor(.textSecondary)
             }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -56,7 +58,8 @@ struct AdaptiveTabBar: View {
           .toolbar {
             ToolbarItem(placement: .topBarLeading) {
               Text(Localization.string(.tabExpenses))
-                .font(Typography.title)
+                .font(Typography.headline)
+                .foregroundColor(.textSecondary)
             }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
@@ -77,7 +80,8 @@ struct AdaptiveTabBar: View {
           .toolbar {
             ToolbarItem(placement: .topBarLeading) {
               Text(Localization.string(.tabClock))
-                .font(Typography.title)
+                .font(Typography.headline)
+                .foregroundColor(.textSecondary)
             }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {

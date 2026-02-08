@@ -8,7 +8,8 @@ struct WeekStrip: View {
   private let calendar = Calendar.current
 
   private var weekDates: [Date] {
-    let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: selectedDate)?.start ?? selectedDate
+    let startOfWeek =
+      calendar.dateInterval(of: .weekOfYear, for: selectedDate)?.start ?? selectedDate
     return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
   }
 
@@ -31,9 +32,11 @@ struct WeekStrip: View {
             Text(date.formatted(.dateTime.day()))
               .font(.system(size: 16, weight: isSelected ? .bold : .medium))
               .foregroundColor(
-                isSelected ? .white
-                  : isToday ? .accentColor
-                  : Color.textPrimary
+                isSelected
+                  ? .white
+                  : isToday
+                    ? .accentColor
+                    : Color.textPrimary
               )
               .frame(width: 34, height: 34)
               .background(

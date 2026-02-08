@@ -115,7 +115,8 @@ struct AddExpenseSheet: View {
       .navigationTitle(
         expense == nil
           ? Localization.string(.expenseAdd)
-          : Localization.string(.expenseEdit))
+          : Localization.string(.expenseEdit)
+      )
       #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         .scrollDismissesKeyboard(.interactively)

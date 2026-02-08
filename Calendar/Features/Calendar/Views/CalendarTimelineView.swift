@@ -23,13 +23,14 @@ struct CalendarTimelineView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      WeekStrip(selectedDate: Binding(
-        get: { selectedDate },
-        set: { date in
-          selectedDate = date
-          onDateSelect(date)
-        }
-      ), currentMonth: currentMonth)
+      WeekStrip(
+        selectedDate: Binding(
+          get: { selectedDate },
+          set: { date in
+            selectedDate = date
+            onDateSelect(date)
+          }
+        ), currentMonth: currentMonth)
 
       // All-day events bar
       if !allDayEvents.isEmpty {
@@ -102,7 +103,9 @@ struct CalendarTimelineView: View {
 
   private func hourLabel(_ hour: Int) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current)?.contains("a") == true ? "h a" : "HH:mm"
+    formatter.dateFormat =
+      DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current)?.contains("a")
+        == true ? "h a" : "HH:mm"
     var components = DateComponents()
     components.hour = hour
     let date = Calendar.current.date(from: components) ?? Date()
@@ -155,7 +158,7 @@ private struct TimelineEventBlock: View {
     .frame(height: blockHeight)
     .background(Color.eventColor(named: event.color).opacity(0.12))
     .clipShape(RoundedRectangle(cornerRadius: 8))
-    .padding(.leading, 60) // After the hour label column
+    .padding(.leading, 60)  // After the hour label column
     .offset(y: topOffset)
   }
 }

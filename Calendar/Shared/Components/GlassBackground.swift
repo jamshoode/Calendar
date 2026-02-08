@@ -30,4 +30,3 @@ extension View {
     modifier(CardStyle(cornerRadius: cornerRadius, filled: filled))
   }
 }
-

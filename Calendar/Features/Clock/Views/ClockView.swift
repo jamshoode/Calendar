@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ClockView: View {
   @State private var selectedSection: ClockSection = .timer
