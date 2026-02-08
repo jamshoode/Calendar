@@ -197,63 +197,24 @@ struct Provider: TimelineProvider {
   }
 }
 
-// MARK: - Color Scheme
+// MARK: - Widget Design Tokens
+// Mirrors the app's Color+Theme.swift — uses UIColor system-adaptive colors
+// so light/dark mode is handled automatically by the system.
 
 enum WidgetColorScheme {
   case light, dark
 
-  var background: Color {
-    switch self {
-    case .dark: return Color(red: 22 / 255, green: 22 / 255, blue: 24 / 255)
-    case .light: return Color(red: 248 / 255, green: 248 / 255, blue: 250 / 255)
-    }
-  }
-
-  var surface: Color {
-    switch self {
-    case .dark: return Color(red: 34 / 255, green: 34 / 255, blue: 36 / 255)
-    case .light: return Color.white
-    }
-  }
-
-  var surfaceElevated: Color {
-    switch self {
-    case .dark: return Color(red: 44 / 255, green: 44 / 255, blue: 46 / 255)
-    case .light: return Color(red: 235 / 255, green: 235 / 255, blue: 240 / 255)
-    }
-  }
-
-  var textPrimary: Color {
-    switch self {
-    case .dark: return .white
-    case .light: return Color(red: 20 / 255, green: 20 / 255, blue: 20 / 255)
-    }
-  }
-
-  var textSecondary: Color {
-    switch self {
-    case .dark: return Color(red: 145 / 255, green: 145 / 255, blue: 150 / 255)
-    case .light: return Color(red: 130 / 255, green: 130 / 255, blue: 138 / 255)
-    }
-  }
-
-  var accent: Color {
-    Color(red: 94 / 255, green: 92 / 255, blue: 230 / 255)  // indigo – distinct from event blue
-  }
-
-  var todayHighlight: Color {
-    switch self {
-    case .dark: return Color(red: 50 / 255, green: 50 / 255, blue: 54 / 255)
-    case .light: return Color(red: 220 / 255, green: 220 / 255, blue: 226 / 255)
-    }
-  }
-
-  var iconMuted: Color {
-    switch self {
-    case .dark: return Color(red: 90 / 255, green: 90 / 255, blue: 95 / 255)
-    case .light: return Color(red: 180 / 255, green: 180 / 255, blue: 185 / 255)
-    }
-  }
+  // All colors use UIColor system tokens — they auto-adapt to light/dark.
+  // The enum cases are only used for forced-scheme resolution.
+  var background: Color { Color(UIColor.systemBackground) }
+  var surface: Color { Color(UIColor.secondarySystemGroupedBackground) }
+  var surfaceElevated: Color { Color(UIColor.tertiarySystemFill) }
+  var textPrimary: Color { Color(UIColor.label) }
+  var textSecondary: Color { Color(UIColor.secondaryLabel) }
+  var accent: Color { .indigo }
+  var todayHighlight: Color { Color(UIColor.systemFill) }
+  var iconMuted: Color { Color(UIColor.tertiaryLabel) }
+  var divider: Color { Color(UIColor.separator) }
 
   static func from(entry: CalendarEntry, environment: ColorScheme) -> WidgetColorScheme {
     if let forced = entry.forcedColorScheme {
@@ -275,13 +236,13 @@ struct WidgetColorEntry {
   let isTodo: Bool
   let priority: String  // "high", "medium", "low" (only for todos)
 
-  /// Priority color for alternating dashes
+  /// Priority color for alternating dashes — aligned with app's Color+Theme
   var priorityColor: Color {
     switch priority.lowercased() {
-    case "high": return Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255)  // red
-    case "medium": return Color(red: 255 / 255, green: 204 / 255, blue: 0 / 255)  // yellow
-    case "low": return Color(red: 48 / 255, green: 209 / 255, blue: 88 / 255)  // green
-    default: return Color(red: 255 / 255, green: 204 / 255, blue: 0 / 255)
+    case "high": return .red
+    case "medium": return .orange
+    case "low": return .blue
+    default: return .orange
     }
   }
 }
@@ -301,17 +262,18 @@ func parseWidgetColorEntry(_ name: String) -> WidgetColorEntry {
   return WidgetColorEntry(color: widgetEventColor(name), isTodo: false, priority: "")
 }
 
+/// Event colors aligned with the app's Color+Theme design tokens
 func widgetEventColor(_ name: String) -> Color {
   switch name.lowercased() {
-  case "blue": return Color(red: 10 / 255, green: 132 / 255, blue: 255 / 255)
-  case "green": return Color(red: 48 / 255, green: 209 / 255, blue: 88 / 255)
-  case "orange": return Color(red: 255 / 255, green: 149 / 255, blue: 0 / 255)
-  case "red": return Color(red: 255 / 255, green: 59 / 255, blue: 48 / 255)
-  case "purple": return Color(red: 175 / 255, green: 82 / 255, blue: 222 / 255)
-  case "pink": return Color(red: 255 / 255, green: 45 / 255, blue: 85 / 255)
-  case "yellow": return Color(red: 255 / 255, green: 204 / 255, blue: 0 / 255)
+  case "blue": return .blue
+  case "green": return .green
+  case "orange": return .orange
+  case "red": return .red
+  case "purple": return .purple
+  case "pink": return .pink
+  case "yellow": return .yellow
   case "teal": return Color(red: 50 / 255, green: 173 / 255, blue: 230 / 255)
-  default: return Color(red: 10 / 255, green: 132 / 255, blue: 255 / 255)
+  default: return .blue
   }
 }
 
@@ -322,16 +284,32 @@ struct CalendarWidgetEntryView: View {
   @Environment(\.widgetFamily) var family
   @Environment(\.colorScheme) var systemColorScheme
 
+  /// Resolved color scheme — honors debug override, otherwise follows system
+  private var resolvedColorScheme: ColorScheme {
+    if let forced = entry.forcedColorScheme {
+      switch forced {
+      case "Light": return .light
+      case "Dark": return .dark
+      default: break
+      }
+    }
+    return systemColorScheme
+  }
+
   var body: some View {
     let scheme = WidgetColorScheme.from(entry: entry, environment: systemColorScheme)
-    switch family {
-    case .systemMedium:
-      MediumWidgetView(entry: entry, scheme: scheme)
-    case .systemLarge:
-      LargeWidgetView(entry: entry, scheme: scheme)
-    default:
-      MediumWidgetView(entry: entry, scheme: scheme)
+    Group {
+      switch family {
+      case .systemMedium:
+        MediumWidgetView(entry: entry, scheme: scheme)
+      case .systemLarge:
+        LargeWidgetView(entry: entry, scheme: scheme)
+      default:
+        MediumWidgetView(entry: entry, scheme: scheme)
+      }
     }
+    // Force the environment so UIColor-based tokens resolve to the correct variant
+    .environment(\.colorScheme, resolvedColorScheme)
   }
 }
 
@@ -431,7 +409,7 @@ struct LargeWidgetView: View {
       Spacer(minLength: 16)
 
       Rectangle()
-        .fill(scheme.surfaceElevated)
+        .fill(scheme.divider)
         .frame(height: 1)
 
       Spacer(minLength: 14)
@@ -520,9 +498,7 @@ struct TimerCircleIcon: View {
     hasHours ? size * 1.45 : size
   }
 
-  private var timerColor: Color {
-    Color(red: 50 / 255, green: 215 / 255, blue: 195 / 255)  // teal
-  }
+  private var timerColor: Color { .indigo }
 
   var body: some View {
     ZStack {
@@ -637,7 +613,7 @@ struct DayColumn: View {
         .font(.system(size: labelSize, weight: .bold, design: .rounded))
         .foregroundColor(
           day.isToday
-            ? .white
+            ? scheme.accent
             : day.isWeekend
               ? scheme.textSecondary
               : scheme.textPrimary
@@ -651,7 +627,7 @@ struct DayColumn: View {
       Group {
         if day.isToday {
           RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .fill(scheme.todayHighlight)
+            .fill(scheme.accent.opacity(0.15))
         }
       }
     )
@@ -687,7 +663,7 @@ struct DayCell: View {
 
       Text("\(day.date)")
         .font(.system(size: size * 0.37, weight: day.isToday ? .bold : .semibold, design: .rounded))
-        .foregroundColor(day.isToday ? .white : scheme.textPrimary)
+        .foregroundColor(day.isToday ? scheme.accent : scheme.textPrimary)
     }
     .frame(width: size, height: size)
   }
@@ -837,7 +813,7 @@ struct StatusCard: View {
     VStack(spacing: 4) {
       ZStack {
         Circle()
-          .fill(isActive ? color.opacity(0.15) : scheme.surfaceElevated)
+          .fill(isActive ? color.opacity(0.12) : scheme.surfaceElevated)
           .frame(width: 30, height: 30)
 
         Image(systemName: icon)
