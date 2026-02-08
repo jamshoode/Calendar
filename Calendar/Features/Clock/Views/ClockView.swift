@@ -10,15 +10,7 @@ struct ClockView: View {
   }
 
   var body: some View {
-    VStack(spacing: Spacing.lg) {
-      // Section toggle
-      Picker("Section", selection: $selectedSection) {
-        Text(Localization.string(.tabTimer)).tag(ClockSection.timer)
-        Text(Localization.string(.tabAlarm)).tag(ClockSection.alarm)
-      }
-      .pickerStyle(.segmented)
-      .padding(.horizontal, Spacing.md)
-
+    VStack(spacing: 0) {
       switch selectedSection {
       case .timer:
         TimerView()
@@ -28,8 +20,17 @@ struct ClockView: View {
           .transition(.opacity)
       }
     }
-    .padding(.top, Spacing.sm)
     .animation(.easeInOut(duration: 0.3), value: selectedSection)
     .background(Color.backgroundPrimary)
+    .toolbar {
+      ToolbarItem(placement: .principal) {
+        Picker("Section", selection: $selectedSection) {
+          Text(Localization.string(.tabTimer)).tag(ClockSection.timer)
+          Text(Localization.string(.tabAlarm)).tag(ClockSection.alarm)
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 200)
+      }
+    }
   }
 }

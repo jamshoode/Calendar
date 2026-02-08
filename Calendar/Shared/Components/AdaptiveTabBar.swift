@@ -11,12 +11,9 @@ struct AdaptiveTabBar: View {
     TabView(selection: $appState.selectedTab) {
       NavigationStack {
         CalendarView()
+          .navigationTitle(Localization.string(.tabCalendar))
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              Text(Localization.string(.tabCalendar))
-                .font(Typography.headline)
-                .foregroundColor(.textSecondary)
-            }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
                 Image(systemName: "gearshape")
@@ -33,12 +30,9 @@ struct AdaptiveTabBar: View {
 
       NavigationStack {
         TodoView()
+          .navigationTitle(Localization.string(.tabTodo))
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              Text(Localization.string(.tabTodo))
-                .font(Typography.headline)
-                .foregroundColor(.textSecondary)
-            }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
                 Image(systemName: "gearshape")
@@ -55,12 +49,9 @@ struct AdaptiveTabBar: View {
 
       NavigationStack {
         ExpensesView()
+          .navigationTitle(Localization.string(.tabExpenses))
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              Text(Localization.string(.tabExpenses))
-                .font(Typography.headline)
-                .foregroundColor(.textSecondary)
-            }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
                 Image(systemName: "gearshape")
@@ -77,12 +68,8 @@ struct AdaptiveTabBar: View {
 
       NavigationStack {
         ClockView()
+          .navigationBarTitleDisplayMode(.inline)
           .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              Text(Localization.string(.tabClock))
-                .font(Typography.headline)
-                .foregroundColor(.textSecondary)
-            }
             ToolbarItem(placement: .topBarTrailing) {
               Button(action: { showingSettings = true }) {
                 Image(systemName: "gearshape")
