@@ -23,17 +23,17 @@ struct EventListView: View {
     return Calendar.current.isDateInToday(date)
   }
 
-  /// Combined items for preview (events first, then todos) — max 2
+  /// Combined items for preview (events first, then todos) — max 3
   private var allItemCount: Int {
     events.count + incompleteTodos.count
   }
 
   private var previewEvents: [Event] {
-    Array(events.prefix(2))
+    Array(events.prefix(3))
   }
 
   private var previewTodos: [TodoItem] {
-    let remaining = max(0, 2 - events.count)
+    let remaining = max(0, 3 - events.count)
     return Array(incompleteTodos.prefix(remaining))
   }
 
@@ -48,27 +48,29 @@ struct EventListView: View {
           }
         }
 
-      if events.isEmpty && incompleteTodos.isEmpty {
-        emptyState
-          .frame(height: 80)
-      } else {
-        // Compact preview: max 2 items
-        VStack(spacing: 4) {
+      // Fixed height content area for up to 3 events
+      VStack(alignment: .leading, spacing: 4) {
+        if events.isEmpty && incompleteTodos.isEmpty {
+          emptyState
+        } else {
+          // Compact preview: max 3 items
           ForEach(previewEvents) { event in
             CompactEventRow(event: event)
               .onTapGesture { onEdit(event) }
           }
+          .fixedSize(horizontal: false, vertical: true)
 
           ForEach(previewTodos) { todo in
             CompactTodoRow(todo: todo, onToggle: { onTodoToggle?(todo) })
               .onTapGesture { onTodoTap?(todo) }
           }
+          .fixedSize(horizontal: false, vertical: true)
 
-          if allItemCount > 2 {
+          if allItemCount > 3 {
             Button {
               showingDetailSheet = true
             } label: {
-              Text("+\(allItemCount - 2) more")
+              Text("+\(allItemCount - 3) more")
                 .font(Typography.caption)
                 .foregroundColor(.accentColor)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -77,12 +79,10 @@ struct EventListView: View {
             .buttonStyle(.plain)
           }
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 12)
       }
-    }
-    .overlay(alignment: .bottomTrailing) {
-      jumpToTodayButton
+      .frame(height: 140, alignment: .top)
+      .padding(.horizontal, 16)
+      .padding(.bottom, 12)
     }
     .background(
       RoundedRectangle(cornerRadius: 20)
@@ -128,10 +128,31 @@ struct EventListView: View {
       Spacer()
 
       HStack(spacing: 8) {
+        // Jump to Today button in header
+        if showJumpToToday, let onJumpToToday {
+          Button(action: onJumpToToday) {
+            HStack(spacing: 4) {
+              Image(systemName: "arrow.counterclockwise")
+                .font(.system(size: 12, weight: .bold))
+              Text("Today")
+                .font(.system(size: 12, weight: .semibold))
+            }
+            .fixedSize()
+            .foregroundColor(Color.textPrimary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.secondaryFill)
+            .clipShape(Capsule())
+          }
+          .buttonStyle(.plain)
+          .transition(.scale.combined(with: .opacity))
+        }
+        
         if !events.isEmpty {
           Text(Localization.string(.eventsCount(events.count)))
             .font(Typography.caption)
             .foregroundColor(Color.textTertiary)
+            .fixedSize()
         }
 
         Button(action: onAdd) {
@@ -165,30 +186,7 @@ struct EventListView: View {
     .buttonStyle(.plain)
   }
 
-  // MARK: - Jump to Today
 
-  @ViewBuilder
-  private var jumpToTodayButton: some View {
-    if showJumpToToday, let onJumpToToday {
-      Button(action: onJumpToToday) {
-        HStack(spacing: 6) {
-          Image(systemName: "arrow.counterclockwise")
-            .font(.system(size: 13, weight: .bold))
-          Text("Today")
-            .font(.system(size: 13, weight: .semibold))
-        }
-        .foregroundColor(Color.textPrimary)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(Color.secondaryFill)
-        .clipShape(Capsule())
-        .shadow(color: Color.shadowColor, radius: 8, x: 0, y: 4)
-      }
-      .padding(.trailing, 12)
-      .padding(.bottom, 12)
-      .transition(.scale.combined(with: .opacity))
-    }
-  }
 }
 
 // MARK: - Compact Event Row (smaller for preview)
@@ -197,7 +195,7 @@ struct CompactEventRow: View {
   let event: Event
 
   var body: some View {
-    HStack(spacing: 0) {
+    HStack(spacing: 8) {
       RoundedRectangle(cornerRadius: 2)
         .fill(Color.eventColor(named: event.color))
         .frame(width: 3)
@@ -271,6 +269,8 @@ struct CompactTodoRow: View {
 // MARK: - Detail Sheet (full event list)
 
 struct EventListDetailSheet: View {
+  @Environment(\.dismiss) private var dismiss
+  
   let date: Date?
   let events: [Event]
   let todos: [TodoItem]
@@ -316,7 +316,12 @@ struct EventListDetailSheet: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button(action: onAdd) {
+          Button {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+              onAdd()
+            }
+          } label: {
             Image(systemName: "plus.circle.fill")
               .font(.system(size: 22))
               .foregroundColor(.accentColor)
