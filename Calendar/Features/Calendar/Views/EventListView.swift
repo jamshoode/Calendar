@@ -65,11 +65,16 @@ struct EventListView: View {
           }
 
           if allItemCount > 2 {
-            Text("+\(allItemCount - 2) more")
-              .font(Typography.caption)
-              .foregroundColor(.textTertiary)
-              .frame(maxWidth: .infinity, alignment: .center)
-              .padding(.top, 2)
+            Button {
+              showingDetailSheet = true
+            } label: {
+              Text("+\(allItemCount - 2) more")
+                .font(Typography.caption)
+                .foregroundColor(.accentColor)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 2)
+            }
+            .buttonStyle(.plain)
           }
         }
         .padding(.horizontal, 16)
@@ -85,6 +90,7 @@ struct EventListView: View {
     )
     .padding(.horizontal, 12)
     .padding(.top, 8)
+    .padding(.bottom, 12)
     .sheet(isPresented: $showingDetailSheet) {
       EventListDetailSheet(
         date: date,
