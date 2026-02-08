@@ -62,6 +62,7 @@ struct AdaptiveTabBar: View {
     }
     .sideSheet(isPresented: $showingSettings) {
       SettingsSheet(isPresented: $showingSettings)
+        .environmentObject(appState)
         #if DEBUG
           .environmentObject(debugSettings)
         #endif
