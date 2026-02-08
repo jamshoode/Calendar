@@ -3,7 +3,7 @@ import SwiftUI
 extension View {
   func glassEffect() -> some View {
     self
-      .background(.ultraThinMaterial)
+      .background(.thinMaterial)
       .clipShape(RoundedRectangle(cornerRadius: 16))
       .overlay(
         RoundedRectangle(cornerRadius: 16)

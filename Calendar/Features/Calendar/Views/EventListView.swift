@@ -119,7 +119,7 @@ struct EventListView: View {
           .foregroundColor(.primary)
           .padding(.horizontal, 14)
           .padding(.vertical, 8)
-          .background(.ultraThinMaterial)
+          .background(.thinMaterial)
           .clipShape(Capsule())
           .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
         }
@@ -130,7 +130,7 @@ struct EventListView: View {
     }
     .background(
       RoundedRectangle(cornerRadius: 20)
-        .fill(.ultraThinMaterial)
+        .fill(.thinMaterial)
     )
     .padding(.horizontal, 12)
     .padding(.top, 8)

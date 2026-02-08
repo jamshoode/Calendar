@@ -46,7 +46,7 @@ struct GlassButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {
             RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
+                .fill(.thinMaterial)
         }
     }
 }

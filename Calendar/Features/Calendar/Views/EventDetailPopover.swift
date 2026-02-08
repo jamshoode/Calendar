@@ -117,7 +117,7 @@ struct EventDetailPopover: View {
         .padding(.vertical, 12)
       }
     }
-    .background(.ultraThinMaterial)
+    .background(.thinMaterial)
     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     .overlay(
       RoundedRectangle(cornerRadius: 16, style: .continuous)

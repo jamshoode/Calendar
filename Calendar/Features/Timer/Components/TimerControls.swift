@@ -53,7 +53,7 @@ struct ControlButton: View {
                 .clipShape(Circle())
         } else {
             Circle()
-                .fill(.ultraThinMaterial)
+                .fill(.thinMaterial)
         }
     }
 }

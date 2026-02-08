@@ -23,6 +23,6 @@ struct TopBarView: View {
     }
     .padding(.horizontal, 16)
     .frame(height: 56)
-    .background(.ultraThinMaterial)
+    .background(.thinMaterial)
   }
 }
