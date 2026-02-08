@@ -79,9 +79,11 @@ struct CalendarView: View {
           events: eventsForSelectedDate,
           todos: todosForSelectedDate,
           onEdit: { event in
+            guard !event.isHoliday else { return }
             editingEvent = event
           },
           onDelete: { event in
+            guard !event.isHoliday else { return }
             deleteEvent(event)
           },
           onAdd: {

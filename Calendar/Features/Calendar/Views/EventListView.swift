@@ -70,11 +70,13 @@ struct EventListView: View {
                 .onTapGesture {
                   onEdit(event)
                 }
-                .swipeActions(edge: .trailing) {
-                  Button(role: .destructive) {
-                    onDelete(event)
-                  } label: {
-                    Label(Localization.string(.delete), systemImage: "trash")
+                .if(!event.isHoliday) { view in
+                  view.swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                      onDelete(event)
+                    } label: {
+                      Label(Localization.string(.delete), systemImage: "trash")
+                    }
                   }
                 }
             }
@@ -168,8 +170,16 @@ struct EventRow: View {
         .frame(width: 12, height: 12)
 
       VStack(alignment: .leading, spacing: 4) {
-        Text(event.title)
-          .font(.system(size: 16, weight: .medium))
+        HStack(spacing: 6) {
+          Text(event.title)
+            .font(.system(size: 16, weight: .medium))
+
+          if event.isHoliday {
+            Image(systemName: "star.fill")
+              .font(.system(size: 10))
+              .foregroundColor(.eventTeal)
+          }
+        }
 
         if let notes = event.notes, !notes.isEmpty {
           Text(notes)
@@ -182,7 +192,7 @@ struct EventRow: View {
       Spacer()
     }
     .padding()
-    .background(Color.white.opacity(0.05))
+    .background(event.isHoliday ? Color.eventTeal.opacity(0.08) : Color.white.opacity(0.05))
     .clipShape(RoundedRectangle(cornerRadius: 12))
   }
 }
