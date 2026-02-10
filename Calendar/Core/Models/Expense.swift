@@ -9,6 +9,7 @@ class Expense {
   var date: Date
   var category: String  // ExpenseCategory rawValue
   var paymentMethod: String  // "cash" or "card"
+  var currency: String  // currency rawValue (usd/uah)
   var merchant: String?
   var notes: String?
   var createdAt: Date
@@ -23,12 +24,18 @@ class Expense {
     set { paymentMethod = newValue.rawValue }
   }
 
+  var currencyEnum: Currency {
+    get { Currency(rawValue: currency) ?? .usd }
+    set { currency = newValue.rawValue }
+  }
+
   init(
     title: String,
     amount: Double,
     date: Date = Date(),
     category: ExpenseCategory = .other,
     paymentMethod: PaymentMethod = .card,
+    currency: Currency = .usd,
     merchant: String? = nil,
     notes: String? = nil
   ) {
@@ -38,9 +45,29 @@ class Expense {
     self.date = date
     self.category = category.rawValue
     self.paymentMethod = paymentMethod.rawValue
+    self.currency = currency.rawValue
     self.merchant = merchant
     self.notes = notes
     self.createdAt = Date()
+  }
+}
+
+enum Currency: String, Codable, CaseIterable {
+  case usd
+  case uah
+
+  var symbol: String {
+    switch self {
+    case .usd: return "$"
+    case .uah: return "₴"
+    }
+  }
+
+  var displayName: String {
+    switch self {
+    case .usd: return "USD"
+    case .uah: return "UAH"
+    }
   }
 }
 

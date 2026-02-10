@@ -12,8 +12,8 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
   func requestAuthorization() {
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {
       granted, error in
-      if error != nil {
-        // print("Notification authorization error: \(error)")
+      if let error = error {
+        ErrorPresenter.presentOnMain(error)
       }
     }
   }
@@ -27,7 +27,11 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: duration, repeats: false)
     let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
-    UNUserNotificationCenter.current().add(request)
+    UNUserNotificationCenter.current().add(request) { error in
+      if let error = error {
+        ErrorPresenter.presentOnMain(error)
+      }
+    }
   }
 
   func scheduleAlarmNotification(date: Date) {
@@ -40,7 +44,11 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
     let request = UNNotificationRequest(identifier: "alarm", content: content, trigger: trigger)
 
-    UNUserNotificationCenter.current().add(request)
+    UNUserNotificationCenter.current().add(request) { error in
+      if let error = error {
+        ErrorPresenter.presentOnMain(error)
+      }
+    }
   }
 
   func cancelTimerNotifications(identifier: String = "timer") {
@@ -103,8 +111,8 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
     UNUserNotificationCenter.current().add(request) { error in
-      if error != nil {
-        // print("Error scheduling event notification: \(error)")
+      if let error = error {
+        ErrorPresenter.presentOnMain(error)
       }
     }
   }
@@ -129,7 +137,11 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
         let request = UNNotificationRequest(
           identifier: identifier, content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request)
+        UNUserNotificationCenter.current().add(request) { error in
+          if let error = error {
+            ErrorPresenter.presentOnMain(error)
+          }
+        }
       }
     }
 
@@ -164,7 +176,11 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
       let request = UNNotificationRequest(
         identifier: identifier, content: content, trigger: trigger)
-      UNUserNotificationCenter.current().add(request)
+      UNUserNotificationCenter.current().add(request) { error in
+        if let error = error {
+          ErrorPresenter.presentOnMain(error)
+        }
+      }
     }
   }
 

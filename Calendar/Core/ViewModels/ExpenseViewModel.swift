@@ -9,21 +9,23 @@ class ExpenseViewModel {
     date: Date,
     category: ExpenseCategory,
     paymentMethod: PaymentMethod,
+    currency: Currency,
     merchant: String?,
     notes: String?,
     context: ModelContext
-  ) {
+  ) throws {
     let expense = Expense(
       title: title,
       amount: amount,
       date: date,
       category: category,
       paymentMethod: paymentMethod,
+      currency: currency,
       merchant: merchant,
       notes: notes
     )
     context.insert(expense)
-    try? context.save()
+    try context.save()
   }
 
   func updateExpense(
@@ -33,23 +35,25 @@ class ExpenseViewModel {
     date: Date,
     category: ExpenseCategory,
     paymentMethod: PaymentMethod,
+    currency: Currency,
     merchant: String?,
     notes: String?,
     context: ModelContext
-  ) {
+  ) throws {
     expense.title = title
     expense.amount = amount
     expense.date = date
     expense.categoryEnum = category
     expense.paymentMethodEnum = paymentMethod
+    expense.currencyEnum = currency
     expense.merchant = merchant
     expense.notes = notes
-    try? context.save()
+    try context.save()
   }
 
-  func deleteExpense(_ expense: Expense, context: ModelContext) {
+  func deleteExpense(_ expense: Expense, context: ModelContext) throws {
     context.delete(expense)
-    try? context.save()
+    try context.save()
   }
 
   // MARK: - Aggregation

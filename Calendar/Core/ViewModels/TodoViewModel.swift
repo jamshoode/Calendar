@@ -9,32 +9,59 @@ class TodoViewModel: ObservableObject {
 
   func createCategory(name: String, color: String, context: ModelContext) {
     let descriptor = FetchDescriptor<TodoCategory>()
-    let existingCount = (try? context.fetchCount(descriptor)) ?? 0
+    var existingCount = 0
+    do {
+      existingCount = try context.fetchCount(descriptor)
+    } catch {
+      ErrorPresenter.presentOnMain(error)
+      existingCount = 0
+    }
     let category = TodoCategory(name: name, color: color, sortOrder: existingCount)
     context.insert(category)
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+      return
+    }
   }
 
   func updateCategory(_ category: TodoCategory, name: String, color: String, context: ModelContext)
   {
     category.name = name
     category.color = color
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func deleteCategory(_ category: TodoCategory, context: ModelContext) {
     context.delete(category)
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func toggleCategoryPin(_ category: TodoCategory, context: ModelContext) {
     category.isPinned.toggle()
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func toggleTodoPin(_ todo: TodoItem, context: ModelContext) {
     todo.isPinned.toggle()
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func createTodo(
@@ -74,7 +101,12 @@ class TodoViewModel: ObservableObject {
       category.todos?.append(todo)
     }
 
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+      return
+    }
 
     if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
@@ -112,7 +144,12 @@ class TodoViewModel: ObservableObject {
     todo.recurrenceInterval = recurrenceInterval
     todo.recurrenceDaysOfWeek = recurrenceDaysOfWeek
     todo.recurrenceEndDate = recurrenceEndDate
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+      return
+    }
 
     NotificationService.shared.cancelTodoNotification(id: todo.id)
     if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
@@ -126,7 +163,12 @@ class TodoViewModel: ObservableObject {
   func deleteTodo(_ todo: TodoItem, context: ModelContext) {
     NotificationService.shared.cancelTodoNotification(id: todo.id)
     context.delete(todo)
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+      return
+    }
     syncTodoCountToWidget(context: context)
     EventViewModel().syncEventsToWidget(context: context)
   }
@@ -183,7 +225,12 @@ class TodoViewModel: ObservableObject {
       }
     }
 
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+      return
+    }
     syncTodoCountToWidget(context: context)
     EventViewModel().syncEventsToWidget(context: context)
   }
@@ -195,7 +242,11 @@ class TodoViewModel: ObservableObject {
       parentTodo: parent
     )
     context.insert(subtask)
-    try? context.save()
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func createDefaultCategoryIfNeeded(context: ModelContext) {
@@ -208,12 +259,20 @@ class TodoViewModel: ObservableObject {
       if existing.isEmpty {
         let defaultCategory = TodoCategory(name: TodoViewModel.noCategoryName, color: "gray")
         context.insert(defaultCategory)
-        try? context.save()
+        do {
+          try context.save()
+        } catch {
+          ErrorPresenter.shared.present(error)
+        }
       }
     } catch {
       let defaultCategory = TodoCategory(name: TodoViewModel.noCategoryName, color: "gray")
       context.insert(defaultCategory)
-      try? context.save()
+      do {
+        try context.save()
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
     }
   }
 
@@ -236,8 +295,14 @@ class TodoViewModel: ObservableObject {
           context.delete(todo)
         }
       }
-      try? context.save()
-    } catch {}
+      do {
+        try context.save()
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func rescheduleAllNotifications(context: ModelContext) {
@@ -259,7 +324,9 @@ class TodoViewModel: ObservableObject {
         return notifyDate > now
       }
       NotificationService.shared.syncTodoNotifications(todos: todosWithReminders)
-    } catch {}
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func syncTodoCountToWidget(context: ModelContext) {
@@ -268,7 +335,13 @@ class TodoViewModel: ObservableObject {
         todo.isCompleted == false && todo.parentTodo == nil
       }
     )
-    let count = (try? context.fetchCount(descriptor)) ?? 0
+    var count = 0
+    do {
+      count = try context.fetchCount(descriptor)
+    } catch {
+      ErrorPresenter.shared.present(error)
+      count = 0
+    }
     let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
     defaults?.set(count, forKey: "incompleteTodoCount")
     defaults?.synchronize()

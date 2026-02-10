@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 struct AddExpenseSheet: View {
@@ -5,7 +6,8 @@ struct AddExpenseSheet: View {
   @Environment(\.modelContext) private var modelContext
 
   let expense: Expense?
-  let onSave: ((String, Double, Date, ExpenseCategory, PaymentMethod, String?, String?) -> Void)?
+  let onSave:
+    ((String, Double, Date, ExpenseCategory, PaymentMethod, Currency, String?, String?) -> Void)?
   let onDelete: (() -> Void)?
 
   @State private var title: String = ""
@@ -13,6 +15,7 @@ struct AddExpenseSheet: View {
   @State private var date: Date = Date()
   @State private var category: ExpenseCategory = .other
   @State private var paymentMethod: PaymentMethod = .card
+  @State private var currency: Currency = .usd
   @State private var merchant: String = ""
   @State private var notes: String = ""
 
@@ -20,7 +23,9 @@ struct AddExpenseSheet: View {
 
   init(
     expense: Expense? = nil,
-    onSave: ((String, Double, Date, ExpenseCategory, PaymentMethod, String?, String?) -> Void)? =
+    onSave: (
+      (String, Double, Date, ExpenseCategory, PaymentMethod, Currency, String?, String?) -> Void
+    )? =
       nil,
     onDelete: (() -> Void)? = nil
   ) {
@@ -34,6 +39,7 @@ struct AddExpenseSheet: View {
       _date = State(initialValue: expense.date)
       _category = State(initialValue: expense.categoryEnum)
       _paymentMethod = State(initialValue: expense.paymentMethodEnum)
+      _currency = State(initialValue: expense.currencyEnum)
       _merchant = State(initialValue: expense.merchant ?? "")
       _notes = State(initialValue: expense.notes ?? "")
     }
@@ -46,7 +52,7 @@ struct AddExpenseSheet: View {
           TextField(Localization.string(.title), text: $title)
 
           HStack {
-            Text("$")
+            Text(currency.symbol)
               .foregroundColor(.textSecondary)
             TextField(Localization.string(.expenseAmount), text: $amountText)
               .keyboardType(.decimalPad)
@@ -73,17 +79,45 @@ struct AddExpenseSheet: View {
           }
         }
 
-        Section(Localization.string(.expensePaymentMethod)) {
-          Picker(Localization.string(.expensePaymentMethod), selection: $paymentMethod) {
-            ForEach(PaymentMethod.allCases, id: \.self) { method in
-              HStack {
-                Image(systemName: method.icon)
-                Text(method.displayName)
+        Section(Localization.string(.expenseCurrency)) {
+          HStack(spacing: 8) {
+            ForEach(Currency.allCases, id: \.self) { c in
+              Button {
+                currency = c
+              } label: {
+                HStack(spacing: 8) {
+                  Text(c.symbol)
+                  Text(c.displayName)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(currency == c ? Color.accentColor.opacity(0.14) : Color.surfaceCard)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
               }
-              .tag(method)
+              .buttonStyle(.plain)
             }
           }
-          .pickerStyle(.segmented)
+        }
+
+        Section(Localization.string(.expensePaymentMethod)) {
+          HStack(spacing: 8) {
+            ForEach(PaymentMethod.allCases, id: \.self) { method in
+              Button {
+                paymentMethod = method
+              } label: {
+                HStack(spacing: 8) {
+                  Image(systemName: method.icon)
+                  Text(method.displayName)
+                }
+                .foregroundColor(paymentMethod == method ? .white : .textPrimary)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(paymentMethod == method ? Color.accentColor : Color.surfaceCard)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+              }
+              .buttonStyle(.plain)
+            }
+          }
         }
 
         Section {
@@ -140,27 +174,37 @@ struct AddExpenseSheet: View {
 
     if let onSave = onSave {
       onSave(
-        title, amount, date, category, paymentMethod,
+        title, amount, date, category, paymentMethod, currency,
         merchant.isEmpty ? nil : merchant,
         notes.isEmpty ? nil : notes
       )
+      dismiss()
     } else if let expense = expense {
-      viewModel.updateExpense(
-        expense, title: title, amount: amount, date: date,
-        category: category, paymentMethod: paymentMethod,
-        merchant: merchant.isEmpty ? nil : merchant,
-        notes: notes.isEmpty ? nil : notes,
-        context: modelContext
-      )
+      do {
+        try viewModel.updateExpense(
+          expense, title: title, amount: amount, date: date,
+          category: category, paymentMethod: paymentMethod, currency: currency,
+          merchant: merchant.isEmpty ? nil : merchant,
+          notes: notes.isEmpty ? nil : notes,
+          context: modelContext
+        )
+        dismiss()
+      } catch {
+        ErrorPresenter.presentOnMain(error)
+      }
     } else {
-      viewModel.addExpense(
-        title: title, amount: amount, date: date,
-        category: category, paymentMethod: paymentMethod,
-        merchant: merchant.isEmpty ? nil : merchant,
-        notes: notes.isEmpty ? nil : notes,
-        context: modelContext
-      )
+      do {
+        try viewModel.addExpense(
+          title: title, amount: amount, date: date,
+          category: category, paymentMethod: paymentMethod, currency: currency,
+          merchant: merchant.isEmpty ? nil : merchant,
+          notes: notes.isEmpty ? nil : notes,
+          context: modelContext
+        )
+        dismiss()
+      } catch {
+        ErrorPresenter.presentOnMain(error)
+      }
     }
-    dismiss()
   }
 }

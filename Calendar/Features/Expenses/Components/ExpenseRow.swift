@@ -31,7 +31,7 @@ struct ExpenseRow: View {
 
       // Amount & payment method
       VStack(alignment: .trailing, spacing: 2) {
-        Text(String(format: "$%.2f", expense.amount))
+        Text("\(expense.currencyEnum.symbol)\(String(format: "%.2f", expense.amount))")
           .font(Typography.headline)
           .foregroundColor(.textPrimary)
 

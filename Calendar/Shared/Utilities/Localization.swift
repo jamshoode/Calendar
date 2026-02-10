@@ -195,6 +195,7 @@ struct Localization {
     case expenseAmount
     case expenseCategory
     case expensePaymentMethod
+    case expenseCurrency
     case expenseMerchant
     case expenseCash
     case expenseCard
@@ -526,6 +527,8 @@ struct Localization {
       return lang == .ukrainian ? "Категорія" : "Category"
     case .expensePaymentMethod:
       return lang == .ukrainian ? "Спосіб оплати" : "Payment Method"
+    case .expenseCurrency:
+      return lang == .ukrainian ? "Валюта" : "Currency"
     case .expenseMerchant:
       return lang == .ukrainian ? "Продавець" : "Merchant"
     case .expenseCash:

@@ -10,9 +10,13 @@ class EventViewModel {
     let event = Event(
       date: date, title: title, notes: notes, color: color, reminderInterval: reminderInterval)
     context.insert(event)
-    try? context.save()
-    rescheduleAllNotifications(context: context)
-    syncEventsToWidget(context: context)
+    do {
+      try context.save()
+      rescheduleAllNotifications(context: context)
+      syncEventsToWidget(context: context)
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func updateEvent(
@@ -23,16 +27,24 @@ class EventViewModel {
     event.notes = notes
     event.color = color
     event.reminderInterval = reminderInterval
-    try? context.save()
-    rescheduleAllNotifications(context: context)
-    syncEventsToWidget(context: context)
+    do {
+      try context.save()
+      rescheduleAllNotifications(context: context)
+      syncEventsToWidget(context: context)
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func deleteEvent(_ event: Event, context: ModelContext) {
     context.delete(event)
-    try? context.save()
-    rescheduleAllNotifications(context: context)
-    syncEventsToWidget(context: context)
+    do {
+      try context.save()
+      rescheduleAllNotifications(context: context)
+      syncEventsToWidget(context: context)
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func rescheduleAllNotifications(context: ModelContext) {
@@ -45,7 +57,9 @@ class EventViewModel {
     do {
       let events = try context.fetch(descriptor)
       NotificationService.shared.syncEventNotifications(events: events)
-    } catch {}
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 
   func syncEventsToWidget(context: ModelContext) {
@@ -105,12 +119,15 @@ class EventViewModel {
       }
     } catch {}
 
-    if let data = try? JSONSerialization.data(withJSONObject: eventMap),
-      let jsonString = String(data: data, encoding: .utf8)
-    {
-      let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
-      defaults?.set(jsonString, forKey: "widgetEventData")
-      defaults?.synchronize()
+    do {
+      let data = try JSONSerialization.data(withJSONObject: eventMap)
+      if let jsonString = String(data: data, encoding: .utf8) {
+        let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
+        defaults?.set(jsonString, forKey: "widgetEventData")
+        defaults?.synchronize()
+      }
+    } catch {
+      ErrorPresenter.shared.present(error)
     }
 
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")

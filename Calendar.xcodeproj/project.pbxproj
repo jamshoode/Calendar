@@ -7,23 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0002F4E0001007F8DEB /* HolidayService.swift */; };
-		F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */; };
-		F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */; };
-		F5A1B0072F4E0004007F8DEB /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0062F4E0004007F8DEB /* Typography.swift */; };
-		F5A1B0092F4E0005007F8DEB /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0082F4E0005007F8DEB /* Spacing.swift */; };
-		F5A1B00B2F4E0006007F8DEB /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */; };
-		F5A1B00D2F4E0007007F8DEB /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00C2F4E0007007F8DEB /* Expense.swift */; };
-		F5A1B00F2F4E0008007F8DEB /* ExpenseCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */; };
-		F5A1B0112F4E0009007F8DEB /* ExpenseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */; };
-		F5A1B0132F4E000A007F8DEB /* ExpensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */; };
-		F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */; };
-		F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */; };
-		F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0182F4E000D007F8DEB /* ClockView.swift */; };
-		F5A1B01B2F4E000E007F8DEB /* CalendarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */; };
-		F5A1B01D2F4E000F007F8DEB /* CalendarTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */; };
-		F5A1B01F2F4E0010007F8DEB /* WeekStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */; };
 		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
+		F51F1B422F3BD12F007A3F3E /* ErrorPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F1B412F3BD12F007A3F3E /* ErrorPresenter.swift */; };
+		F51F1B442F3BD2D6007A3F3E /* ErrorNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F1B432F3BD2D6007A3F3E /* ErrorNotifications.swift */; };
+		F51F1B462F3BD2FA007A3F3E /* FloatingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F1B452F3BD2FA007A3F3E /* FloatingErrorView.swift */; };
+		F51F1B482F3BD304007A3F3E /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F1B472F3BD304007A3F3E /* GlassCard.swift */; };
 		F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE42F34F4AA008B6601 /* TodoCategory.swift */; };
 		F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE52F34F4AA008B6601 /* TodoItem.swift */; };
 		F554EFE92F34F4C8008B6601 /* TodoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F554EFE82F34F4C8008B6601 /* TodoViewModel.swift */; };
@@ -83,6 +71,22 @@
 		F593C1522F33C31D007F8DEB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C1512F33C31D007F8DEB /* SwiftUI.framework */; };
 		F593C1632F33C31F007F8DEB /* CalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1CA2F33C57E007F8DEB /* AppState.swift */; };
+		F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0002F4E0001007F8DEB /* HolidayService.swift */; };
+		F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */; };
+		F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */; };
+		F5A1B0072F4E0004007F8DEB /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0062F4E0004007F8DEB /* Typography.swift */; };
+		F5A1B0092F4E0005007F8DEB /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0082F4E0005007F8DEB /* Spacing.swift */; };
+		F5A1B00B2F4E0006007F8DEB /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */; };
+		F5A1B00D2F4E0007007F8DEB /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00C2F4E0007007F8DEB /* Expense.swift */; };
+		F5A1B00F2F4E0008007F8DEB /* ExpenseCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */; };
+		F5A1B0112F4E0009007F8DEB /* ExpenseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */; };
+		F5A1B0132F4E000A007F8DEB /* ExpensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */; };
+		F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */; };
+		F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */; };
+		F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0182F4E000D007F8DEB /* ClockView.swift */; };
+		F5A1B01B2F4E000E007F8DEB /* CalendarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */; };
+		F5A1B01D2F4E000F007F8DEB /* CalendarTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */; };
+		F5A1B01F2F4E0010007F8DEB /* WeekStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */; };
 		F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC972F34C45D0025B2E6 /* DebugView.swift */; };
 		F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */; };
 /* End PBXBuildFile section */
@@ -127,6 +131,10 @@
 
 /* Begin PBXFileReference section */
 		F51A59232F34AFB20006E307 /* MonthYearPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthYearPicker.swift; sourceTree = "<group>"; };
+		F51F1B412F3BD12F007A3F3E /* ErrorPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorPresenter.swift; sourceTree = "<group>"; };
+		F51F1B432F3BD2D6007A3F3E /* ErrorNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorNotifications.swift; sourceTree = "<group>"; };
+		F51F1B452F3BD2FA007A3F3E /* FloatingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingErrorView.swift; sourceTree = "<group>"; };
+		F51F1B472F3BD304007A3F3E /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		F554EFE42F34F4AA008B6601 /* TodoCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TodoCategory.swift; path = Calendar/Core/Models/TodoCategory.swift; sourceTree = SOURCE_ROOT; };
 		F554EFE52F34F4AA008B6601 /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TodoItem.swift; path = Calendar/Core/Models/TodoItem.swift; sourceTree = SOURCE_ROOT; };
 		F554EFE82F34F4C8008B6601 /* TodoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TodoViewModel.swift; path = Calendar/Core/ViewModels/TodoViewModel.swift; sourceTree = SOURCE_ROOT; };
@@ -154,22 +162,6 @@
 		F593C0EA2F33C234007F8DEB /* TimerPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPreset.swift; sourceTree = "<group>"; };
 		F593C0EB2F33C234007F8DEB /* TimerSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerSession.swift; sourceTree = "<group>"; };
 		F593C0ED2F33C234007F8DEB /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
-		F5A1B0002F4E0001007F8DEB /* HolidayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayService.swift; sourceTree = "<group>"; };
-		F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayCountryPicker.swift; sourceTree = "<group>"; };
-		F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailPopover.swift; sourceTree = "<group>"; };
-		F5A1B0062F4E0004007F8DEB /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
-		F5A1B0082F4E0005007F8DEB /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
-		F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
-		F5A1B00C2F4E0007007F8DEB /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
-		F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseCategory.swift; sourceTree = "<group>"; };
-		F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseViewModel.swift; sourceTree = "<group>"; };
-		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
-		F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseSheet.swift; sourceTree = "<group>"; };
-		F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRow.swift; sourceTree = "<group>"; };
-		F5A1B0182F4E000D007F8DEB /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
-		F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarListView.swift; sourceTree = "<group>"; };
-		F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTimelineView.swift; sourceTree = "<group>"; };
-		F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekStrip.swift; sourceTree = "<group>"; };
 		F593C0EE2F33C234007F8DEB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		F593C0F02F33C234007F8DEB /* AlarmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewModel.swift; sourceTree = "<group>"; };
 		F593C0F12F33C234007F8DEB /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
@@ -208,6 +200,22 @@
 		F593C1512F33C31D007F8DEB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		F593C1692F33C32E007F8DEB /* CalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
 		F593C1CA2F33C57E007F8DEB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F5A1B0002F4E0001007F8DEB /* HolidayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayService.swift; sourceTree = "<group>"; };
+		F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayCountryPicker.swift; sourceTree = "<group>"; };
+		F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailPopover.swift; sourceTree = "<group>"; };
+		F5A1B0062F4E0004007F8DEB /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		F5A1B0082F4E0005007F8DEB /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		F5A1B00C2F4E0007007F8DEB /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
+		F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseCategory.swift; sourceTree = "<group>"; };
+		F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseViewModel.swift; sourceTree = "<group>"; };
+		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
+		F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseSheet.swift; sourceTree = "<group>"; };
+		F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRow.swift; sourceTree = "<group>"; };
+		F5A1B0182F4E000D007F8DEB /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
+		F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarListView.swift; sourceTree = "<group>"; };
+		F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTimelineView.swift; sourceTree = "<group>"; };
+		F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekStrip.swift; sourceTree = "<group>"; };
 		F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettings.swift; sourceTree = "<group>"; };
 		F5BCFC972F34C45D0025B2E6 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -327,7 +335,7 @@
 				F593C0E42F33C234007F8DEB /* AppDelegate.swift */,
 				F593C0E62F33C234007F8DEB /* Assets.xcassets */,
 				F593C0E72F33C234007F8DEB /* CalendarApp.swift */,
-				F593C1CB2F33C57E007F8DEB /* App */,
+				F593C1CB2F33C57E007F8DEB /* Calendar/App */,
 				F593C0F52F33C234007F8DEB /* Core */,
 				F5BCFC982F34C45D0025B2E6 /* Debug */,
 				F593C10F2F33C234007F8DEB /* Features */,
@@ -495,48 +503,6 @@
 			path = Calendar/Features;
 			sourceTree = "<group>";
 		};
-		F5A1B0202F4E0011007F8DEB /* Expenses */ = {
-			isa = PBXGroup;
-			children = (
-				F5A1B0212F4E0012007F8DEB /* Views */,
-				F5A1B0222F4E0013007F8DEB /* Components */,
-			);
-			path = Expenses;
-			sourceTree = "<group>";
-		};
-		F5A1B0212F4E0012007F8DEB /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */,
-				F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		F5A1B0222F4E0013007F8DEB /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
-		F5A1B0232F4E0014007F8DEB /* Clock */ = {
-			isa = PBXGroup;
-			children = (
-				F5A1B0242F4E0015007F8DEB /* Views */,
-			);
-			path = Clock;
-			sourceTree = "<group>";
-		};
-		F5A1B0242F4E0015007F8DEB /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				F5A1B0182F4E000D007F8DEB /* ClockView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
 		F593C1152F33C234007F8DEB /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -548,6 +514,8 @@
 				F554EFFF2F34F99C008B6601 /* TopBarView.swift */,
 				F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */,
 				F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */,
+				F51F1B452F3BD2FA007A3F3E /* FloatingErrorView.swift */,
+				F51F1B472F3BD304007A3F3E /* GlassCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -594,12 +562,56 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		F593C1CB2F33C57E007F8DEB /* App */ = {
+		F593C1CB2F33C57E007F8DEB /* Calendar/App */ = {
 			isa = PBXGroup;
 			children = (
 				F593C1CA2F33C57E007F8DEB /* AppState.swift */,
+				F51F1B412F3BD12F007A3F3E /* ErrorPresenter.swift */,
+				F51F1B432F3BD2D6007A3F3E /* ErrorNotifications.swift */,
 			);
 			path = Calendar/App;
+			sourceTree = "<group>";
+		};
+		F5A1B0202F4E0011007F8DEB /* Expenses */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0212F4E0012007F8DEB /* Views */,
+				F5A1B0222F4E0013007F8DEB /* Components */,
+			);
+			path = Expenses;
+			sourceTree = "<group>";
+		};
+		F5A1B0212F4E0012007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */,
+				F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F5A1B0222F4E0013007F8DEB /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F5A1B0232F4E0014007F8DEB /* Clock */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0242F4E0015007F8DEB /* Views */,
+			);
+			path = Clock;
+			sourceTree = "<group>";
+		};
+		F5A1B0242F4E0015007F8DEB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F5A1B0182F4E000D007F8DEB /* ClockView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		F5BCFC982F34C45D0025B2E6 /* Debug */ = {
@@ -794,6 +806,7 @@
 				F593C1262F33C234007F8DEB /* AlarmViewModel.swift in Sources */,
 				F593C1272F33C234007F8DEB /* PresetsGrid.swift in Sources */,
 				F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */,
+				F51F1B442F3BD2D6007A3F3E /* ErrorNotifications.swift in Sources */,
 				F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */,
 				F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */,
 				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
@@ -815,6 +828,7 @@
 				F554EFFC2F34F4DF008B6601 /* TodoRow.swift in Sources */,
 				F554EFFD2F34F4DF008B6601 /* CategoryCard.swift in Sources */,
 				F554EFFE2F34F4DF008B6601 /* RecurrencePicker.swift in Sources */,
+				F51F1B462F3BD2FA007A3F3E /* FloatingErrorView.swift in Sources */,
 				F554EFE62F34F4AA008B6601 /* TodoCategory.swift in Sources */,
 				F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */,
 				F593C12F2F33C234007F8DEB /* Event.swift in Sources */,
@@ -824,6 +838,7 @@
 				F593C1322F33C234007F8DEB /* DayCell.swift in Sources */,
 				F593C1332F33C234007F8DEB /* TimerViewModel.swift in Sources */,
 				F593C1342F33C234007F8DEB /* SwipeGestureModifier.swift in Sources */,
+				F51F1B422F3BD12F007A3F3E /* ErrorPresenter.swift in Sources */,
 				F593C1352F33C234007F8DEB /* TimerSession.swift in Sources */,
 				F593C1362F33C234007F8DEB /* CalendarView.swift in Sources */,
 				F554EFE92F34F4C8008B6601 /* TodoViewModel.swift in Sources */,
@@ -852,6 +867,7 @@
 				F5A1B0112F4E0009007F8DEB /* ExpenseViewModel.swift in Sources */,
 				F5A1B0132F4E000A007F8DEB /* ExpensesView.swift in Sources */,
 				F5A1B0152F4E000B007F8DEB /* AddExpenseSheet.swift in Sources */,
+				F51F1B482F3BD304007A3F3E /* GlassCard.swift in Sources */,
 				F5A1B0172F4E000C007F8DEB /* ExpenseRow.swift in Sources */,
 				F5A1B0192F4E000D007F8DEB /* ClockView.swift in Sources */,
 				F5A1B01B2F4E000E007F8DEB /* CalendarListView.swift in Sources */,

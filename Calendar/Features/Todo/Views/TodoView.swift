@@ -332,10 +332,14 @@ struct TodoView: View {
         predicate: #Predicate { $0.title == title },
         sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
       )
-      if let newTodo = try? modelContext.fetch(descriptor).first {
-        for subtaskTitle in subtasks {
-          viewModel.addSubtask(to: newTodo, title: subtaskTitle, context: modelContext)
+      do {
+        if let newTodo = try modelContext.fetch(descriptor).first {
+          for subtaskTitle in subtasks {
+            viewModel.addSubtask(to: newTodo, title: subtaskTitle, context: modelContext)
+          }
         }
+      } catch {
+        ErrorPresenter.presentOnMain(error)
       }
     }
   }
@@ -482,7 +486,12 @@ struct TodoView: View {
         let todo = allTodos.first(where: { $0.id == todoId })
       {
         todo.category = category
-        try? modelContext.save()
+        do {
+          try modelContext.save()
+        } catch {
+          ErrorPresenter.shared.present(error)
+          return false
+        }
         return true
       }
 
@@ -517,7 +526,11 @@ struct TodoView: View {
     }
     category.sortOrder = newIndex
 
-    try? modelContext.save()
+    do {
+      try modelContext.save()
+    } catch {
+      ErrorPresenter.presentOnMain(error)
+    }
   }
 
   private func moveTodo(_ todo: TodoItem, toIndex newIndex: Int, inCategory category: TodoCategory?)
@@ -530,7 +543,11 @@ struct TodoView: View {
     }
     todo.sortOrder = newIndex
 
-    try? modelContext.save()
+    do {
+      try modelContext.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
   }
 }
 

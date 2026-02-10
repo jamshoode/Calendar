@@ -1,3 +1,4 @@
+import Combine
 import SwiftData
 import SwiftUI
 
@@ -30,13 +31,27 @@ struct CalendarApp: App {
         .appendingPathComponent("Application Support")
         .appendingPathComponent("default.store")
       let config = ModelConfiguration(schema: schema, url: storeURL)
-      if let container = try? ModelContainer(for: schema, configurations: [config]) {
-        return container
+      do {
+        return try ModelContainer(for: schema, configurations: [config])
+      } catch {
+        ErrorPresenter.presentOnMain(error)
+        // Fall through to default container creation
       }
     }
 
     let config = ModelConfiguration(schema: schema, groupContainer: .none)
-    return try! ModelContainer(for: schema, configurations: [config])
+    do {
+      return try ModelContainer(for: schema, configurations: [config])
+    } catch {
+      // Surface error to user and try a fallback
+      ErrorPresenter.presentOnMain(error)
+      do {
+        return try ModelContainer(for: schema)
+      } catch {
+        ErrorPresenter.presentOnMain(error)
+        fatalError("Failed to initialize ModelContainer: \(error.localizedDescription)")
+      }
+    }
   }()
 
   var body: some Scene {
@@ -138,12 +153,18 @@ struct ContentView: View {
   @EnvironmentObject var appState: AppState
 
   var body: some View {
-    Group {
-      #if os(iOS)
-        AdaptiveTabBar()
-      #else
-        AdaptiveSidebar()
-      #endif
+    ZStack {
+      Group {
+        #if os(iOS)
+          AdaptiveTabBar()
+        #else
+          AdaptiveSidebar()
+        #endif
+      }
+
+      // Floating error banner
+      FloatingErrorView()
+        .zIndex(1)
     }
   }
 }

@@ -71,10 +71,13 @@ final class HolidayService {
     }
 
     // Cache as JSON
-    if let cacheData = try? JSONEncoder().encode(countries),
-      let cacheString = String(data: cacheData, encoding: .utf8)
-    {
-      defaults.set(cacheString, forKey: Constants.Holiday.countriesCacheKey)
+    do {
+      let cacheData = try JSONEncoder().encode(countries)
+      if let cacheString = String(data: cacheData, encoding: .utf8) {
+        defaults.set(cacheString, forKey: Constants.Holiday.countriesCacheKey)
+      }
+    } catch {
+      ErrorPresenter.presentOnMain(error)
     }
 
     return countries.sorted { $0.countryName < $1.countryName }
@@ -83,10 +86,15 @@ final class HolidayService {
   /// Load cached countries from UserDefaults (no network).
   func cachedCountries() -> [CalendarificCountry] {
     guard let json = defaults.string(forKey: Constants.Holiday.countriesCacheKey),
-      let data = json.data(using: .utf8),
-      let countries = try? JSONDecoder().decode([CalendarificCountry].self, from: data)
+      let data = json.data(using: .utf8)
     else { return [] }
-    return countries.sorted { $0.countryName < $1.countryName }
+    do {
+      let countries = try JSONDecoder().decode([CalendarificCountry].self, from: data)
+      return countries.sorted { $0.countryName < $1.countryName }
+    } catch {
+      ErrorPresenter.shared.present(error)
+      return []
+    }
   }
 
   /// Fetch holidays for a given country and year.
@@ -133,13 +141,15 @@ final class HolidayService {
     let holidays = try await fetchHolidays(apiKey: apiKey, country: countryCode, year: year)
 
     // Delete all existing holiday events
-    try await MainActor.run {
+    await MainActor.run {
       let descriptor = FetchDescriptor<Event>(
         predicate: #Predicate { $0.isHoliday == true }
       )
-      let existing = (try? context.fetch(descriptor)) ?? []
-      for event in existing {
-        context.delete(event)
+      do {
+        let existing = try context.fetch(descriptor)
+        for event in existing { context.delete(event) }
+      } catch {
+        ErrorPresenter.shared.present(error)
       }
     }
 
@@ -175,7 +185,11 @@ final class HolidayService {
         context.insert(event)
       }
 
-      try? context.save()
+      do {
+        try context.save()
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
     }
 
     // Update last sync date
@@ -193,12 +207,14 @@ final class HolidayService {
       let descriptor = FetchDescriptor<Event>(
         predicate: #Predicate { $0.isHoliday == true }
       )
-      let existing = (try? context.fetch(descriptor)) ?? []
-      for event in existing {
-        context.delete(event)
+      do {
+        let existing = try context.fetch(descriptor)
+        for event in existing { context.delete(event) }
+        try context.save()
+        EventViewModel().syncEventsToWidget(context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
       }
-      try? context.save()
-      EventViewModel().syncEventsToWidget(context: context)
     }
   }
 
