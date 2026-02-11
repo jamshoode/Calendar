@@ -29,6 +29,11 @@ struct SettingsSheet: View {
     store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var holidayLanguageName: String = ""
 
+  @AppStorage(
+    Constants.Weather.cityKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  private var weatherCity: String = ""
+
   @State private var isSyncing = false
   @State private var syncMessage: String?
   @State private var showCountryPicker = false
@@ -203,6 +208,7 @@ struct SettingsSheet: View {
       .clipShape(RoundedRectangle(cornerRadius: 12))
     }
   }
+
 
   private func syncHolidays() {
     isSyncing = true
