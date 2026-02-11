@@ -34,6 +34,8 @@ struct AdaptiveSidebar: View {
         ExpensesView()
       case .clock:
         ClockView()
+      case .weather:
+          WeatherView()
       case nil:
         NotFoundView()
       }

@@ -10,6 +10,7 @@ class AppState: ObservableObject {
     case tasks
     case expenses
     case clock
+    case weather
 
     var id: String { rawValue }
   }

@@ -1,8 +1,9 @@
 import SwiftUI
+import SwiftData
 
 /// Timeline mode for the Calendar tab — horizontal week strip + vertical hourly axis with event blocks.
 struct CalendarTimelineView: View {
-  @State var selectedDate: Date
+  @Binding var selectedDate: Date
   let events: [Event]
   let onEventTap: (Event) -> Void
   let onDateSelect: (Date) -> Void
@@ -32,74 +33,114 @@ struct CalendarTimelineView: View {
           }
         ), currentMonth: currentMonth)
 
-      // All-day events bar
-      if !allDayEvents.isEmpty {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 6) {
-            ForEach(allDayEvents) { event in
-              Text(event.title)
-                .font(Typography.caption)
-                .foregroundColor(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color.eventColor(named: event.color))
-                .clipShape(Capsule())
-                .onTapGesture { onEventTap(event) }
-            }
-          }
-          .padding(.horizontal, 16)
-          .padding(.vertical, 6)
-        }
-        .background(Color.surfaceCard)
-      }
 
       Divider()
 
       // Hourly timeline
-      ScrollViewReader { proxy in
-        ScrollView {
-          ZStack(alignment: .topLeading) {
-            // Hour grid
-            VStack(spacing: 0) {
-              ForEach(startHour..<endHour, id: \.self) { hour in
-                HStack(alignment: .top, spacing: 8) {
-                  Text(hourLabel(hour))
-                    .font(.system(size: 11, weight: .regular, design: .monospaced))
-                    .foregroundColor(Color.textTertiary)
-                    .frame(width: 44, alignment: .trailing)
+      GeometryReader { geometry in
+        let totalWidth = geometry.size.width
+        let holidayWidth = totalWidth * 0.175
+        let timelineWidth = totalWidth - holidayWidth
 
-                  VStack(spacing: 0) {
-                    Divider()
-                    Spacer()
+        HStack(spacing: 0) {
+          ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+              // Column 1: Timeline Section
+              ZStack(alignment: .topLeading) {
+                // Hour grid
+                VStack(spacing: 0) {
+                  ForEach(startHour..<endHour, id: \.self) { hour in
+                    HStack(alignment: .top, spacing: 8) {
+                      Text(hourLabel(hour))
+                        .font(.system(size: 11, weight: .regular, design: .monospaced))
+                        .foregroundColor(Color.textTertiary)
+                        .frame(width: 44, alignment: .trailing)
+
+                      VStack(spacing: 0) {
+                        Divider()
+                        Spacer()
+                      }
+                    }
+                    .frame(height: hourHeight)
+                    .id(hour)
                   }
                 }
-                .frame(height: hourHeight)
-                .id(hour)
+
+                // Event blocks
+                ForEach(timelineEvents) { event in
+                  TimelineEventBlock(
+                    event: event,
+                    hourHeight: hourHeight,
+                    startHour: startHour
+                  )
+                  .onTapGesture { onEventTap(event) }
+                }
+              }
+              .frame(width: timelineWidth)
+            }
+            .onAppear {
+              let targetHour = Calendar.current.component(.hour, from: Date())
+              withAnimation {
+                proxy.scrollTo(max(targetHour - 1, 0), anchor: .top)
               }
             }
+          }
 
-            // Event blocks
-            ForEach(timelineEvents) { event in
-              TimelineEventBlock(
-                event: event,
-                hourHeight: hourHeight,
-                startHour: startHour
-              )
-              .onTapGesture { onEventTap(event) }
+          // Column 3: Holidays Section (Sticky)
+          VStack(spacing: 0) {
+            let dayHolidays = allDayEvents
+
+            if !dayHolidays.isEmpty {
+              VStack(spacing: 12) {
+                Spacer()
+                ForEach(dayHolidays) { holiday in
+                  Text(holiday.title)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 10)
+                    .background(Color.eventTeal)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .rotationEffect(.degrees(-90))
+                    .fixedSize()
+                }
+                Spacer()
+              }
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+              Spacer()
             }
           }
-          .padding(.trailing, 16)
+          .frame(width: holidayWidth)
+          .background(Color.backgroundTertiary.opacity(0.2))
         }
-        .onAppear {
-          // Scroll to current hour or first event
-          let targetHour = Calendar.current.component(.hour, from: Date())
-          withAnimation {
-            proxy.scrollTo(max(targetHour - 1, 0), anchor: .top)
+      }
+      .gesture(
+        DragGesture()
+          .onEnded { value in
+            let threshold: CGFloat = 50
+            if value.translation.width < -threshold {
+              // Swipe Left -> Next Day
+              moveDay(by: 1)
+            } else if value.translation.width > threshold {
+              // Swipe Right -> Previous Day
+              moveDay(by: -1)
+            }
           }
-        }
+      )
+    }
+  }
+
+  private func moveDay(by offset: Int) {
+    if let newDate = Calendar.current.date(byAdding: .day, value: offset, to: selectedDate) {
+      withAnimation {
+        selectedDate = newDate
+        onDateSelect(newDate)
       }
     }
   }
+
 
   private func hourLabel(_ hour: Int) -> String {
     let formatter = DateFormatter()

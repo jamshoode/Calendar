@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - Weather Interpretation Codes (WMO)
-enum WeatherCode: Int, Codable {
+public enum WeatherCode: Int, Codable {
     case clearSky = 0
     case mainlyClear = 1
     case partlyCloudy = 2
@@ -32,42 +32,43 @@ enum WeatherCode: Int, Codable {
     case thunderstormSlightHail = 96
     case thunderstormHeavyHail = 99
 
-    var icon: String {
+    public func icon(isDay: Bool) -> String {
         switch self {
-        case .clearSky: return "sun.max.fill"
-        case .mainlyClear: return "sun.max.fill"
-        case .partlyCloudy: return "cloud.sun.fill"
-        case .overcast: return "cloud.fill"
+        case .clearSky, .mainlyClear: 
+            return isDay ? "sun.max.fill" : "moon.stars.fill"
+        case .partlyCloudy: 
+            return isDay ? "cloud.sun.fill" : "cloud.moon.fill"
         case .fog, .depositingRimeFog: return "cloud.fog.fill"
+        case .overcast: return "cloud.fill"
         case .drizzleLight, .drizzleModerate, .drizzleDense: return "cloud.drizzle.fill"
         case .freezingDrizzleLight, .freezingDrizzleDense: return "cloud.hail.fill"
         case .rainSlight, .rainModerate, .rainHeavy: return "cloud.rain.fill"
         case .freezingRainLight, .freezingRainHeavy: return "cloud.heavyrain.fill"
         case .snowSlight, .snowModerate, .snowHeavy, .snowGrains: return "snowflake"
-        case .rainShowersSlight, .rainShowersModerate, .rainShowersViolent: return "cloud.sun.rain.fill"
+        case .rainShowersSlight, .rainShowersModerate, .rainShowersViolent: 
+            return isDay ? "cloud.sun.rain.fill" : "cloud.moon.rain.fill"
         case .snowShowersSlight, .snowShowersHeavy: return "cloud.snow.fill"
         case .thunderstormSlight, .thunderstormSlightHail, .thunderstormHeavyHail: return "cloud.bolt.rain.fill"
         }
     }
 
     var description: String {
-        // We'll use localized strings later if needed, but for now English/UA mapping
         switch self {
-        case .clearSky, .mainlyClear: return "Clear"
-        case .partlyCloudy: return "Partly Cloudy"
-        case .overcast: return "Overcast"
-        case .fog, .depositingRimeFog: return "Fog"
-        case .drizzleLight, .drizzleModerate, .drizzleDense: return "Drizzle"
-        case .rainSlight, .rainModerate, .rainHeavy: return "Rain"
-        case .snowSlight, .snowModerate, .snowHeavy: return "Snow"
-        case .thunderstormSlight, .thunderstormSlightHail, .thunderstormHeavyHail: return "Thunderstorm"
-        default: return "Cloudy"
+        case .clearSky, .mainlyClear: return Localization.string(.weatherClear)
+        case .partlyCloudy: return Localization.string(.weatherPartlyCloudy)
+        case .overcast: return Localization.string(.weatherOvercast)
+        case .fog, .depositingRimeFog: return Localization.string(.weatherFog)
+        case .drizzleLight, .drizzleModerate, .drizzleDense: return Localization.string(.weatherDrizzle)
+        case .rainSlight, .rainModerate, .rainHeavy: return Localization.string(.weatherRain)
+        case .snowSlight, .snowModerate, .snowHeavy: return Localization.string(.weatherSnow)
+        case .thunderstormSlight, .thunderstormSlightHail, .thunderstormHeavyHail: return Localization.string(.weatherThunderstorm)
+        default: return Localization.string(.weatherCloudy)
         }
     }
 }
 
 // MARK: - Open-Meteo Response Models
-struct WeatherResponse: Codable {
+public struct WeatherResponse: Codable {
     let latitude: Double
     let longitude: Double
     let timezone: String
@@ -76,13 +77,14 @@ struct WeatherResponse: Codable {
     let daily: DailyData
 }
 
-struct HourlyData: Codable {
+public struct HourlyData: Codable {
     let time: [String]
     let temperature_2m: [Double]
     let weathercode: [Int]
+    let is_day: [Int]
 }
 
-struct DailyData: Codable {
+public struct DailyData: Codable {
     let time: [String]
     let weathercode: [Int]
     let temperature_2m_max: [Double]
@@ -90,7 +92,7 @@ struct DailyData: Codable {
 }
 
 // MARK: - Processed Models
-struct WeatherData: Codable {
+public struct WeatherData: Codable {
     let city: String
     let lastSyncDate: Date
     let hourlyForecast: [HourlyPoint]
@@ -102,27 +104,28 @@ struct WeatherData: Codable {
     }
 }
 
-struct HourlyPoint: Codable, Identifiable {
-    var id: String { "\(time.timeIntervalSince1970)" }
-    let time: Date
-    let temperature: Double
-    let code: WeatherCode
+public struct HourlyPoint: Codable, Identifiable {
+    public var id: String { "\(time.timeIntervalSince1970)" }
+    public let time: Date
+    public let temperature: Double
+    public let code: WeatherCode
+    public let isDay: Bool
 }
 
-struct DailyPoint: Codable, Identifiable {
-    var id: String { "\(time.timeIntervalSince1970)" }
-    let time: Date
-    let minTemp: Double
-    let maxTemp: Double
-    let code: WeatherCode
+public struct DailyPoint: Codable, Identifiable {
+    public var id: String { "\(time.timeIntervalSince1970)" }
+    public let time: Date
+    public let minTemp: Double
+    public let maxTemp: Double
+    public let code: WeatherCode
 }
 
 // MARK: - Geocoding Models
-struct GeocodingResponse: Codable {
+public struct GeocodingResponse: Codable {
     let results: [GeocodingResult]?
 }
 
-struct GeocodingResult: Codable {
+public struct GeocodingResult: Codable {
     let name: String
     let latitude: Double
     let longitude: Double

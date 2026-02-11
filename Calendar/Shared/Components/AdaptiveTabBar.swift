@@ -18,6 +18,7 @@ struct AdaptiveTabBar: View {
                 Image(systemName: "gearshape")
                   .foregroundColor(.textSecondary)
               }
+              .accessibilityLabel(Localization.string(.settings))
             }
           }
       }
@@ -80,6 +81,24 @@ struct AdaptiveTabBar: View {
         Text(Localization.string(.tabClock))
       }
       .tag(AppState.Tab.clock)
+
+      NavigationStack {
+        WeatherView()
+          .navigationBarTitleDisplayMode(.inline)
+          .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+              Button(action: { showingSettings = true }) {
+                Image(systemName: "gearshape")
+                  .foregroundColor(.textSecondary)
+              }
+            }
+          }
+      }
+      .tabItem {
+        Image(systemName: "cloud.sun")
+        Text(Localization.string(.tabWeather))
+      }
+      .tag(AppState.Tab.weather)
     }
     .sheet(isPresented: $showingSettings) {
       SettingsSheet(isPresented: $showingSettings)

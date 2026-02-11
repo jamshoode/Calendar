@@ -1,43 +1,98 @@
 import SwiftUI
 
+#if canImport(UIKit)
+  import UIKit
+  typealias PlatformColor = UIColor
+#elseif canImport(AppKit)
+  import AppKit
+  typealias PlatformColor = NSColor
+#endif
+
 // MARK: - Design System Colors
 // Monochromatic neutral chrome — color appears ONLY in content (events, statuses, categories)
 
 extension Color {
-  // MARK: Backgrounds
-  /// Primary background — adapts to system light/dark
-  static let backgroundPrimary = Color(UIColor.systemBackground)
-  /// Secondary background — slightly elevated
-  static let backgroundSecondary = Color(UIColor.secondarySystemBackground)
-  /// Grouped background — for grouped table/form views
-  static let backgroundGrouped = Color(UIColor.systemGroupedBackground)
+  // MARK: - Helper for platform-specific colors
+  private static func platformColor(ios: UIColorKey, mac: NSColorKey) -> Color {
+    #if canImport(UIKit)
+      switch ios {
+      case .systemBackground: return Color(uiColor: .systemBackground)
+      case .secondarySystemBackground: return Color(uiColor: .secondarySystemBackground)
+      case .tertiarySystemBackground: return Color(uiColor: .tertiarySystemBackground)
+      case .systemGroupedBackground: return Color(uiColor: .systemGroupedBackground)
+      case .secondarySystemGroupedBackground: return Color(uiColor: .secondarySystemGroupedBackground)
+      case .label: return Color(uiColor: .label)
+      case .secondaryLabel: return Color(uiColor: .secondaryLabel)
+      case .tertiaryLabel: return Color(uiColor: .tertiaryLabel)
+      case .separator: return Color(uiColor: .separator)
+      case .opaqueSeparator: return Color(uiColor: .opaqueSeparator)
+      case .systemFill: return Color(uiColor: .systemFill)
+      case .secondarySystemFill: return Color(uiColor: .secondarySystemFill)
+      case .tertiarySystemFill: return Color(uiColor: .tertiarySystemFill)
+      case .systemGray: return Color(uiColor: .systemGray)
+      case .systemGray2: return Color(uiColor: .systemGray2)
+      }
+    #elseif canImport(AppKit)
+      switch mac {
+      case .windowBackgroundColor: return Color(nsColor: .windowBackgroundColor)
+      case .controlBackgroundColor: return Color(nsColor: .controlBackgroundColor)
+      case .textBackgroundColor: return Color(nsColor: .textBackgroundColor)
+      case .underPageBackgroundColor: return Color(nsColor: .underPageBackgroundColor)
+      case .labelColor: return Color(nsColor: .labelColor)
+      case .secondaryLabelColor: return Color(nsColor: .secondaryLabelColor)
+      case .tertiaryLabelColor: return Color(nsColor: .tertiaryLabelColor)
+      case .separatorColor: return Color(nsColor: .separatorColor)
+      case .gridColor: return Color(nsColor: .gridColor)
+      case .controlColor: return Color(nsColor: .controlColor)
+      case .selectedControlColor: return Color(nsColor: .selectedControlColor)
+      case .quaternaryLabelColor: return Color(nsColor: .quaternaryLabelColor)
+      case .systemGray: return Color(nsColor: .systemGray)
+      }
+    #else
+      return .clear
+    #endif
+  }
 
-  // MARK: Surfaces
-  /// Card surface — for elevated card containers
-  static let surfaceCard = Color(UIColor.secondarySystemGroupedBackground)
-  /// Elevated surface — for floating elements
-  static let surfaceElevated = Color(UIColor.tertiarySystemBackground)
+  private enum UIColorKey {
+    case systemBackground, secondarySystemBackground, tertiarySystemBackground, systemGroupedBackground
+    case secondarySystemGroupedBackground, label, secondaryLabel, tertiaryLabel, separator, opaqueSeparator
+    case systemFill, secondarySystemFill, tertiarySystemFill, systemGray, systemGray2
+  }
 
-  // MARK: Text
-  static let textPrimary = Color(UIColor.label)
-  static let textSecondary = Color(UIColor.secondaryLabel)
-  static let textTertiary = Color(UIColor.tertiaryLabel)
+  private enum NSColorKey {
+    case windowBackgroundColor, controlBackgroundColor, textBackgroundColor, underPageBackgroundColor
+    case labelColor, secondaryLabelColor, tertiaryLabelColor, separatorColor, gridColor
+    case controlColor, selectedControlColor, quaternaryLabelColor, systemGray
+  }
 
-  // MARK: Chrome
-  static let border = Color(UIColor.separator)
-  static let divider = Color(UIColor.opaqueSeparator)
-  static let fill = Color(UIColor.systemFill)
-  static let secondaryFill = Color(UIColor.secondarySystemFill)
-  static let tertiaryFill = Color(UIColor.tertiarySystemFill)
-  static let separator = Color(UIColor.separator)
+  // MARK: - Backgrounds
+  static let backgroundPrimary = platformColor(ios: .systemBackground, mac: .windowBackgroundColor)
+  static let backgroundSecondary = platformColor(ios: .secondarySystemBackground, mac: .controlBackgroundColor)
+  static let backgroundTertiary = platformColor(ios: .tertiarySystemBackground, mac: .textBackgroundColor)
+  static let backgroundGrouped = platformColor(ios: .systemGroupedBackground, mac: .underPageBackgroundColor)
 
-  // MARK: Overlays
-  /// Scrim overlay for modals and sheets
+  // MARK: - Surfaces
+  static let surfaceCard = platformColor(ios: .secondarySystemGroupedBackground, mac: .controlBackgroundColor)
+  static let surfaceElevated = platformColor(ios: .tertiarySystemBackground, mac: .textBackgroundColor)
+
+  // MARK: - Text
+  static let textPrimary = platformColor(ios: .label, mac: .labelColor)
+  static let textSecondary = platformColor(ios: .secondaryLabel, mac: .secondaryLabelColor)
+  static let textTertiary = platformColor(ios: .tertiaryLabel, mac: .tertiaryLabelColor)
+
+  // MARK: - Chrome
+  static let border = platformColor(ios: .separator, mac: .separatorColor)
+  static let divider = platformColor(ios: .opaqueSeparator, mac: .gridColor)
+  static let fill = platformColor(ios: .systemFill, mac: .controlColor)
+  static let secondaryFill = platformColor(ios: .secondarySystemFill, mac: .selectedControlColor)
+  static let tertiaryFill = platformColor(ios: .tertiarySystemFill, mac: .quaternaryLabelColor)
+  static let separator = platformColor(ios: .separator, mac: .separatorColor)
+
+  // MARK: - Overlays
   static let backgroundScrim = Color.black.opacity(0.3)
-  /// Shadow color — adapts subtly
   static let shadowColor = Color.black.opacity(0.12)
 
-  // MARK: Event Colors (the ONLY custom colors in the design system)
+  // MARK: - Event Colors
   static let eventBlue = Color.blue
   static let eventGreen = Color.green
   static let eventOrange = Color.orange
@@ -61,17 +116,17 @@ extension Color {
     }
   }
 
-  // MARK: Status Badge Colors
+  // MARK: - Status Badge Colors
   static let statusCompleted = Color.green
   static let statusInProgress = Color.orange
-  static let statusQueued = Color(UIColor.systemGray)
+  static let statusQueued = platformColor(ios: .systemGray, mac: .systemGray)
 
-  // MARK: Priority Colors (single source of truth)
+  // MARK: - Priority Colors
   static let priorityHigh = Color.red
   static let priorityMedium = Color.orange
   static let priorityLow = Color.blue
 
-  // MARK: Expense Category Colors
+  // MARK: - Expense Category Colors
   static let expenseGroceries = Color(red: 76 / 255, green: 175 / 255, blue: 80 / 255)
   static let expenseHousing = Color(red: 66 / 255, green: 133 / 255, blue: 244 / 255)
   static let expenseTransport = Color(red: 255 / 255, green: 152 / 255, blue: 0 / 255)
@@ -81,5 +136,5 @@ extension Color {
   static let expenseEntertainment = Color(red: 255 / 255, green: 193 / 255, blue: 7 / 255)
   static let expenseDining = Color(red: 121 / 255, green: 85 / 255, blue: 72 / 255)
   static let expenseShopping = Color(red: 0 / 255, green: 150 / 255, blue: 136 / 255)
-  static let expenseOther = Color(UIColor.systemGray2)
+  static let expenseOther = platformColor(ios: .systemGray2, mac: .systemGray)
 }

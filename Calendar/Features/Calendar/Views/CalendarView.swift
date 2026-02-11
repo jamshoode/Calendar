@@ -28,7 +28,6 @@ struct CalendarView: View {
   @State private var viewMode: CalendarViewMode = .grid
   @State private var showingAddEvent = false
   @State private var showingDatePicker = false
-  @State private var showingWeather = false
   @State private var editingEvent: Event?
   @State private var editingTodo: TodoItem?
   @State private var detailEvent: Event?
@@ -217,9 +216,6 @@ struct CalendarView: View {
     // Prevent layout animations on the entire VStack when selectedDate changes
     .animation(nil, value: viewModel.selectedDate)
     .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
-    .sheet(isPresented: $showingWeather) {
-      WeatherView()
-    }
     .sheet(isPresented: $showingAddEvent) {
       AddEventView(date: viewModel.selectedDate ?? Date()) {
         title, notes, color, date, reminderInterval in
@@ -244,17 +240,10 @@ struct CalendarView: View {
     .toolbar {
       #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
-          HStack(spacing: 8) {
-            Button(action: { showingWeather = true }) {
-              Image(systemName: "cloud.sun")
-            }
-            .accessibilityLabel(Localization.string(.weather))
-
-            Button(action: { showingAddEvent = true }) {
-              Image(systemName: "plus")
-            }
-            .accessibilityLabel(Localization.string(.addEvent))
+          Button(action: { showingAddEvent = true }) {
+            Image(systemName: "plus")
           }
+          .accessibilityLabel(Localization.string(.addEvent))
         }
       #else
         ToolbarItem(placement: .primaryAction) {

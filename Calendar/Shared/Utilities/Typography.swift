@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Typography Scale
 // Consistent type scale used across all views
 
-struct Typography {
+public struct Typography {
   /// 28pt bold — screen titles like "February 2026"
   static let largeTitle = Font.system(size: 28, weight: .bold)
 

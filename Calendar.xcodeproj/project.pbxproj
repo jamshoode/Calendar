@@ -71,6 +71,10 @@
 		F593C1522F33C31D007F8DEB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F593C1512F33C31D007F8DEB /* SwiftUI.framework */; };
 		F593C1632F33C31F007F8DEB /* CalendarWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F593C14D2F33C31D007F8DEB /* CalendarWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1CA2F33C57E007F8DEB /* AppState.swift */; };
+		F5968AA92F3CED2800F50183 /* WeatherModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5968AA82F3CED2800F50183 /* WeatherModel.swift */; };
+		F5968AAB2F3CED3000F50183 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5968AAA2F3CED3000F50183 /* WeatherService.swift */; };
+		F5968AB12F3CED4700F50183 /* WeatherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5968AAE2F3CED4700F50183 /* WeatherView.swift */; };
+		F5968AB22F3CED4700F50183 /* WeatherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5968AAC2F3CED4700F50183 /* WeatherViewModel.swift */; };
 		F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0002F4E0001007F8DEB /* HolidayService.swift */; };
 		F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */; };
 		F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */; };
@@ -200,6 +204,10 @@
 		F593C1512F33C31D007F8DEB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		F593C1692F33C32E007F8DEB /* CalendarWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CalendarWidgetExtension.entitlements; sourceTree = "<group>"; };
 		F593C1CA2F33C57E007F8DEB /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F5968AA82F3CED2800F50183 /* WeatherModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherModel.swift; sourceTree = "<group>"; };
+		F5968AAA2F3CED3000F50183 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
+		F5968AAC2F3CED4700F50183 /* WeatherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherViewModel.swift; sourceTree = "<group>"; };
+		F5968AAE2F3CED4700F50183 /* WeatherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherView.swift; sourceTree = "<group>"; };
 		F5A1B0002F4E0001007F8DEB /* HolidayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayService.swift; sourceTree = "<group>"; };
 		F5A1B0022F4E0002007F8DEB /* HolidayCountryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HolidayCountryPicker.swift; sourceTree = "<group>"; };
 		F5A1B0042F4E0003007F8DEB /* EventDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailPopover.swift; sourceTree = "<group>"; };
@@ -360,6 +368,7 @@
 				F554EFE52F34F4AA008B6601 /* TodoItem.swift */,
 				F5A1B00C2F4E0007007F8DEB /* Expense.swift */,
 				F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */,
+				F5968AA82F3CED2800F50183 /* WeatherModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -370,6 +379,7 @@
 				F593C0ED2F33C234007F8DEB /* AudioService.swift */,
 				F5A1B0002F4E0001007F8DEB /* HolidayService.swift */,
 				F593C0EE2F33C234007F8DEB /* NotificationService.swift */,
+				F5968AAA2F3CED3000F50183 /* WeatherService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -491,6 +501,7 @@
 		F593C10F2F33C234007F8DEB /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				F5968AB02F3CED4700F50183 /* Weather */,
 				F554F0052F34F9E6008B6601 /* Settings */,
 				F554EFF52F34F4DF008B6601 /* Todo */,
 				F593C0FB2F33C234007F8DEB /* Alarm */,
@@ -570,6 +581,31 @@
 				F51F1B432F3BD2D6007A3F3E /* ErrorNotifications.swift */,
 			);
 			path = Calendar/App;
+			sourceTree = "<group>";
+		};
+		F5968AAD2F3CED4700F50183 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F5968AAC2F3CED4700F50183 /* WeatherViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		F5968AAF2F3CED4700F50183 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F5968AAE2F3CED4700F50183 /* WeatherView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F5968AB02F3CED4700F50183 /* Weather */ = {
+			isa = PBXGroup;
+			children = (
+				F5968AAD2F3CED4700F50183 /* ViewModels */,
+				F5968AAF2F3CED4700F50183 /* Views */,
+			);
+			path = Weather;
 			sourceTree = "<group>";
 		};
 		F5A1B0202F4E0011007F8DEB /* Expenses */ = {
@@ -795,6 +831,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5968AB12F3CED4700F50183 /* WeatherView.swift in Sources */,
+				F5968AB22F3CED4700F50183 /* WeatherViewModel.swift in Sources */,
+				F5968AAB2F3CED3000F50183 /* WeatherService.swift in Sources */,
 				F593C11F2F33C234007F8DEB /* Formatters.swift in Sources */,
 				F593C1202F33C234007F8DEB /* CountdownView.swift in Sources */,
 				F593C1212F33C234007F8DEB /* CalendarViewModel.swift in Sources */,
@@ -813,6 +852,7 @@
 				F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */,
 				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
 				F554F0022F34F9AE008B6601 /* SideSheetModifier.swift in Sources */,
+				F5968AA92F3CED2800F50183 /* WeatherModel.swift in Sources */,
 				F556A0542F33F0BD0071D8B8 /* Localization.swift in Sources */,
 				F556A0362F33CD160071D8B8 /* NotFoundView.swift in Sources */,
 				F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */,

@@ -7,12 +7,14 @@ enum WeatherError: Error {
     case decodingError
 }
 
-class WeatherService {
-    static let shared = WeatherService()
+public class WeatherService {
+    public static let shared = WeatherService()
     private let session = URLSession.shared
     
+    public init() {}
+    
     // MARK: - Geocoding
-    func searchCity(_ query: String) async throws -> [GeocodingResult] {
+    public func searchCity(_ query: String) async throws -> [GeocodingResult] {
         let escapedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let urlString = "https://geocoding-api.open-meteo.com/v1/search?name=\(escapedQuery)&count=10&language=en&format=json"
         
@@ -29,8 +31,8 @@ class WeatherService {
     }
     
     // MARK: - Forecast
-    func fetchWeather(latitude: Double, longitude: Double) async throws -> (hourly: [HourlyPoint], daily: [DailyPoint]) {
-        let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(latitude)&longitude=\(longitude)&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto"
+    public func fetchWeather(latitude: Double, longitude: Double) async throws -> (hourly: [HourlyPoint], daily: [DailyPoint]) {
+        let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(latitude)&longitude=\(longitude)&hourly=temperature_2m,weathercode,is_day&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto"
         
         guard let url = URL(string: urlString) else { throw WeatherError.invalidURL }
         
@@ -49,7 +51,8 @@ class WeatherService {
                 let point = HourlyPoint(
                     time: date,
                     temperature: response.hourly.temperature_2m[i],
-                    code: WeatherCode(rawValue: response.hourly.weathercode[i]) ?? .partlyCloudy
+                    code: WeatherCode(rawValue: response.hourly.weathercode[i]) ?? .partlyCloudy,
+                    isDay: response.hourly.is_day[i] == 1
                 )
                 hourlyPoints.append(point)
             }

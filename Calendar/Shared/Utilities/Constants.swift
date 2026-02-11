@@ -1,6 +1,6 @@
 import Foundation
 
-struct Constants {
+public struct Constants {
   static let appName = "Calendar"
 
   struct Timer {
@@ -76,5 +76,9 @@ struct Constants {
       "CL": (code: "es", name: "Español"),
       "CO": (code: "es", name: "Español"),
     ]
+  }
+
+  struct Weather {
+    static let cityKey = "weatherCity"
   }
 }

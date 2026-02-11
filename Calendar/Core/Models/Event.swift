@@ -2,21 +2,21 @@ import Foundation
 import SwiftData
 
 @Model
-class Event {
-  var id: UUID
-  var date: Date
-  var title: String
-  var notes: String?
-  var color: String
-  var createdAt: Date
+public class Event {
+  public var id: UUID
+  public var date: Date
+  public var title: String
+  public var notes: String?
+  public var color: String
+  public var createdAt: Date
 
-  var reminderInterval: TimeInterval?
+  public var reminderInterval: TimeInterval?
 
   // Holiday support
-  var isHoliday: Bool = false
-  var holidayId: String?
+  public var isHoliday: Bool = false
+  public var holidayId: String?
 
-  init(
+  public init(
     date: Date, title: String, notes: String? = nil, color: String = "blue",
     reminderInterval: TimeInterval? = nil, isHoliday: Bool = false, holidayId: String? = nil
   ) {

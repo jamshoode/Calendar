@@ -1,6 +1,6 @@
 import Foundation
 
-struct Localization {
+public struct Localization {
   enum Language {
     case ukrainian
     case english
@@ -76,6 +76,7 @@ struct Localization {
     case tabAlarm
     case tabExpenses
     case tabClock
+    case tabWeather
 
     // Alarm View
     case noAlarmSet
@@ -218,6 +219,16 @@ struct Localization {
     case hourlyForecast
     case city
     case searchCity
+    case weatherSearchPrompt
+    case weatherClear
+    case weatherPartlyCloudy
+    case weatherOvercast
+    case weatherFog
+    case weatherDrizzle
+    case weatherRain
+    case weatherSnow
+    case weatherThunderstorm
+    case weatherCloudy
   }
 
   static func string(_ key: Key) -> String {
@@ -580,6 +591,28 @@ struct Localization {
       return lang == .ukrainian ? "Місто" : "City"
     case .searchCity:
       return lang == .ukrainian ? "Пошук міста..." : "Search city..."
+    case .weatherSearchPrompt:
+      return lang == .ukrainian ? "Пошукайте місто, щоб побачити погоду" : "Search for a city to see weather"
+    case .weatherClear:
+      return lang == .ukrainian ? "Ясно" : "Clear"
+    case .weatherPartlyCloudy:
+      return lang == .ukrainian ? "Мінлива хмарність" : "Partly Cloudy"
+    case .weatherOvercast:
+      return lang == .ukrainian ? "Пасмурно" : "Overcast"
+    case .weatherFog:
+      return lang == .ukrainian ? "Туман" : "Fog"
+    case .weatherDrizzle:
+      return lang == .ukrainian ? "Мряка" : "Drizzle"
+    case .weatherRain:
+      return lang == .ukrainian ? "Дощ" : "Rain"
+    case .weatherSnow:
+      return lang == .ukrainian ? "Сніг" : "Snow"
+    case .weatherThunderstorm:
+      return lang == .ukrainian ? "Гроза" : "Thunderstorm"
+    case .weatherCloudy:
+      return lang == .ukrainian ? "Хмарно" : "Cloudy"
+    case .tabWeather:
+      return lang == .ukrainian ? "Погода" : "Weather"
     }
   }
 }
