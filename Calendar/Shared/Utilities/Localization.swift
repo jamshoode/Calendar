@@ -209,6 +209,15 @@ struct Localization {
     case expenseDining
     case expenseShopping
     case expenseOther
+
+    // Weather
+    case weather
+    case minTemp
+    case maxTemp
+    case dailyForecast
+    case hourlyForecast
+    case city
+    case searchCity
   }
 
   static func string(_ key: Key) -> String {
@@ -555,6 +564,22 @@ struct Localization {
       return lang == .ukrainian ? "Покупки" : "Shopping"
     case .expenseOther:
       return lang == .ukrainian ? "Інше" : "Other"
+
+    // Weather
+    case .weather:
+      return lang == .ukrainian ? "Погода" : "Weather"
+    case .minTemp:
+      return lang == .ukrainian ? "Мін." : "Min"
+    case .maxTemp:
+      return lang == .ukrainian ? "Макс." : "Max"
+    case .dailyForecast:
+      return lang == .ukrainian ? "Прогноз на тиждень" : "Daily Forecast"
+    case .hourlyForecast:
+      return lang == .ukrainian ? "Прогноз по годинах" : "Hourly Forecast"
+    case .city:
+      return lang == .ukrainian ? "Місто" : "City"
+    case .searchCity:
+      return lang == .ukrainian ? "Пошук міста..." : "Search city..."
     }
   }
 }
