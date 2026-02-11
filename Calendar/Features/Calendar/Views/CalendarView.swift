@@ -61,9 +61,6 @@ struct CalendarView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
               showingDatePicker.toggle()
             }
-          },
-          onWeatherTap: {
-            showingWeather = true
           }
         )
         .accessibilityElement(children: .combine)
@@ -220,6 +217,9 @@ struct CalendarView: View {
     // Prevent layout animations on the entire VStack when selectedDate changes
     .animation(nil, value: viewModel.selectedDate)
     .animation(.easeInOut(duration: 0.2), value: viewModel.currentMonth)
+    .sheet(isPresented: $showingWeather) {
+      WeatherView()
+    }
     .sheet(isPresented: $showingAddEvent) {
       AddEventView(date: viewModel.selectedDate ?? Date()) {
         title, notes, color, date, reminderInterval in
@@ -244,10 +244,17 @@ struct CalendarView: View {
     .toolbar {
       #if os(iOS)
         ToolbarItem(placement: .topBarTrailing) {
-          Button(action: { showingAddEvent = true }) {
-            Image(systemName: "plus")
+          HStack(spacing: 8) {
+            Button(action: { showingWeather = true }) {
+              Image(systemName: "cloud.sun")
+            }
+            .accessibilityLabel(Localization.string(.weather))
+
+            Button(action: { showingAddEvent = true }) {
+              Image(systemName: "plus")
+            }
+            .accessibilityLabel(Localization.string(.addEvent))
           }
-          .accessibilityLabel(Localization.string(.addEvent))
         }
       #else
         ToolbarItem(placement: .primaryAction) {
@@ -318,23 +325,11 @@ struct MonthHeaderView: View {
   let onPrevious: () -> Void
   let onNext: () -> Void
   var onTitleTap: (() -> Void)? = nil
-  var onWeatherTap: (() -> Void)? = nil
 
   var body: some View {
     VStack(spacing: 8) {
-      // Top row: Weather icon + Large title + view mode icons
+      // Top row: Large title + view mode icons
       HStack(alignment: .firstTextBaseline) {
-        Button(action: { onWeatherTap?() }) {
-          Image(systemName: "cloud.sun")
-            .font(.system(size: 20, weight: .medium))
-            .foregroundColor(Color.textPrimary)
-            .padding(8)
-            .background(Color.backgroundSecondary)
-            .clipShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .padding(.trailing, 8)
-
         Button(action: { onTitleTap?() }) {
           HStack(spacing: 6) {
             Text(currentMonth.formattedMonthYear)
