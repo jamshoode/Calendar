@@ -45,9 +45,6 @@ struct TodoView: View {
   @State private var sortOrder: TodoSortOrder = .manual
   @State private var filter: TodoFilter = .all
   @State private var searchText: String = ""
-  @State private var draggedTodo: TodoItem?
-  @State private var draggedCategory: TodoCategory?
-  @State private var dropTargetCategory: TodoCategory?
 
   private var allTodos: [TodoItem] {
     allTodosRaw.filter { !$0.isSubtask }
@@ -55,24 +52,15 @@ struct TodoView: View {
 
   private var filteredTodos: [TodoItem] {
     var result = allTodos
-
-    // Apply search
     if !searchText.isEmpty {
       result = result.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
     }
-
-    // Apply filter
     switch filter {
     case .all: break
     case .queued: result = result.filter { !$0.isCompleted }
     case .completed: result = result.filter { $0.isCompleted }
     }
-
     return result
-  }
-
-  private var isListEmpty: Bool {
-    allTodos.isEmpty && categories.filter({ $0.name != TodoViewModel.noCategoryName }).isEmpty
   }
 
   // Summary counts
@@ -95,13 +83,6 @@ struct TodoView: View {
       .sorted { $0.sortOrder < $1.sortOrder }
   }
 
-  private var pinnedUncategorizedTodos: [TodoItem] {
-    let todos = filteredTodos.filter {
-      ($0.category == nil || $0.category?.name == TodoViewModel.noCategoryName) && $0.isPinned
-    }
-    return sortTodos(todos)
-  }
-
   private var unpinnedUncategorizedTodos: [TodoItem] {
     let todos = filteredTodos.filter {
       ($0.category == nil || $0.category?.name == TodoViewModel.noCategoryName) && !$0.isPinned
@@ -117,266 +98,141 @@ struct TodoView: View {
   private func sortTodos(_ todos: [TodoItem]) -> [TodoItem] {
     let sorted: [TodoItem]
     switch sortOrder {
-    case .manual:
-      sorted = todos.sorted { $0.sortOrder < $1.sortOrder }
-    case .newestFirst:
-      sorted = todos.sorted { $0.createdAt > $1.createdAt }
-    case .oldestFirst:
-      sorted = todos.sorted { $0.createdAt < $1.createdAt }
+    case .manual: sorted = todos.sorted { $0.sortOrder < $1.sortOrder }
+    case .newestFirst: sorted = todos.sorted { $0.createdAt > $1.createdAt }
+    case .oldestFirst: sorted = todos.sorted { $0.createdAt < $1.createdAt }
     }
     return sorted.sorted { ($0.isPinned ? 0 : 1) < ($1.isPinned ? 0 : 1) }
   }
 
   var body: some View {
-    ZStack {
-      if isListEmpty {
-        EmptyTodoView(
-          onAddTodo: { showingAddTodo = true },
-          onAddCategory: { showingAddCategory = true }
-        )
-      } else {
-        ScrollView {
-          LazyVStack(spacing: 12) {
-            // Search bar
-            HStack(spacing: 10) {
-              Image(systemName: "magnifyingglass")
-                .font(.system(size: 15))
-                .foregroundColor(Color.textTertiary)
+    VStack(spacing: 0) {
+      // Header Section
+      VStack(spacing: 16) {
+          // Search Bar
+          HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+              .font(.system(size: 14, weight: .bold))
+              .foregroundColor(.textSecondary)
 
-              TextField(Localization.string(.search), text: $searchText)
-                .font(Typography.body)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(Color.secondaryFill)
-            .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
-
-            // Summary cards row
-            HStack(spacing: 10) {
-              SummaryCard(label: Localization.string(.all), count: totalCount, color: .accentColor)
-              SummaryCard(
-                label: Localization.string(.queued), count: queuedCount, color: .statusInProgress)
-              SummaryCard(
-                label: Localization.string(.completed), count: completedCount,
-                color: .statusCompleted)
-              if overdueCount > 0 {
-                SummaryCard(
-                  label: Localization.string(.overdue), count: overdueCount, color: .priorityHigh)
-              }
-            }
-
-            // Filter + sort row
-            HStack {
-              Picker("", selection: $filter) {
-                ForEach(TodoFilter.allCases, id: \.self) { f in
-                  Text(f.label).tag(f)
-                }
-              }
-              .pickerStyle(.segmented)
-
-              sortDropdown
-            }
-
-            // Content
-            if !pinnedCategories.isEmpty || !pinnedUncategorizedTodos.isEmpty {
-              VStack(alignment: .leading, spacing: 8) {
-                Text(Localization.string(.pinned))
-                  .font(Typography.caption)
-                  .fontWeight(.medium)
-                  .foregroundColor(Color.textTertiary)
-                  .padding(.horizontal, Spacing.md)
-
-                ForEach(pinnedCategories, id: \.id) { category in
-                  draggableCategoryCard(category: category)
-                }
-
-                ForEach(pinnedUncategorizedTodos, id: \.id) { todo in
-                  draggableTodoRow(todo: todo)
-                }
-              }
-            }
-
-            if (!pinnedCategories.isEmpty || !pinnedUncategorizedTodos.isEmpty)
-              && (!unpinnedCategories.isEmpty || !unpinnedUncategorizedTodos.isEmpty)
-            {
-              Divider()
-                .padding(.vertical, 4)
-            }
-
-            if !unpinnedUncategorizedTodos.isEmpty {
-              VStack(alignment: .leading, spacing: 8) {
-                Text(Localization.string(.noCategory))
-                  .font(Typography.caption)
-                  .fontWeight(.medium)
-                  .foregroundColor(Color.textTertiary)
-                  .padding(.horizontal, Spacing.md)
-
-                ForEach(unpinnedUncategorizedTodos, id: \.id) { todo in
-                  draggableTodoRow(todo: todo)
-                }
-              }
-            }
-
-            ForEach(unpinnedCategories, id: \.id) { category in
-              draggableCategoryCard(category: category)
-            }
+            TextField(Localization.string(.search), text: $searchText)
+              .font(Typography.body)
           }
-          .padding(.horizontal)
-          .padding(.top, 12)
-          .padding(.bottom, 100)
-        }
+          .padding(.horizontal, 16)
+          .padding(.vertical, 12)
+          .background(.ultraThinMaterial)
+          .clipShape(RoundedRectangle(cornerRadius: 16))
+          .glassHalo(cornerRadius: 16)
+          
+          // Analytics Cards
+          HStack(spacing: 12) {
+            SummaryCard(label: Localization.string(.all), count: totalCount, color: .accentColor)
+            SummaryCard(label: Localization.string(.queued), count: queuedCount, color: .priorityMedium)
+            SummaryCard(label: Localization.string(.completed), count: completedCount, color: .eventGreen)
+          }
+      }
+      .padding(.horizontal, 20)
+      .padding(.vertical, 20)
 
-        // FAB
-        VStack {
-          Spacer()
+      ScrollView {
+        VStack(spacing: 16) {
+          // Status Filter
           HStack {
-            Spacer()
-
-            Menu {
-              Button(action: { showingAddTodo = true }) {
-                Label(Localization.string(.addTodo), systemImage: "checkmark.circle")
+            Picker("", selection: $filter) {
+              ForEach(TodoFilter.allCases, id: \.self) { f in
+                Text(f.label).tag(f)
               }
-              Button(action: { showingAddCategory = true }) {
-                Label(Localization.string(.addCategory), systemImage: "folder.badge.plus")
-              }
-            } label: {
-              Image(systemName: "plus")
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundColor(.white)
-                .frame(width: 56, height: 56)
-                .background(Color.accentColor)
-                .clipShape(Circle())
-                .shadow(color: Color.shadowColor, radius: 10, x: 0, y: 5)
             }
-            .padding(.trailing, 20)
-            .padding(.bottom, 20)
+            .pickerStyle(.segmented)
+            .background(.ultraThinMaterial.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            sortDropdown
+          }
+          .padding(.bottom, 8)
+
+          // List Content
+          if !pinnedCategories.isEmpty {
+               SectionHeader(title: Localization.string(.pinned))
+               ForEach(pinnedCategories) { category in
+                 draggableCategoryCard(category: category)
+               }
+
+               // Divider between pinned and unpinned
+               if !unpinnedCategories.isEmpty || !unpinnedUncategorizedTodos.isEmpty {
+                 Divider()
+                   .background(Color.white.opacity(0.15))
+                   .padding(.vertical, 8)
+               }
+          }
+
+          if !unpinnedUncategorizedTodos.isEmpty {
+            SectionHeader(title: Localization.string(.noCategory))
+            ForEach(unpinnedUncategorizedTodos) { todo in
+              draggableTodoRow(todo: todo)
+            }
+          }
+
+          ForEach(unpinnedCategories) { category in
+            draggableCategoryCard(category: category)
           }
         }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 120)
       }
     }
-    .onAppear {
-      viewModel.createDefaultCategoryIfNeeded(context: modelContext)
-      viewModel.cleanupCompletedTodos(context: modelContext)
+    .overlay(alignment: .bottomTrailing) {
+        Menu {
+          Button(action: { showingAddTodo = true }) {
+            Label(Localization.string(.addTodo), systemImage: "checklist")
+          }
+          Button(action: { showingAddCategory = true }) {
+            Label(Localization.string(.addCategory), systemImage: "folder.badge.plus")
+          }
+        } label: {
+          Image(systemName: "plus")
+            .font(.system(size: 24, weight: .bold))
+            .foregroundColor(.white)
+            .frame(width: 60, height: 60)
+            .background(Color.accentColor)
+            .clipShape(Circle())
+            .shadow(color: Color.accentColor.opacity(0.4), radius: 15, x: 0, y: 8)
+        }
+        .padding(.trailing, 24)
+        .padding(.bottom, 100)
     }
     .sheet(isPresented: $showingAddTodo) {
       AddTodoSheet(categories: categories) {
         title, notes, priority, dueDate, reminder, category, recType, recInterval, recDays, recEnd,
         subtasks, repeatInterval, repeatCount in
-        createTodo(
-          title: title, notes: notes, priority: priority, dueDate: dueDate, reminder: reminder,
-          category: category, recType: recType, recInterval: recInterval, recDays: recDays,
-          recEnd: recEnd, subtasks: subtasks, repeatInterval: repeatInterval,
-          repeatCount: repeatCount)
+        createTodo(title, notes, priority, dueDate, reminder, category, recType, recInterval, recDays, recEnd, subtasks, repeatInterval, repeatCount)
       }
     }
     .sheet(isPresented: $showingAddCategory) {
-      AddCategorySheet(categories: categories) { name, color, parent in
-        viewModel.createCategory(name: name, color: color, parent: parent, context: modelContext)
-      }
+      AddCategorySheet(categories: categories, onSave: { name, color, parentCat in
+        viewModel.createCategory(name: name, color: color, parent: parentCat, context: modelContext)
+      })
+    }
+    .sheet(item: $editingCategory) { cat in
+      AddCategorySheet(category: cat, categories: categories, onSave: { name, color, parentCat in
+        viewModel.updateCategory(cat, name: name, color: color, parent: parentCat, context: modelContext)
+      }, onDelete: {
+        viewModel.deleteCategory(cat, context: modelContext)
+      })
     }
     .sheet(item: $editingTodo) { todo in
-      AddTodoSheet(
-        todo: todo,
-        categories: categories,
-        onSave: {
-          title, notes, priority, dueDate, reminder, category, recType, recInterval, recDays,
-          recEnd, subtasks, repeatInterval, repeatCount in
-          updateTodo(
-            todo, title: title, notes: notes, priority: priority, dueDate: dueDate,
-            reminder: reminder, category: category, recType: recType, recInterval: recInterval,
-            recDays: recDays, recEnd: recEnd, subtasks: subtasks, repeatInterval: repeatInterval,
-            repeatCount: repeatCount)
-        },
-        onDelete: {
-          viewModel.deleteTodo(todo, context: modelContext)
-        }
-      )
-    }
-    .sheet(item: $editingCategory) { category in
-      AddCategorySheet(
-        category: category,
-        categories: categories,
-        onSave: { name, color, parent in
-          viewModel.updateCategory(category, name: name, color: color, parent: parent, context: modelContext)
-        },
-        onDelete: {
-          viewModel.deleteCategory(category, context: modelContext)
-        }
-      )
-    }
-  }
-
-  private func createTodo(
-    title: String, notes: String?, priority: Priority, dueDate: Date?, reminder: TimeInterval?,
-    category: TodoCategory?, recType: RecurrenceType?, recInterval: Int, recDays: [Int]?,
-    recEnd: Date?, subtasks: [String], repeatInterval: TimeInterval?, repeatCount: Int?
-  ) {
-    viewModel.createTodo(
-      title: title,
-      notes: notes,
-      priority: priority,
-      dueDate: dueDate,
-      reminderInterval: reminder,
-      reminderRepeatInterval: repeatInterval,
-      reminderRepeatCount: repeatCount,
-      category: category,
-      parentTodo: nil,
-      recurrenceType: recType,
-      recurrenceInterval: recInterval,
-      recurrenceDaysOfWeek: recDays,
-      recurrenceEndDate: recEnd,
-      context: modelContext
-    )
-
-    if !subtasks.isEmpty {
-      let descriptor = FetchDescriptor<TodoItem>(
-        predicate: #Predicate { $0.title == title },
-        sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-      )
-      do {
-        if let newTodo = try modelContext.fetch(descriptor).first {
-          for subtaskTitle in subtasks {
-            viewModel.addSubtask(to: newTodo, title: subtaskTitle, context: modelContext)
-          }
-        }
-      } catch {
-        ErrorPresenter.presentOnMain(error)
+      AddTodoSheet(todo: todo, categories: categories) {
+        title, notes, priority, dueDate, reminder, category, recType, recInterval, recDays, recEnd,
+        subtasks, repeatInterval, repeatCount in
+        viewModel.updateTodo(todo, title: title, notes: notes, priority: priority, dueDate: dueDate, reminderInterval: reminder, reminderRepeatInterval: repeatInterval, reminderRepeatCount: repeatCount, category: category, recurrenceType: recType, recurrenceInterval: recInterval, recurrenceDaysOfWeek: recDays, recurrenceEndDate: recEnd, context: modelContext)
+      } onDelete: {
+        viewModel.deleteTodo(todo, context: modelContext)
       }
     }
   }
 
-  private func updateTodo(
-    _ todo: TodoItem, title: String, notes: String?, priority: Priority, dueDate: Date?,
-    reminder: TimeInterval?, category: TodoCategory?, recType: RecurrenceType?, recInterval: Int,
-    recDays: [Int]?, recEnd: Date?, subtasks: [String], repeatInterval: TimeInterval?,
-    repeatCount: Int?
-  ) {
-    viewModel.updateTodo(
-      todo,
-      title: title,
-      notes: notes,
-      priority: priority,
-      dueDate: dueDate,
-      reminderInterval: reminder,
-      reminderRepeatInterval: repeatInterval,
-      reminderRepeatCount: repeatCount,
-      category: category,
-      recurrenceType: recType,
-      recurrenceInterval: recInterval,
-      recurrenceDaysOfWeek: recDays,
-      recurrenceEndDate: recEnd,
-      context: modelContext
-    )
-
-    if let existingSubtasks = todo.subtasks {
-      for subtask in existingSubtasks {
-        modelContext.delete(subtask)
-      }
-    }
-
-    for subtaskTitle in subtasks {
-      viewModel.addSubtask(to: todo, title: subtaskTitle, context: modelContext)
-    }
+  private func createTodo(_ title: String, _ notes: String?, _ priority: Priority, _ dueDate: Date?, _ reminder: TimeInterval?, _ category: TodoCategory?, _ recType: RecurrenceType?, _ recInterval: Int, _ recDays: [Int]?, _ recEnd: Date?, _ subtasks: [String], _ repeatInterval: TimeInterval?, _ repeatCount: Int?) {
+    viewModel.createTodo(title: title, notes: notes, priority: priority, dueDate: dueDate, reminderInterval: reminder, reminderRepeatInterval: repeatInterval, reminderRepeatCount: repeatCount, category: category, parentTodo: nil, recurrenceType: recType, recurrenceInterval: recInterval, recurrenceDaysOfWeek: recDays, recurrenceEndDate: recEnd, context: modelContext)
   }
 
   private var sortDropdown: some View {
@@ -385,25 +241,17 @@ struct TodoView: View {
         Button(action: { sortOrder = order }) {
           HStack {
             Text(order.label)
-            if sortOrder == order {
-              Image(systemName: "checkmark")
-            }
+            if sortOrder == order { Image(systemName: "checkmark") }
           }
         }
       }
     } label: {
-      HStack(spacing: 6) {
-        Image(systemName: "arrow.up.arrow.down")
-          .font(.system(size: 13, weight: .medium))
-        Text(sortOrder.label)
-          .font(Typography.caption)
-          .fontWeight(.medium)
-      }
-      .foregroundColor(Color.textSecondary)
-      .padding(.horizontal, 10)
-      .padding(.vertical, 6)
-      .background(Color.secondaryFill)
-      .clipShape(RoundedRectangle(cornerRadius: 8))
+      Image(systemName: "line.3.horizontal.decrease.circle")
+        .font(.system(size: 18))
+        .foregroundColor(.accentColor)
+        .padding(8)
+        .background(.ultraThinMaterial)
+        .clipShape(Circle())
     }
   }
 
@@ -415,47 +263,18 @@ struct TodoView: View {
       onTap: { editingTodo = todo },
       onDelete: { viewModel.deleteTodo(todo, context: modelContext) }
     )
-    .draggable(todo.id.uuidString) {
-      TodoRow(
-        todo: todo,
-        onToggle: {},
-        onTap: {},
-        onDelete: {}
-      )
-      .frame(width: 300)
-      .opacity(0.8)
-    }
-    .contextMenu {
-      Button(action: {
-        viewModel.toggleTodoPin(todo, context: modelContext)
-      }) {
-        Label(
-          todo.isPinned ? Localization.string(.unpin) : Localization.string(.pin),
-          systemImage: todo.isPinned ? "pin.slash" : "pin"
-        )
-      }
-
-      Button(role: .destructive) {
-        viewModel.deleteTodo(todo, context: modelContext)
-      } label: {
-        Label(Localization.string(.delete), systemImage: "trash")
-      }
-    }
   }
 
   @ViewBuilder
   private func draggableCategoryCard(category: TodoCategory) -> some View {
     CategoryCard(
       category: category,
-      todos: todosForCategory(category),
-      isExpanded: expandedCategories.contains(category.id),
-      onToggleExpand: {
-        withAnimation(.easeInOut(duration: 0.2)) {
-          if expandedCategories.contains(category.id) {
-            expandedCategories.remove(category.id)
-          } else {
-            expandedCategories.insert(category.id)
-          }
+      todos: filteredTodos,
+      isExpanded: { expandedCategories.contains($0.id) },
+      onToggleExpand: { cat in
+        withAnimation {
+          if expandedCategories.contains(cat.id) { expandedCategories.remove(cat.id) }
+          else { expandedCategories.insert(cat.id) }
         }
       },
       onEdit: { cat in editingCategory = cat },
@@ -465,171 +284,59 @@ struct TodoView: View {
       onTodoTap: { todo in editingTodo = todo },
       onTodoDelete: { todo in viewModel.deleteTodo(todo, context: modelContext) },
       onTodoTogglePin: { todo in viewModel.toggleTodoPin(todo, context: modelContext) },
-      onMoveTodo: { todo, newIndex in
-        moveTodo(todo, toIndex: newIndex, inCategory: category)
-      },
-      onDropItem: { idString, targetCategory in
-        if let todoId = UUID(uuidString: idString),
-          let todo = allTodos.first(where: { $0.id == todoId })
-        {
-          todo.category = targetCategory
-          do {
-            try modelContext.save()
-          } catch {
-            ErrorPresenter.shared.present(error)
-            return false
-          }
-          return true
-        }
-
-        if let droppedCategoryId = UUID(uuidString: idString),
-          let draggedCat = categories.first(where: { $0.id == droppedCategoryId }),
-          draggedCat.id != targetCategory.id
-        {
-          // Try to nest first
-          if targetCategory.depth < 2 {
-            viewModel.moveCategory(draggedCat, toParent: targetCategory, context: modelContext)
-            return true
-          }
-
-          // If cannot nest (depth limit), then just reorder
-          let targetList = targetCategory.isPinned ? pinnedCategories : unpinnedCategories
-          if let targetIndex = targetList.firstIndex(where: { $0.id == targetCategory.id }) {
-            moveCategory(draggedCat, toIndex: targetIndex, inPinnedList: targetCategory.isPinned)
-          }
-          return true
-        }
-        return false
-      },
-      onTargetedChange: { isTargeted, targetCategory in
-        withAnimation(.easeInOut(duration: 0.15)) {
-          dropTargetCategory = isTargeted ? targetCategory : nil
-        }
+      onMoveTodo: { _, _ in },
+      onDropItem: { _, _ in false },
+      onTargetedChange: { _, _ in }
+    )
+    .onDrag {
+      NSItemProvider(object: category.id.uuidString as NSString)
+    }
+    .dropDestination(for: String.self) { items, _ in
+      guard let draggedId = items.first,
+            let draggedUUID = UUID(uuidString: draggedId),
+            let source = categories.first(where: { $0.id == draggedUUID }) else { return false }
+      guard source.id != category.id else { return false }
+      withAnimation {
+        viewModel.reparentCategory(source, into: category, context: modelContext)
       }
-    )
-    .overlay(
-      RoundedRectangle(cornerRadius: 16)
-        .stroke(Color.accentColor, lineWidth: dropTargetCategory?.id == category.id ? 2 : 0)
-    )
-  }
-
-  private func moveCategory(_ category: TodoCategory, toIndex newIndex: Int, inPinnedList: Bool) {
-    let categoryList = inPinnedList ? pinnedCategories : unpinnedCategories
-
-    if category.isPinned != inPinnedList {
-      category.isPinned = inPinnedList
-    }
-
-    for (index, c) in categoryList.enumerated() {
-      c.sortOrder = index < newIndex ? index : index + 1
-    }
-    category.sortOrder = newIndex
-
-    do {
-      try modelContext.save()
-    } catch {
-      ErrorPresenter.presentOnMain(error)
-    }
-  }
-
-  private func moveTodo(_ todo: TodoItem, toIndex newIndex: Int, inCategory category: TodoCategory?)
-  {
-    let allUncategorized = pinnedUncategorizedTodos + unpinnedUncategorizedTodos
-    let todos = category == nil ? allUncategorized : todosForCategory(category!)
-
-    for (index, t) in todos.enumerated() {
-      t.sortOrder = index < newIndex ? index : index + 1
-    }
-    todo.sortOrder = newIndex
-
-    do {
-      try modelContext.save()
-    } catch {
-      ErrorPresenter.shared.present(error)
+      return true
+    } isTargeted: { _ in
     }
   }
 }
 
-struct EmptyTodoView: View {
-  let onAddTodo: () -> Void
-  let onAddCategory: () -> Void
-
-  var body: some View {
-    VStack(spacing: 32) {
-      ZStack {
-        Circle()
-          .fill(Color.accentColor.opacity(0.1))
-          .frame(width: 140, height: 140)
-
-        Image(systemName: "checkmark.circle")
-          .font(.system(size: 64))
-          .foregroundColor(.accentColor)
-      }
-      .padding(.bottom, 10)
-      .accessibilityHidden(true)
-
-      VStack(spacing: 12) {
-        Text(Localization.string(.noTodos))
-          .font(Typography.title)
-          .fontWeight(.bold)
-          .foregroundColor(Color.textPrimary)
-
-        Text(Localization.string(.tapToAddTodo))
-          .font(Typography.body)
-          .foregroundColor(Color.textSecondary)
-          .multilineTextAlignment(.center)
-          .padding(.horizontal, 40)
-      }
-
-      Menu {
-        Button(action: onAddTodo) {
-          Label(Localization.string(.addTodo), systemImage: "checkmark.circle")
-        }
-        Button(action: onAddCategory) {
-          Label(Localization.string(.addCategory), systemImage: "folder.badge.plus")
-        }
-      } label: {
+struct SectionHeader: View {
+    let title: String
+    var body: some View {
         HStack {
-          Image(systemName: "plus")
-            .font(.headline)
-          Text(Localization.string(.addTodo))
-            .font(.headline)
+            Text(title.uppercased())
+                .font(.system(size: 10, weight: .black))
+                .foregroundColor(.textTertiary)
+                .tracking(2)
+            Spacer()
         }
-        .foregroundColor(.white)
-        .frame(height: 50)
-        .padding(.horizontal, 32)
-        .background(
-          Capsule()
-            .fill(Color.accentColor)
-            .shadow(color: Color.shadowColor, radius: 10, x: 0, y: 5)
-        )
-      }
-      .padding(.top, 20)
+        .padding(.leading, 4)
+        .padding(.top, 8)
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-  }
 }
-
-// MARK: - Summary Card
 
 private struct SummaryCard: View {
   let label: String
   let count: Int
   let color: Color
-
   var body: some View {
     VStack(spacing: 4) {
       Text("\(count)")
-        .font(.system(size: 20, weight: .bold))
+        .font(.system(size: 20, weight: .black, design: .rounded))
         .foregroundColor(color)
-
-      Text(label)
-        .font(Typography.badge)
-        .foregroundColor(Color.textTertiary)
+      Text(label.uppercased())
+        .font(.system(size: 9, weight: .black))
+        .foregroundColor(.textTertiary)
     }
     .frame(maxWidth: .infinity)
-    .padding(.vertical, 10)
-    .background(Color.surfaceCard)
-    .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
+    .padding(.vertical, 14)
+    .background(.ultraThinMaterial)
+    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .glassHalo(cornerRadius: 16)
   }
 }

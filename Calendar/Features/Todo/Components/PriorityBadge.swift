@@ -4,13 +4,20 @@ struct PriorityBadge: View {
   let priority: Priority
 
   var body: some View {
-    Text(priority.displayName)
-      .font(.system(size: 10, weight: .semibold))
+    Text(priority.displayName.uppercased())
+      .font(.system(size: 9, weight: .bold))
       .foregroundColor(.white)
       .padding(.horizontal, 8)
-      .padding(.vertical, 4)
-      .background(color)
+      .padding(.vertical, 3)
+      .background(
+        LinearGradient(
+            colors: [color.opacity(0.8), color],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+      )
       .clipShape(Capsule())
+      .shadow(color: color.opacity(0.3), radius: 4, x: 0, y: 2)
   }
 
   var color: Color {

@@ -13,29 +13,50 @@ struct TimerDisplay: View {
     if isStopwatch {
       return 1.0
     }
-    let totalDuration: TimeInterval = 3600
+    // Note: totalDuration should probably come from viewModel, but keeping logic consistent with existing
+    let totalDuration: TimeInterval = 3600 
     return 1.0 - (remainingTime / totalDuration)
   }
 
   var body: some View {
     ZStack {
+      // Glow background
       Circle()
-        .stroke(Color.border, lineWidth: 8)
+        .fill(Color.accentColor.opacity(0.05))
+        .blur(radius: 40)
+
+      Circle()
+        .stroke(Color.textTertiary.opacity(0.1), lineWidth: 12)
 
       Circle()
         .trim(from: 0, to: progress)
         .stroke(
-          Color.accentColor.gradient,
-          style: StrokeStyle(lineWidth: 8, lineCap: .round)
+          LinearGradient(
+            colors: [.accentColor.opacity(0.7), .accentColor],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+          ),
+          style: StrokeStyle(lineWidth: 12, lineCap: .round)
         )
         .rotationEffect(.degrees(-90))
         .animation(.linear(duration: 0.1), value: progress)
+        .shadow(color: .accentColor.opacity(0.3), radius: 8, x: 0, y: 0)
 
-      Text(formattedTime)
-        .font(.system(size: 64, weight: .bold, design: .monospaced))
-        .foregroundColor(.primary)
-        .accessibilityLabel(Localization.string(.timeRemaining(formattedTime)))
+      VStack(spacing: 8) {
+          Text(formattedTime)
+            .font(.system(size: 64, weight: .black, design: .rounded))
+            .foregroundColor(.textPrimary)
+            .monospacedDigit()
+          
+          if isRunning {
+              Text(isStopwatch ? "ELAPSED" : "REMAINING")
+                  .font(.system(size: 10, weight: .black))
+                  .tracking(2)
+                  .foregroundColor(.textTertiary)
+          }
+      }
     }
     .frame(width: 280, height: 280)
+    .accessibilityLabel(Localization.string(.timeRemaining(formattedTime)))
   }
 }

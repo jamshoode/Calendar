@@ -14,14 +14,40 @@ struct TimerView: View {
   }
 
   var body: some View {
-    VStack(spacing: 24) {
-      Picker("Timer Type", selection: $selectedTab) {
-        Text(Localization.string(.countdown)).tag(TimerTab.countdown)
-        Text(Localization.string(.pomodoro)).tag(TimerTab.pomodoro)
+    VStack(spacing: 12) {
+      // Custom Glass Picker
+      HStack(spacing: 0) {
+          Button {
+              withAnimation { selectedTab = .countdown }
+          } label: {
+              Text(Localization.string(.countdown))
+                  .font(.system(size: 13, weight: .bold))
+                  .foregroundColor(selectedTab == .countdown ? .white : .textSecondary)
+                  .frame(maxWidth: .infinity)
+                  .frame(height: 36)
+                  .background(selectedTab == .countdown ? Color.accentColor : Color.clear)
+                  .clipShape(RoundedRectangle(cornerRadius: 10))
+          }
+          .buttonStyle(.plain)
+          
+          Button {
+              withAnimation { selectedTab = .pomodoro }
+          } label: {
+              Text(Localization.string(.pomodoro))
+                  .font(.system(size: 13, weight: .bold))
+                  .foregroundColor(selectedTab == .pomodoro ? .white : .textSecondary)
+                  .frame(maxWidth: .infinity)
+                  .frame(height: 36)
+                  .background(selectedTab == .pomodoro ? Color.accentColor : Color.clear)
+                  .clipShape(RoundedRectangle(cornerRadius: 10))
+          }
+          .buttonStyle(.plain)
       }
-      .pickerStyle(.segmented)
-      .padding(.horizontal)
-      .accessibilityLabel(Localization.string(.selectTimerType))
+      .padding(4)
+      .background(.ultraThinMaterial)
+      .clipShape(RoundedRectangle(cornerRadius: 14))
+      .glassHalo(cornerRadius: 14)
+      .padding(.horizontal, 40)
 
       switch selectedTab {
       case .countdown:
@@ -32,8 +58,8 @@ struct TimerView: View {
           .transition(.opacity)
       }
     }
-    .padding(.top, 48)
-    .animation(.easeInOut(duration: 0.3), value: selectedTab)
+    .padding(.top, 8)
+    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedTab)
     .onAppear {
       if presets.isEmpty {
         for preset in TimerPreset.defaultPresets {

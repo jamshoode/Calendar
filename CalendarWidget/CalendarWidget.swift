@@ -204,17 +204,24 @@ struct Provider: TimelineProvider {
 enum WidgetColorScheme {
   case light, dark
 
-  // All colors use UIColor system tokens — they auto-adapt to light/dark.
-  // The enum cases are only used for forced-scheme resolution.
-  var background: Color { Color(UIColor.systemBackground) }
-  var surface: Color { Color(UIColor.secondarySystemGroupedBackground) }
-  var surfaceElevated: Color { Color(UIColor.tertiarySystemFill) }
+  // Colors synced with the app's Color+Theme.swift design tokens
+  var background: Color {
+    self == .dark ? Color(red: 0.05, green: 0.05, blue: 0.12) : Color(UIColor.systemBackground)
+  }
+  var surface: Color {
+    self == .dark ? Color.white.opacity(0.08) : Color(UIColor.secondarySystemGroupedBackground)
+  }
+  var surfaceElevated: Color {
+    self == .dark ? Color.white.opacity(0.05) : Color(UIColor.tertiarySystemFill)
+  }
   var textPrimary: Color { Color(UIColor.label) }
   var textSecondary: Color { Color(UIColor.secondaryLabel) }
-  var accent: Color { .indigo }
-  var todayHighlight: Color { Color(UIColor.systemFill) }
+  var accent: Color { .blue }
+  var todayHighlight: Color { .blue }
   var iconMuted: Color { Color(UIColor.tertiaryLabel) }
-  var divider: Color { Color(UIColor.separator) }
+  var divider: Color {
+    self == .dark ? Color.white.opacity(0.1) : Color(UIColor.separator)
+  }
 
   static func from(entry: CalendarEntry, environment: ColorScheme) -> WidgetColorScheme {
     if let forced = entry.forcedColorScheme {
@@ -234,6 +241,7 @@ enum WidgetColorScheme {
 struct WidgetColorEntry {
   let color: Color
   let isTodo: Bool
+  let isHoliday: Bool
   let priority: String  // "high", "medium", "low" (only for todos)
 
   /// Priority color for alternating dashes — aligned with app's Color+Theme
@@ -256,10 +264,20 @@ func parseWidgetColorEntry(_ name: String) -> WidgetColorEntry {
     return WidgetColorEntry(
       color: widgetEventColor(catColor),
       isTodo: true,
+      isHoliday: false,
       priority: priKey
     )
   }
-  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false, priority: "")
+  if name.hasPrefix("holiday:") {
+    let colorName = String(name.dropFirst(8))
+    return WidgetColorEntry(
+      color: widgetEventColor(colorName),
+      isTodo: false,
+      isHoliday: true,
+      priority: ""
+    )
+  }
+  return WidgetColorEntry(color: widgetEventColor(name), isTodo: false, isHoliday: false, priority: "")
 }
 
 /// Event colors aligned with the app's Color+Theme design tokens
@@ -327,7 +345,7 @@ struct MediumWidgetView: View {
           entry.date.formatted(.dateTime.weekday(.wide).locale(WidgetLocalization.locale))
             .localizedCapitalized
         )
-        .font(.system(size: 22, weight: .bold, design: .rounded))
+        .font(.system(size: 22, weight: .black, design: .rounded))
         .foregroundColor(scheme.textPrimary)
 
         Spacer()
@@ -359,7 +377,7 @@ struct MediumWidgetView: View {
     .padding(.top, 12)
     .padding(.bottom, 10)
     .containerBackground(for: .widget) {
-      scheme.background
+      widgetGradientBackground(scheme: scheme)
     }
   }
 }
@@ -378,7 +396,7 @@ struct LargeWidgetView: View {
           entry.date.formatted(.dateTime.weekday(.wide).locale(WidgetLocalization.locale))
             .localizedCapitalized
         )
-        .font(.system(size: 24, weight: .bold, design: .rounded))
+        .font(.system(size: 24, weight: .black, design: .rounded))
         .foregroundColor(scheme.textPrimary)
 
         Spacer()
@@ -410,7 +428,7 @@ struct LargeWidgetView: View {
 
       Rectangle()
         .fill(scheme.divider)
-        .frame(height: 1)
+        .frame(height: 0.5)
 
       Spacer(minLength: 14)
 
@@ -457,7 +475,7 @@ struct LargeWidgetView: View {
     .padding(.horizontal, 16)
     .padding(.vertical, 14)
     .containerBackground(for: .widget) {
-      scheme.background
+      widgetGradientBackground(scheme: scheme)
     }
   }
 }
@@ -498,7 +516,7 @@ struct TimerCircleIcon: View {
     hasHours ? size * 1.45 : size
   }
 
-  private var timerColor: Color { .indigo }
+  private var timerColor: Color { .blue }
 
   var body: some View {
     ZStack {
@@ -623,14 +641,6 @@ struct DayColumn: View {
     }
     .padding(.vertical, 4)
     .padding(.horizontal, 2)
-    .background(
-      Group {
-        if day.isToday {
-          RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .fill(scheme.accent.opacity(0.15))
-        }
-      }
-    )
   }
 }
 
@@ -652,6 +662,13 @@ struct DayCell: View {
     let entries = day.eventColors.map { parseWidgetColorEntry($0) }
 
     ZStack {
+      // Today highlight — filled circle matching app's DayCell
+      if day.isToday {
+        Circle()
+          .fill(scheme.todayHighlight)
+          .frame(width: size - 2, height: size - 2)
+      }
+
       if !entries.isEmpty {
         EventRing(
           entries: entries,
@@ -663,7 +680,7 @@ struct DayCell: View {
 
       Text("\(day.date)")
         .font(.system(size: size * 0.37, weight: day.isToday ? .bold : .semibold, design: .rounded))
-        .foregroundColor(day.isToday ? scheme.accent : scheme.textPrimary)
+        .foregroundColor(day.isToday ? .white : scheme.textPrimary)
     }
     .frame(width: size, height: size)
   }
@@ -703,6 +720,62 @@ struct EventRing: View {
     }
   }
 
+  /// Draws a wavy/scalloped circle for holiday events
+  private static func drawWavyCircle(
+    context: GraphicsContext, center: CGPoint, radius: CGFloat,
+    color: Color, lineWidth: CGFloat,
+    scallops: Int = 6, waveDepth: CGFloat = 1.5
+  ) {
+    var path = Path()
+    let steps = 360
+    for i in 0...steps {
+      let angle = Double(i) * .pi * 2.0 / Double(steps)
+      let wave = sin(Double(scallops) * angle) * Double(waveDepth)
+      let r = radius + CGFloat(wave)
+      let x = center.x + r * CGFloat(cos(angle - .pi / 2))
+      let y = center.y + r * CGFloat(sin(angle - .pi / 2))
+      if i == 0 {
+        path.move(to: CGPoint(x: x, y: y))
+      } else {
+        path.addLine(to: CGPoint(x: x, y: y))
+      }
+    }
+    path.closeSubpath()
+    context.stroke(
+      path, with: .color(color),
+      style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+  }
+
+  /// Draws a wavy arc segment for holiday entries sharing a day cell with other events
+  private static func drawWavyArc(
+    context: GraphicsContext, center: CGPoint, radius: CGFloat,
+    startDeg: Double, endDeg: Double,
+    color: Color, lineWidth: CGFloat,
+    scallops: Int = 6, waveDepth: CGFloat = 1.2
+  ) {
+    var path = Path()
+    let totalDeg = endDeg - startDeg
+    let steps = max(Int(totalDeg * 2), 60)
+    for i in 0...steps {
+      let frac = Double(i) / Double(steps)
+      let deg = startDeg + frac * totalDeg
+      let angle = (deg - 90.0) * .pi / 180.0
+      // Sine wave modulation based on absolute angle for consistent scallop frequency
+      let wave = sin(Double(scallops) * angle) * Double(waveDepth)
+      let r = radius + CGFloat(wave)
+      let x = center.x + r * CGFloat(cos(angle))
+      let y = center.y + r * CGFloat(sin(angle))
+      if i == 0 {
+        path.move(to: CGPoint(x: x, y: y))
+      } else {
+        path.addLine(to: CGPoint(x: x, y: y))
+      }
+    }
+    context.stroke(
+      path, with: .color(color),
+      style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
+  }
+
   var body: some View {
     let count = entries.count
 
@@ -715,7 +788,11 @@ struct EventRing: View {
           let entry = entries[i]
           let radius = outerRadius - CGFloat(i) * (lineWidth + ringGap)
 
-          if entry.isTodo {
+          if entry.isHoliday {
+            Self.drawWavyCircle(
+              context: context, center: center, radius: radius,
+              color: entry.color, lineWidth: lineWidth)
+          } else if entry.isTodo {
             // Alternating colored dashes: category / priority
             Self.drawAlternatingDashes(
               context: context, center: center, radius: radius,
@@ -763,7 +840,13 @@ struct EventRing: View {
             let startDeg = -90.0 + Double(j) * (arcSpan + arcGapDegrees)
             let endDeg = startDeg + arcSpan
 
-            if entry.isTodo {
+            if entry.isHoliday {
+              // Wavy arc segment for holidays
+              Self.drawWavyArc(
+                context: context, center: center, radius: radius,
+                startDeg: startDeg, endDeg: endDeg,
+                color: entry.color, lineWidth: lineWidth)
+            } else if entry.isTodo {
               Self.drawAlternatingDashes(
                 context: context, center: center, radius: radius,
                 startDeg: startDeg, endDeg: endDeg,
@@ -813,7 +896,7 @@ struct StatusCard: View {
     VStack(spacing: 4) {
       ZStack {
         Circle()
-          .fill(isActive ? color.opacity(0.12) : scheme.surfaceElevated)
+          .fill(isActive ? color.opacity(0.15) : scheme.surfaceElevated)
           .frame(width: 30, height: 30)
 
         Image(systemName: icon)
@@ -832,7 +915,31 @@ struct StatusCard: View {
     .background(
       RoundedRectangle(cornerRadius: 12, style: .continuous)
         .fill(scheme.surface)
+        .overlay(
+          RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+        )
     )
+  }
+}
+
+// MARK: - Widget Gradient Background
+
+@ViewBuilder
+func widgetGradientBackground(scheme: WidgetColorScheme) -> some View {
+  if scheme == .dark {
+    // Matches the app's MeshGradient atmosphere
+    LinearGradient(
+      colors: [
+        Color(red: 0.05, green: 0.07, blue: 0.18),
+        Color(red: 0.04, green: 0.04, blue: 0.12),
+        Color(red: 0.06, green: 0.05, blue: 0.15)
+      ],
+      startPoint: .topLeading,
+      endPoint: .bottomTrailing
+    )
+  } else {
+    scheme.background
   }
 }
 

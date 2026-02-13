@@ -78,6 +78,14 @@ public struct Localization {
     case tabClock
     case tabWeather
 
+    // UI Labels
+    case today
+    case remaining
+    case elapsed
+    case more(Int)
+    case add
+    case total
+
     // Alarm View
     case noAlarmSet
     case tapToSetAlarm
@@ -616,6 +624,18 @@ public struct Localization {
       return lang == .ukrainian ? "Хмарно" : "Cloudy"
     case .tabWeather:
       return lang == .ukrainian ? "Погода" : "Weather"
+    case .today:
+      return lang == .ukrainian ? "Сьогодні" : "Today"
+    case .remaining:
+      return lang == .ukrainian ? "Залишилось" : "Remaining"
+    case .elapsed:
+      return lang == .ukrainian ? "Минуло" : "Elapsed"
+    case .more(let count):
+      return lang == .ukrainian ? "Ще \(count)" : "\(count) more"
+    case .add:
+      return lang == .ukrainian ? "Додати" : "Add"
+    case .total:
+      return lang == .ukrainian ? "Всього" : "Total"
     }
   }
 }

@@ -63,145 +63,154 @@ struct AddTodoSheet: View {
 
   var body: some View {
     NavigationStack {
-      Form {
-        Section {
-          TextField(Localization.string(.todoTitle), text: $title)
-
-          if #available(iOS 16.0, *) {
-            TextField(Localization.string(.notes), text: $notes, axis: .vertical)
-              .lineLimit(3...6)
-          } else {
-            TextField(Localization.string(.notes), text: $notes)
-          }
-        }
-
-        Section(Localization.string(.priority)) {
-          Picker(Localization.string(.priority), selection: $priority) {
-            ForEach(Priority.allCases, id: \.self) { p in
-              Text(p.displayName).tag(p)
+      ZStack {
+        // Subtle background blending
+        MeshGradientView()
+          .ignoresSafeArea()
+          .opacity(0.4)
+          
+        ScrollView {
+          VStack(spacing: 20) {
+            // Main Info
+            GlassCard(cornerRadius: 24, material: .thin) {
+              VStack(spacing: 16) {
+                TextField(Localization.string(.todoTitle), text: $title)
+                  .font(Typography.headline)
+                  .textFieldStyle(.plain)
+                
+                Divider()
+                
+                TextField(Localization.string(.notes), text: $notes, axis: .vertical)
+                  .font(Typography.body)
+                  .textFieldStyle(.plain)
+                  .lineLimit(3...6)
+              }
+              .padding(4)
             }
-          }
-          .pickerStyle(.segmented)
-        }
-
-        Section(Localization.string(.category)) {
-          Picker(Localization.string(.category), selection: $selectedCategoryId) {
-            Text(Localization.string(.noCategory)).tag(nil as UUID?)
-            ForEach(flattenedCategories(categories)) { cat in
-              HStack {
-                if cat.depth > 0 {
-                  ForEach(0..<cat.depth, id: \.self) { _ in
-                    Text("  ")
+            
+            // Priority & Category
+            HStack(spacing: 16) {
+              GlassCard(cornerRadius: 20, material: .thin) {
+                VStack(alignment: .leading, spacing: 10) {
+                  Text(Localization.string(.priority).uppercased())
+                    .font(.system(size: 10, weight: .black))
+                    .foregroundColor(.textTertiary)
+                  
+                  Picker(Localization.string(.priority), selection: $priority) {
+                    ForEach(Priority.allCases, id: \.self) { p in
+                      Text(p.displayName).tag(p)
+                    }
                   }
+                  .pickerStyle(.menu)
+                  .labelsHidden()
                 }
-                Circle()
-                  .fill(Color.eventColor(named: cat.color))
-                  .frame(width: 10, height: 10)
-                Text(cat.name)
               }
-              .tag(cat.id as UUID?)
-            }
-          }
-        }
-
-        Section(Localization.string(.dueDate)) {
-          Toggle(Localization.string(.hasDueDate), isOn: $hasDueDate)
-
-          if hasDueDate {
-            DatePicker(
-              Localization.string(.dueDate), selection: $dueDate,
-              displayedComponents: [.date, .hourAndMinute])
-
-            Toggle(Localization.string(.reminder), isOn: $reminderEnabled)
-
-            if reminderEnabled {
-              // Repeat reminder every N minutes from due date
-              Picker(Localization.string(.repeatReminder), selection: $repeatReminderInterval) {
-                Text(Localization.string(.repeatReminderOff)).tag(TimeInterval(0))
-                Text(Localization.string(.everyNMinutes(15))).tag(TimeInterval(15 * 60))
-                Text(Localization.string(.everyNMinutes(30))).tag(TimeInterval(30 * 60))
-                Text(Localization.string(.everyNMinutes(45))).tag(TimeInterval(45 * 60))
-                Text(Localization.string(.everyNMinutes(60))).tag(TimeInterval(60 * 60))
-              }
-
-              if repeatReminderInterval > 0 {
-                Stepper(
-                  "\(Localization.string(.repeatReminderCount)): \(repeatReminderCount)",
-                  value: $repeatReminderCount,
-                  in: 1...20
-                )
+              
+              GlassCard(cornerRadius: 20, material: .thin) {
+                VStack(alignment: .leading, spacing: 10) {
+                  Text(Localization.string(.category).uppercased())
+                    .font(.system(size: 10, weight: .black))
+                    .foregroundColor(.textTertiary)
+                  
+                  Picker(Localization.string(.category), selection: $selectedCategoryId) {
+                    Text(Localization.string(.noCategory)).tag(nil as UUID?)
+                    ForEach(flattenedCategories(categories)) { cat in
+                      Text(cat.name).tag(cat.id as UUID?)
+                    }
+                  }
+                  .pickerStyle(.menu)
+                  .labelsHidden()
+                }
               }
             }
-          }
-        }
-
-        if hasDueDate {
-          Section(Localization.string(.recurring)) {
-            RecurrencePicker(
-              recurrenceType: $recurrenceType,
-              interval: $recurrenceInterval,
-              endDate: $recurrenceEndDate
-            )
-          }
-        }
-
-        Section(Localization.string(.subtasks)) {
-          ForEach(subtaskTitles.indices, id: \.self) { index in
-            HStack {
-              Image(systemName: "circle")
-                .foregroundColor(.secondary)
-              Text(subtaskTitles[index])
-              Spacer()
-              Button(action: { subtaskTitles.remove(at: index) }) {
-                Image(systemName: "xmark.circle.fill")
-                  .foregroundColor(.secondary)
+            
+            // Due Date & Reminders
+            GlassCard(cornerRadius: 24, material: .thin) {
+              VStack(spacing: 16) {
+                Toggle(Localization.string(.hasDueDate), isOn: $hasDueDate)
+                  .font(Typography.body)
+                  .fontWeight(.bold)
+                
+                if hasDueDate {
+                  Divider()
+                  DatePicker(
+                    Localization.string(.dueDate), selection: $dueDate,
+                    displayedComponents: [.date, .hourAndMinute])
+                  
+                  Divider()
+                  Toggle(Localization.string(.reminder), isOn: $reminderEnabled)
+                    .font(Typography.body)
+                    .fontWeight(.medium)
+                }
               }
-              .buttonStyle(.plain)
             }
-          }
-
-          HStack {
-            TextField(Localization.string(.addSubtask), text: $newSubtaskTitle)
-
-            Button(action: addSubtask) {
-              Image(systemName: "plus.circle.fill")
-                .foregroundColor(.accentColor)
+            
+            // Subtasks
+            GlassCard(cornerRadius: 24, material: .thin) {
+              VStack(alignment: .leading, spacing: 12) {
+                Text(Localization.string(.subtasks).uppercased())
+                  .font(.system(size: 10, weight: .black))
+                  .foregroundColor(.textTertiary)
+                
+                ForEach(subtaskTitles.indices, id: \.self) { index in
+                  HStack {
+                    Image(systemName: "circle")
+                      .foregroundColor(.accentColor)
+                    Text(subtaskTitles[index])
+                    Spacer()
+                    Button(action: { subtaskTitles.remove(at: index) }) {
+                      Image(systemName: "minus.circle.fill")
+                        .foregroundColor(.textTertiary)
+                    }
+                  }
+                  .padding(.vertical, 4)
+                }
+                
+                HStack {
+                  TextField(Localization.string(.addSubtask), text: $newSubtaskTitle)
+                    .textFieldStyle(.plain)
+                  
+                  Button(action: addSubtask) {
+                    Image(systemName: "plus.circle.fill")
+                      .font(.system(size: 20))
+                      .foregroundColor(.accentColor)
+                  }
+                  .disabled(newSubtaskTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+              }
             }
-            .buttonStyle(.plain)
-            .disabled(newSubtaskTitle.trimmingCharacters(in: .whitespaces).isEmpty)
-          }
-        }
-
-        if let onDelete = onDelete {
-          Section {
-            Button(role: .destructive) {
-              onDelete()
-              dismiss()
-            } label: {
-              HStack {
-                Spacer()
+            
+            if let onDelete = onDelete {
+              Button(role: .destructive) {
+                onDelete()
+                dismiss()
+              } label: {
                 Text(Localization.string(.delete))
-                Spacer()
+                  .font(Typography.body)
+                  .fontWeight(.bold)
+                  .foregroundColor(.red)
+                  .frame(maxWidth: .infinity)
+                  .padding()
+                  .background(.ultraThinMaterial)
+                  .clipShape(RoundedRectangle(cornerRadius: 16))
               }
+              .padding(.top, 10)
             }
           }
+          .padding(20)
         }
       }
       .navigationTitle(todo == nil ? Localization.string(.addTodo) : Localization.string(.editTodo))
-      #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        .scrollDismissesKeyboard(.interactively)
-      #endif
+      .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button(Localization.string(.cancel)) {
-            dismiss()
-          }
+          Button(Localization.string(.cancel)) { dismiss() }
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(todo == nil ? Localization.string(.save) : Localization.string(.update)) {
             saveTodo()
           }
+          .fontWeight(.bold)
           .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
         }
       }

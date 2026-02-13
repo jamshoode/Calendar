@@ -29,16 +29,19 @@ struct PresetButton: View {
 
   var body: some View {
     Button(action: action) {
-      VStack(spacing: 0) {
-        Text("\(Int(preset.duration / 60))")
-          .font(.system(size: 24, weight: .bold))
-        Text(Localization.string(.minutesUnit))
-          .font(.system(size: 12, weight: .medium))
-          .foregroundColor(.secondary)
+      GlassCard(cornerRadius: 16, material: .ultraThin) {
+          VStack(spacing: 0) {
+            Text("\(Int(preset.duration / 60))")
+              .font(.system(size: 26, weight: .black, design: .rounded))
+              .foregroundColor(.textPrimary)
+            Text(Localization.string(.minutesUnit).uppercased())
+              .font(.system(size: 9, weight: .black))
+              .tracking(1)
+              .foregroundColor(.accentColor)
+          }
+          .frame(maxWidth: .infinity)
+          .frame(height: 64)
       }
-      .frame(maxWidth: .infinity)
-      .frame(height: 60)
-      .cardStyle()
     }
     .buttonStyle(.plain)
   }

@@ -9,59 +9,61 @@ struct PomodoroView: View {
   private let sessionsBeforeLongBreak: Int = 4
 
   var body: some View {
-    VStack(spacing: 32) {
-      VStack(spacing: 8) {
-        Text(sessionLabel)
-          .font(.system(size: 24, weight: .semibold))
+    ScrollView {
+      VStack(spacing: 16) {
+        VStack(spacing: 6) {
+          Text(sessionLabel)
+            .font(.system(size: 22, weight: .semibold))
+            .foregroundColor(.secondary)
+
+          Text(
+            Localization.string(.pomodoroSession(viewModel.workSessions + 1, sessionsBeforeLongBreak))
+          )
+          .font(.system(size: 14))
           .foregroundColor(.secondary)
+        }
 
-        Text(
-          Localization.string(.pomodoroSession(viewModel.workSessions + 1, sessionsBeforeLongBreak))
+        TimerDisplay(remainingTime: viewModel.remainingTime, isRunning: viewModel.isRunning)
+
+        TimerControls(
+          isRunning: viewModel.isRunning,
+          isPaused: viewModel.isPaused,
+          onPlay: {
+            if viewModel.isPaused {
+              viewModel.resumeTimer()
+            } else if viewModel.remainingTime > 0 && !viewModel.isRunning {
+              viewModel.startTimer(duration: viewModel.remainingTime)
+            } else {
+              startNextSession()
+            }
+          },
+          onPause: {
+            viewModel.pauseTimer()
+          },
+          onReset: {
+            resetPomodoro()
+          },
+          onStop: {
+            stopPomodoro()
+          }
         )
-        .font(.system(size: 16))
-        .foregroundColor(.secondary)
-      }
 
-      TimerDisplay(remainingTime: viewModel.remainingTime, isRunning: viewModel.isRunning)
-
-      TimerControls(
-        isRunning: viewModel.isRunning,
-        isPaused: viewModel.isPaused,
-        onPlay: {
-          if viewModel.isPaused {
-            viewModel.resumeTimer()
-          } else if viewModel.remainingTime > 0 && !viewModel.isRunning {
-            viewModel.startTimer(duration: viewModel.remainingTime)
-          } else {
+        if !viewModel.isRunning && !viewModel.isPaused {
+          GlassButton(title: "Start Focus Session", icon: "play.fill", isPrimary: true) {
             startNextSession()
           }
-        },
-        onPause: {
-          viewModel.pauseTimer()
-        },
-        onReset: {
-          resetPomodoro()
-        },
-        onStop: {
-          stopPomodoro()
-        }
-      )
 
-      if !viewModel.isRunning && !viewModel.isPaused {
-        GlassButton(title: "Start Focus Session", icon: "play.fill", isPrimary: true) {
-          startNextSession()
-        }
-
-        if viewModel.workSessions > 0 {
-          GlassButton(title: "Skip Break", icon: "forward.fill") {
-            skipBreak()
+          if viewModel.workSessions > 0 {
+            GlassButton(title: "Skip Break", icon: "forward.fill") {
+              skipBreak()
+            }
           }
         }
       }
-
-      Spacer()
+      .padding()
+      .padding(.bottom, 100) // Space for floating tab bar
     }
-    .padding()
+    .scrollIndicators(.hidden)
     .onAppear {
       if viewModel.remainingTime == 0 && !viewModel.isRunning && !viewModel.isPaused {
         let duration = currentDuration

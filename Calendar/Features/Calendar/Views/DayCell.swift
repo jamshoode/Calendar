@@ -9,43 +9,48 @@ struct DayCell: View {
   var todos: [TodoItem] = []
 
   var body: some View {
-    VStack(spacing: 2) {
-      Text(date.formattedDay)
-        .font(.system(size: 15, weight: isToday ? .bold : .medium))
-        .foregroundColor(textColor)
-        .frame(width: 34, height: 34)
-        .background(
-          Circle()
-            .fill(backgroundColor)
-        )
-        .overlay(
-          Circle()
-            .strokeBorder(isToday && !isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-        )
+    VStack(spacing: 4) {
+      ZStack {
+          if isCurrentMonth {
+              if isSelected {
+                  Circle()
+                      .fill(Color.accentColor)
+                      .frame(width: 36, height: 36)
+                      .shadow(color: Color.accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
+                      .transition(.scale.combined(with: .opacity))
+              } else if isToday {
+                  Circle()
+                      .strokeBorder(Color.accentColor, lineWidth: 2)
+                      .frame(width: 36, height: 36)
+              }
+          }
+          
+          Text(date.formattedDay)
+            .font(.system(size: 16, weight: isCurrentMonth && (isToday || isSelected) ? .bold : .medium))
+            .foregroundColor(textColor)
+      }
 
-      HStack(spacing: 2) {
-        if !events.isEmpty {
-          EventIndicator(events: events)
-        }
-
-        if !todos.isEmpty {
-          TodoIndicator(count: todos.count)
+      HStack(spacing: 3) {
+        if isCurrentMonth {
+          if !events.isEmpty {
+            EventIndicator(events: events)
+          }
+          if !todos.isEmpty {
+            TodoIndicator(count: todos.count)
+          }
         }
       }
-      .frame(height: 8)
+      .frame(height: 6)
     }
-    .frame(height: 44)
+    .frame(height: 50)
     .frame(maxWidth: .infinity)
     .contentShape(Rectangle())
-    .opacity(isCurrentMonth ? 1.0 : 0.3)
-  }
-
-  private var backgroundColor: Color {
-    isSelected ? .accentColor : .clear
   }
 
   private var textColor: Color {
-    if isSelected {
+    if !isCurrentMonth {
+      return Color.textTertiary.opacity(0.5)
+    } else if isSelected {
       return .white
     } else if isToday {
       return .accentColor
@@ -61,6 +66,6 @@ struct TodoIndicator: View {
   var body: some View {
     Circle()
       .fill(Color.statusInProgress)
-      .frame(width: 6, height: 6)
+      .frame(width: 5, height: 5)
   }
 }

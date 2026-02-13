@@ -11,61 +11,68 @@ struct MonthView: View {
   private let daysInWeek = 7
   private let totalRows = 6  // Always 6 rows for consistent layout
 
-  private var days: [Date?] {
+  private var days: [Date] {
     let startOfMonth = currentMonth.startOfMonth
     let endOfMonth = currentMonth.endOfMonth
 
     let firstWeekday = calendar.component(.weekday, from: startOfMonth)
-    let adjustedFirstWeekday = (firstWeekday + 5) % 7
+    let leadingEmptyDays = (firstWeekday + 5) % 7
 
-    var days: [Date?] = Array(repeating: nil, count: adjustedFirstWeekday)
+    var allDays: [Date] = []
 
+    // Fill leading days from previous month
+    if leadingEmptyDays > 0 {
+      for i in stride(from: leadingEmptyDays, through: 1, by: -1) {
+        if let prevDate = calendar.date(byAdding: .day, value: -i, to: startOfMonth) {
+          allDays.append(prevDate)
+        }
+      }
+    }
+
+    // Fill current month days
     var currentDate = startOfMonth
     while currentDate <= endOfMonth {
-      days.append(currentDate)
+      allDays.append(currentDate)
       currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
     }
 
-    // Always pad to exactly 42 cells (6 rows × 7 days) for consistent layout
+    // Fill trailing days from next month
     let totalCells = totalRows * daysInWeek
-    let remainingCells = totalCells - days.count
+    let remainingCells = totalCells - allDays.count
     if remainingCells > 0 {
-      days.append(contentsOf: Array(repeating: nil, count: remainingCells))
+      var nextDate = calendar.date(byAdding: .day, value: 1, to: endOfMonth)!
+      for _ in 0..<remainingCells {
+        allDays.append(nextDate)
+        nextDate = calendar.date(byAdding: .day, value: 1, to: nextDate)!
+      }
     }
 
-    return days
+    return allDays
   }
 
   var body: some View {
     LazyVGrid(
-      columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: daysInWeek), spacing: 4
+      columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: daysInWeek), spacing: 2
     ) {
-      ForEach(Array(days.enumerated()), id: \.offset) { index, date in
-        if let date = date {
-          let isCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
-          let isSelected = selectedDate != nil && date.isSameDay(as: selectedDate!)
-          let isToday = date.isToday
-          let dayEvents = eventsForDate(date)
-          let dayTodos = todosForDate(date)
+      ForEach(Array(days.enumerated()), id: \.offset) { _, date in
+        let isCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
+        let isSelected = selectedDate != nil && date.isSameDay(as: selectedDate!)
+        let isToday = date.isToday
 
-          DayCell(
-            date: date,
-            isCurrentMonth: isCurrentMonth,
-            isSelected: isSelected,
-            isToday: isToday,
-            events: dayEvents,
-            todos: dayTodos
-          )
-          .onTapGesture {
-            onSelectDate(date)
-          }
-        } else {
-          Color.clear
-            .frame(height: 44)
+        DayCell(
+          date: date,
+          isCurrentMonth: isCurrentMonth,
+          isSelected: isSelected,
+          isToday: isToday,
+          events: isCurrentMonth ? eventsForDate(date) : [],
+          todos: isCurrentMonth ? todosForDate(date) : []
+        )
+        .onTapGesture {
+          onSelectDate(date)
         }
       }
     }
-    .padding(.horizontal, 12)
+    .padding(.horizontal, 16)
   }
 
   private func eventsForDate(_ date: Date) -> [Event] {

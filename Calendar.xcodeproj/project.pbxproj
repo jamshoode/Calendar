@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F50CBAD42F3F8F9D007685D6 /* DesignComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50CBAD22F3F8F9D007685D6 /* DesignComponents.swift */; };
+		F50CBAD52F3F8F9D007685D6 /* FloatingTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50CBAD32F3F8F9D007685D6 /* FloatingTabBar.swift */; };
 		F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51A59232F34AFB20006E307 /* MonthYearPicker.swift */; };
 		F51F1B422F3BD12F007A3F3E /* ErrorPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F1B412F3BD12F007A3F3E /* ErrorPresenter.swift */; };
 		F51F1B442F3BD2D6007A3F3E /* ErrorNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51F1B432F3BD2D6007A3F3E /* ErrorNotifications.swift */; };
@@ -134,6 +136,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F50CBAD22F3F8F9D007685D6 /* DesignComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignComponents.swift; sourceTree = "<group>"; };
+		F50CBAD32F3F8F9D007685D6 /* FloatingTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingTabBar.swift; sourceTree = "<group>"; };
 		F51A59232F34AFB20006E307 /* MonthYearPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthYearPicker.swift; sourceTree = "<group>"; };
 		F51F1B412F3BD12F007A3F3E /* ErrorPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorPresenter.swift; sourceTree = "<group>"; };
 		F51F1B432F3BD2D6007A3F3E /* ErrorNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorNotifications.swift; sourceTree = "<group>"; };
@@ -526,6 +530,8 @@
 				F554F0012F34F9AE008B6601 /* SideSheetModifier.swift */,
 				F5A1B00A2F4E0006007F8DEB /* StatusBadge.swift */,
 				F51F1B452F3BD2FA007A3F3E /* FloatingErrorView.swift */,
+				F50CBAD22F3F8F9D007685D6 /* DesignComponents.swift */,
+				F50CBAD32F3F8F9D007685D6 /* FloatingTabBar.swift */,
 				F51F1B472F3BD304007A3F3E /* GlassCard.swift */,
 			);
 			path = Components;
@@ -842,6 +848,8 @@
 				F593C1232F33C234007F8DEB /* CalendarApp.swift in Sources */,
 				F593C1242F33C234007F8DEB /* TimerView.swift in Sources */,
 				F593C1252F33C234007F8DEB /* NotificationService.swift in Sources */,
+				F50CBAD42F3F8F9D007685D6 /* DesignComponents.swift in Sources */,
+				F50CBAD52F3F8F9D007685D6 /* FloatingTabBar.swift in Sources */,
 				F593C1262F33C234007F8DEB /* AlarmViewModel.swift in Sources */,
 				F593C1272F33C234007F8DEB /* PresetsGrid.swift in Sources */,
 				F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */,

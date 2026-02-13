@@ -10,27 +10,55 @@ struct ClockView: View {
   }
 
   var body: some View {
-    VStack(spacing: 0) {
-      switch selectedSection {
-      case .timer:
-        TimerView()
-          .transition(.opacity)
-      case .alarm:
-        AlarmView()
-          .transition(.opacity)
+    VStack(spacing: 12) {
+      // Custom Glass Picker for consistency
+      HStack(spacing: 0) {
+          Button {
+              withAnimation { selectedSection = .timer }
+          } label: {
+              Text(Localization.string(.tabTimer))
+                  .font(.system(size: 13, weight: .bold))
+                  .foregroundColor(selectedSection == .timer ? .white : .textSecondary)
+                  .frame(maxWidth: .infinity)
+                  .frame(height: 36)
+                  .background(selectedSection == .timer ? Color.accentColor : Color.clear)
+                  .clipShape(RoundedRectangle(cornerRadius: 10))
+          }
+          .buttonStyle(.plain)
+          
+          Button {
+              withAnimation { selectedSection = .alarm }
+          } label: {
+              Text(Localization.string(.tabAlarm))
+                  .font(.system(size: 13, weight: .bold))
+                  .foregroundColor(selectedSection == .alarm ? .white : .textSecondary)
+                  .frame(maxWidth: .infinity)
+                  .frame(height: 36)
+                  .background(selectedSection == .alarm ? Color.accentColor : Color.clear)
+                  .clipShape(RoundedRectangle(cornerRadius: 10))
+          }
+          .buttonStyle(.plain)
       }
-    }
-    .animation(.easeInOut(duration: 0.3), value: selectedSection)
-    .background(Color.backgroundPrimary)
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        Picker("Section", selection: $selectedSection) {
-          Text(Localization.string(.tabTimer)).tag(ClockSection.timer)
-          Text(Localization.string(.tabAlarm)).tag(ClockSection.alarm)
+      .padding(4)
+      .background(.ultraThinMaterial)
+      .clipShape(RoundedRectangle(cornerRadius: 14))
+      .glassHalo(cornerRadius: 14)
+      .padding(.horizontal, 60)
+      .padding(.top, 10)
+
+      ZStack {
+        switch selectedSection {
+        case .timer:
+          TimerView()
+            .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
+        case .alarm:
+          AlarmView()
+            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .move(edge: .leading).combined(with: .opacity)))
         }
-        .pickerStyle(.segmented)
-        .frame(width: 200)
       }
+      .frame(maxHeight: .infinity)
+      .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedSection)
     }
+    .background(Color.clear)
   }
 }

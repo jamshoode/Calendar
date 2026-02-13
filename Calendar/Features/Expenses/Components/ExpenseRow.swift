@@ -6,33 +6,38 @@ struct ExpenseRow: View {
   var body: some View {
     HStack(spacing: Spacing.sm) {
       // Category icon
-      Image(systemName: expense.categoryEnum.icon)
-        .font(.system(size: 16))
-        .foregroundColor(expense.categoryEnum.color)
-        .frame(width: 36, height: 36)
-        .background(expense.categoryEnum.color.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+      ZStack {
+          Circle()
+              .fill(expense.categoryEnum.color.opacity(0.15))
+              .frame(width: 44, height: 44)
+          
+          Image(systemName: expense.categoryEnum.icon)
+            .font(.system(size: 18, weight: .bold))
+            .foregroundColor(expense.categoryEnum.color)
+      }
 
       // Title & merchant
-      VStack(alignment: .leading, spacing: 2) {
+      VStack(alignment: .leading, spacing: 4) {
         Text(expense.title)
-          .font(Typography.headline)
+          .font(Typography.body)
+          .fontWeight(.bold)
           .foregroundColor(.textPrimary)
           .lineLimit(1)
 
         if let merchant = expense.merchant, !merchant.isEmpty {
-          Text(merchant)
-            .font(Typography.caption)
-            .foregroundColor(.textSecondary)
+          Text(merchant.uppercased())
+            .font(.system(size: 10, weight: .black))
+            .tracking(1)
+            .foregroundColor(.textTertiary)
         }
       }
 
       Spacer()
 
       // Amount & payment method
-      VStack(alignment: .trailing, spacing: 2) {
+      VStack(alignment: .trailing, spacing: 4) {
         Text("\(expense.currencyEnum.symbol)\(String(format: "%.2f", expense.amount))")
-          .font(Typography.headline)
+          .font(.system(size: 18, weight: .black, design: .rounded))
           .foregroundColor(.textPrimary)
 
         HStack(spacing: 4) {
@@ -40,16 +45,18 @@ struct ExpenseRow: View {
             .font(.system(size: 10))
           Text(expense.paymentMethodEnum.displayName)
             .font(Typography.badge)
+            .fontWeight(.bold)
         }
-        .foregroundColor(.textTertiary)
+        .foregroundColor(.textSecondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(.ultraThinMaterial)
+        .clipShape(Capsule())
       }
     }
-    .padding(Spacing.sm)
-    .background(Color.surfaceCard)
-    .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
-    .overlay(
-      RoundedRectangle(cornerRadius: Spacing.smallRadius)
-        .stroke(Color.border, lineWidth: 0.5)
-    )
+    .padding(12)
+    .background(.ultraThinMaterial.opacity(0.5))
+    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .glassHalo(cornerRadius: 16)
   }
 }

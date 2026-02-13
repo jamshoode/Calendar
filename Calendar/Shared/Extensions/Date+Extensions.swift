@@ -63,7 +63,7 @@ extension Date {
     var formattedMonthYear: String {
         let formatter = DateFormatter()
         formatter.locale = Localization.locale
-        formatter.dateFormat = "MMMM yyyy"
+        formatter.dateFormat = "LLLL yyyy"
         return formatter.string(from: self)
     }
     

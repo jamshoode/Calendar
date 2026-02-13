@@ -92,6 +92,35 @@ class TodoViewModel: ObservableObject {
     }
   }
 
+  func reparentCategory(_ source: TodoCategory, into target: TodoCategory, context: ModelContext) {
+    // Don't reparent into self
+    guard source.id != target.id else { return }
+    // Don't reparent if already a child of target
+    guard source.parent?.id != target.id else { return }
+    // Respect max depth (target.depth + 1 must be < 3)
+    guard target.depth < 2 else {
+      ErrorPresenter.shared.present(message: "Cannot nest categories deeper than 2 levels")
+      return
+    }
+    // Don't allow reparenting a parent into its own child
+    var ancestor: TodoCategory? = target
+    while let a = ancestor {
+      if a.id == source.id { return }
+      ancestor = a.parent
+    }
+
+    source.parent = target
+    // Set sortOrder to be last among target's subcategories
+    let siblingCount = target.subcategories?.count ?? 0
+    source.sortOrder = siblingCount
+
+    do {
+      try context.save()
+    } catch {
+      ErrorPresenter.shared.present(error)
+    }
+  }
+
   func toggleTodoPin(_ todo: TodoItem, context: ModelContext) {
     todo.isPinned.toggle()
     do {

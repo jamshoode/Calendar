@@ -8,30 +8,48 @@ struct FloatingErrorView: View {
       if let msg = message {
         VStack {
           HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-              .foregroundColor(.white)
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 28, height: 28)
+                Image(systemName: "exclamationmark.triangle.fill")
+                  .font(.system(size: 14, weight: .bold))
+                  .foregroundColor(.white)
+            }
+            
             Text(msg)
               .foregroundColor(.white)
-              .font(.subheadline)
+              .font(.system(size: 14, weight: .bold))
               .lineLimit(2)
               .multilineTextAlignment(.leading)
+            
             Spacer()
+            
             Button(action: { message = nil }) {
               Image(systemName: "xmark")
-                .foregroundColor(.white)
+                .foregroundColor(.white.opacity(0.6))
+                .font(.system(size: 14, weight: .black))
             }
             .buttonStyle(.plain)
           }
-          .padding(.vertical, 10)
-          .padding(.horizontal, 14)
-          .background(Color.red)
-          .cornerRadius(12)
-          .shadow(radius: 8)
-          .padding(.horizontal, 12)
+          .padding(.vertical, 12)
+          .padding(.horizontal, 16)
+          .background(
+              ZStack {
+                  Color.red.opacity(0.8)
+                  Color.black.opacity(0.2)
+              }
+          )
+          .clipShape(RoundedRectangle(cornerRadius: 18))
+          .glassHalo(cornerRadius: 18)
+          .shadow(color: Color.red.opacity(0.4), radius: 15, x: 0, y: 8)
+          .padding(.top, 12)
+          .padding(.horizontal, 16)
+          
           Spacer()
         }
         .transition(.move(edge: .top).combined(with: .opacity))
-        .animation(.spring(), value: msg)
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: msg)
         .onTapGesture { message = nil }
       }
     }
@@ -39,7 +57,7 @@ struct FloatingErrorView: View {
       if let msg = note.userInfo?["message"] as? String {
         withAnimation { message = msg }
         Task { @MainActor in
-          try? await Task.sleep(nanoseconds: 4_000_000_000)
+          try? await Task.sleep(nanoseconds: 5_000_000_000)
           withAnimation { message = nil }
         }
       }

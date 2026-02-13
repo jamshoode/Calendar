@@ -9,7 +9,7 @@ public struct WeatherView: View {
     
     public var body: some View {
         ZStack {
-            Color.backgroundPrimary.ignoresSafeArea()
+            // We rely on the mesh background from ContentView
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
@@ -25,8 +25,9 @@ public struct WeatherView: View {
                                 }
                         }
                         .padding(12)
-                        .background(Color.backgroundSecondary)
+                        .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .glassHalo(cornerRadius: 12)
                         
                         if !viewModel.searchResults.isEmpty {
                             VStack(alignment: .leading, spacing: 0) {
@@ -52,38 +53,55 @@ public struct WeatherView: View {
                                                 .foregroundColor(.textTertiary)
                                         }
                                         .padding(.vertical, 12)
-                                        .padding(.horizontal, 8)
+                                        .padding(.horizontal, 12)
                                     }
                                     .buttonStyle(.plain)
                                     Divider()
                                 }
                             }
-                            .background(Color.backgroundSecondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .glassHalo(cornerRadius: 16)
                         }
                     }
                     .padding(.horizontal)
                     
                     if let weather = viewModel.weatherData {
-                        // Current Weather Card
-                        currentWeatherCard(weather)
+                        // Current Weather Card (More dramatic)
+                        currentWeatherHero(weather)
                         
-                        // Hourly Forecast (Minimalistic Timeline)
-                        hourlyForecastSection(weather)
+                        // Hourly Forecast
+                        GlassCard(cornerRadius: 24, material: .thin) {
+                            hourlyForecastSection(weather)
+                        }
+                        .padding(.horizontal)
                         
                         // Weekly Forecast
-                        weeklyForecastSection(weather)
+                        GlassCard(cornerRadius: 24, material: .thin) {
+                            weeklyForecastSection(weather)
+                        }
+                        .padding(.horizontal)
                     } else if viewModel.isLoading {
                         ProgressView()
                             .padding(.top, 40)
                     } else {
-                        Text(Localization.string(.weatherSearchPrompt))
-                            .font(Typography.subheadline)
-                            .foregroundColor(.textTertiary)
-                            .padding(.top, 40)
+                        VStack(spacing: 20) {
+                            Image(systemName: "cloud.sun.fill")
+                                .font(.system(size: 80))
+                                .symbolRenderingMode(.multicolor)
+                                .shadow(radius: 10)
+                            
+                            Text(Localization.string(.weatherSearchPrompt))
+                                .font(Typography.subheadline)
+                                .foregroundColor(.textSecondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                        }
+                        .padding(.top, 60)
                     }
                 }
                 .padding(.vertical)
+                .padding(.bottom, 100) // Space for floating tab bar
             }
             .scrollDismissesKeyboard(.immediately)
         }
@@ -94,48 +112,65 @@ public struct WeatherView: View {
     // MARK: - Components
     
     @ViewBuilder
-    private func currentWeatherCard(_ weather: WeatherData) -> some View {
+    private func currentWeatherHero(_ weather: WeatherData) -> some View {
         if let current = weather.current {
-            VStack(spacing: 8) {
+            VStack(spacing: 12) {
                 Text(Date().formatted(.dateTime.weekday(.wide).locale(Localization.locale)).capitalized)
                     .font(Typography.headline)
                     .foregroundColor(.textTertiary)
+                    .textCase(.uppercase)
                 
-                Image(systemName: current.code.icon(isDay: current.isDay))
-                    .font(.system(size: 64))
-                    .symbolRenderingMode(.multicolor)
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(colors: [.accentColor.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
+                        .frame(width: 200, height: 200)
+                        .blur(radius: 40)
+                    
+                    Image(systemName: current.code.icon(isDay: current.isDay))
+                        .font(.system(size: 100))
+                        .symbolRenderingMode(.multicolor)
+                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 10)
+                }
                 
                 Text("\(Int(current.temperature))°")
-                    .font(.system(size: 72, weight: .thin, design: .rounded))
+                    .font(.system(size: 96, weight: .thin, design: .rounded))
+                    .foregroundColor(.textPrimary)
                 
                 Text(current.code.description)
                     .font(Typography.title)
-                    .foregroundColor(.textSecondary)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
                 
                 if let today = weather.dailyForecast.first {
-                    HStack(spacing: 16) {
-                        Label("\(Int(today.minTemp))°", systemImage: "arrow.down")
-                        Label("\(Int(today.maxTemp))°", systemImage: "arrow.up")
+                    HStack(spacing: 20) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.down")
+                            Text("\(Int(today.minTemp))°")
+                        }
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.up")
+                            Text("\(Int(today.maxTemp))°")
+                        }
                     }
-                    .font(Typography.subheadline)
-                    .foregroundColor(.textTertiary)
+                    .font(Typography.headline)
+                    .foregroundColor(.textSecondary)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
+            .padding(.vertical, 30)
         }
     }
     
     @ViewBuilder
     private func hourlyForecastSection(_ weather: WeatherData) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(Localization.string(.hourlyForecast))
-                .font(Typography.headline)
-                .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 16) {
+            Text(Localization.string(.hourlyForecast).uppercased())
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.textTertiary)
             
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 20) {
+                    HStack(spacing: 24) {
                         let today = Calendar.current.startOfDay(for: Date())
                         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
                         
@@ -144,24 +179,23 @@ public struct WeatherView: View {
                         }
                         
                         ForEach(dayForecast) { point in
-                            VStack(spacing: 8) {
+                            VStack(spacing: 10) {
                                 Text(point.time.formatted(date: .omitted, time: .shortened))
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.textTertiary)
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(.textSecondary)
                                 
                                 Image(systemName: smoothedIcon(for: point, in: dayForecast))
-                                    .font(.system(size: 20))
+                                    .font(.system(size: 24))
                                     .symbolRenderingMode(.multicolor)
                                 
                                 Text("\(Int(point.temperature))°")
-                                    .font(Typography.subheadline)
-                                    .fontWeight(.semibold)
+                                    .font(Typography.body)
+                                    .fontWeight(.bold)
                             }
-                            .frame(width: 50)
+                            .frame(width: 60)
                             .id(Calendar.current.component(.hour, from: point.time))
                         }
                     }
-                    .padding(.horizontal)
                 }
                 .onAppear {
                     scrollToCurrentHour(proxy: proxy)
@@ -180,8 +214,6 @@ public struct WeatherView: View {
         
         let currentCode = point.code.rawValue
         
-        // Heuristic: If Clear (0) or Mainly Clear (1) is isolated between cloudy states (>= 2), 
-        // use Partly Cloudy (2) icon to avoid jarring "flicker".
         if currentCode <= 1 && index > 0 && index < forecast.count - 1 {
             let prevCode = forecast[index - 1].code.rawValue
             let nextCode = forecast[index + 1].code.rawValue
@@ -203,10 +235,10 @@ public struct WeatherView: View {
     
     @ViewBuilder
     private func weeklyForecastSection(_ weather: WeatherData) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(Localization.string(.dailyForecast))
-                .font(Typography.headline)
-                .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 16) {
+            Text(Localization.string(.dailyForecast).uppercased())
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.textTertiary)
             
             VStack(spacing: 0) {
                 let futureDays = weather.dailyForecast.dropFirst().prefix(7)
@@ -214,40 +246,36 @@ public struct WeatherView: View {
                     HStack {
                         Text(day.time.formatted(Date.FormatStyle(locale: Localization.locale).weekday(.wide)).capitalized)
                             .font(Typography.body)
+                            .fontWeight(.medium)
                             .frame(width: 100, alignment: .leading)
                         
                         Spacer()
                         
                         Image(systemName: day.code.icon(isDay: true))
-                            .font(.system(size: 20))
+                            .font(.system(size: 24))
                             .symbolRenderingMode(.multicolor)
                             .frame(width: 40)
                         
                         Spacer()
                         
-                        HStack(spacing: 12) {
+                        HStack(spacing: 16) {
                             Text("\(Int(day.minTemp))°")
                                 .font(Typography.body)
                                 .foregroundColor(.textTertiary)
                                 .frame(width: 35, alignment: .trailing)
                             Text("\(Int(day.maxTemp))°")
                                 .font(Typography.body)
-                                .fontWeight(.semibold)
+                                .fontWeight(.bold)
                                 .frame(width: 35, alignment: .trailing)
-                            
                         }
                     }
-                    .padding(.vertical, 12)
-                    .padding(.horizontal)
+                    .padding(.vertical, 14)
                     
                     if day.id != futureDays.last?.id {
-                        Divider().padding(.leading, 16)
+                        Divider().opacity(0.3)
                     }
                 }
             }
-            .background(Color.backgroundSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal)
         }
     }
 }

@@ -89,7 +89,7 @@ class EventViewModel {
         let key = formatter.string(from: event.date)
         var colors = eventMap[key] ?? []
         if colors.count < 6 {
-          colors.append(event.color)
+          colors.append(event.isHoliday ? "holiday:\(event.color)" : event.color)
         }
         eventMap[key] = colors
       }

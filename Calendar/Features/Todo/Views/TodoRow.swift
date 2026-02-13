@@ -72,9 +72,10 @@ struct TodoRow: View {
       }
     }
     .padding(.vertical, 12)
-    .padding(.horizontal, Spacing.md)
-    .background(Color.surfaceCard)
-    .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
+    .padding(.horizontal, 14)
+    .background(.ultraThinMaterial.opacity(0.5))
+    .clipShape(RoundedRectangle(cornerRadius: 12))
+    .glassHalo(cornerRadius: 12)
     .swipeActions(edge: .trailing) {
       Button(role: .destructive, action: onDelete) {
         Label(Localization.string(.delete), systemImage: "trash")
