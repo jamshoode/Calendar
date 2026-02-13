@@ -112,6 +112,7 @@ public struct Localization {
     case addCategory
     case editCategory
     case categoryName
+    case parentCategory
     case noCategory
     case category
     case priority
@@ -397,6 +398,8 @@ public struct Localization {
       return lang == .ukrainian ? "Редагувати категорію" : "Edit Category"
     case .categoryName:
       return lang == .ukrainian ? "Назва категорії" : "Category Name"
+    case .parentCategory:
+      return lang == .ukrainian ? "Батьківська категорія" : "Parent Category"
     case .noCategory:
       return lang == .ukrainian ? "Без категорії" : "No Category"
     case .category:

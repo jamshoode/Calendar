@@ -20,7 +20,7 @@ public struct WeatherView: View {
                                 .foregroundColor(.textTertiary)
                             TextField(Localization.string(.searchCity), text: $searchText)
                                 .textFieldStyle(.plain)
-                                .onChange(of: searchText) { newValue in
+                                .onChange(of: searchText) { old, newValue in
                                     Task { await viewModel.search(query: newValue) }
                                 }
                         }
@@ -114,8 +114,8 @@ public struct WeatherView: View {
                 
                 if let today = weather.dailyForecast.first {
                     HStack(spacing: 16) {
-                        Label("\(Int(today.maxTemp))°", systemImage: "arrow.up")
                         Label("\(Int(today.minTemp))°", systemImage: "arrow.down")
+                        Label("\(Int(today.maxTemp))°", systemImage: "arrow.up")
                     }
                     .font(Typography.subheadline)
                     .foregroundColor(.textTertiary)
@@ -166,7 +166,7 @@ public struct WeatherView: View {
                 .onAppear {
                     scrollToCurrentHour(proxy: proxy)
                 }
-                .onChange(of: weather.city) { _ in
+                .onChange(of: weather.city) { old, _ in
                     scrollToCurrentHour(proxy: proxy)
                 }
             }
@@ -226,15 +226,15 @@ public struct WeatherView: View {
                         Spacer()
                         
                         HStack(spacing: 12) {
+                            Text("\(Int(day.minTemp))°")
+                                .font(Typography.body)
+                                .foregroundColor(.textTertiary)
+                                .frame(width: 35, alignment: .trailing)
                             Text("\(Int(day.maxTemp))°")
                                 .font(Typography.body)
                                 .fontWeight(.semibold)
                                 .frame(width: 35, alignment: .trailing)
                             
-                            Text("\(Int(day.minTemp))°")
-                                .font(Typography.body)
-                                .foregroundColor(.textTertiary)
-                                .frame(width: 35, alignment: .trailing)
                         }
                     }
                     .padding(.vertical, 12)

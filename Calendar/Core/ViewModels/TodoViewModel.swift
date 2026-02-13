@@ -7,7 +7,12 @@ class TodoViewModel: ObservableObject {
 
   static let noCategoryName = "No Category"
 
-  func createCategory(name: String, color: String, context: ModelContext) {
+  func createCategory(name: String, color: String, parent: TodoCategory? = nil, context: ModelContext) {
+    if let parent = parent, parent.depth >= 2 {
+      ErrorPresenter.shared.present(message: "Cannot nest category deeper than 3 levels")
+      return
+    }
+
     let descriptor = FetchDescriptor<TodoCategory>()
     var existingCount = 0
     do {
@@ -18,6 +23,8 @@ class TodoViewModel: ObservableObject {
     }
     let category = TodoCategory(name: name, color: color, sortOrder: existingCount)
     context.insert(category)
+    category.parent = parent
+
     do {
       try context.save()
     } catch {
@@ -26,15 +33,45 @@ class TodoViewModel: ObservableObject {
     }
   }
 
-  func updateCategory(_ category: TodoCategory, name: String, color: String, context: ModelContext)
-  {
+  func updateCategory(
+    _ category: TodoCategory, name: String, color: String, parent: TodoCategory? = nil,
+    context: ModelContext
+  ) {
+    if let parent = parent {
+      if parent.id == category.id {
+        ErrorPresenter.shared.present(message: "A category cannot be its own parent")
+        return
+      }
+      if parent.depth >= 2 {
+        ErrorPresenter.shared.present(message: "Cannot nest category deeper than 3 levels")
+        return
+      }
+      // Check for cycles (basic check: parent shouldn't be a descendant of category)
+      var p: TodoCategory? = parent
+      while let currentP = p {
+        if currentP.id == category.id {
+          ErrorPresenter.shared.present(message: "Circular nesting is not allowed")
+          return
+        }
+        p = currentP.parent
+      }
+    }
+
     category.name = name
     category.color = color
+    category.parent = parent
     do {
       try context.save()
     } catch {
       ErrorPresenter.shared.present(error)
     }
+  }
+
+  func moveCategory(
+    _ category: TodoCategory, toParent newParent: TodoCategory?, context: ModelContext
+  ) {
+    updateCategory(
+      category, name: category.name, color: category.color, parent: newParent, context: context)
   }
 
   func deleteCategory(_ category: TodoCategory, context: ModelContext) {

@@ -85,13 +85,13 @@ struct TodoView: View {
 
   private var pinnedCategories: [TodoCategory] {
     categories
-      .filter { $0.name != TodoViewModel.noCategoryName && $0.isPinned }
+      .filter { $0.parent == nil && $0.name != TodoViewModel.noCategoryName && $0.isPinned }
       .sorted { $0.sortOrder < $1.sortOrder }
   }
 
   private var unpinnedCategories: [TodoCategory] {
     categories
-      .filter { $0.name != TodoViewModel.noCategoryName && !$0.isPinned }
+      .filter { $0.parent == nil && $0.name != TodoViewModel.noCategoryName && !$0.isPinned }
       .sorted { $0.sortOrder < $1.sortOrder }
   }
 
@@ -270,8 +270,8 @@ struct TodoView: View {
       }
     }
     .sheet(isPresented: $showingAddCategory) {
-      AddCategorySheet { name, color in
-        viewModel.createCategory(name: name, color: color, context: modelContext)
+      AddCategorySheet(categories: categories) { name, color, parent in
+        viewModel.createCategory(name: name, color: color, parent: parent, context: modelContext)
       }
     }
     .sheet(item: $editingTodo) { todo in
@@ -295,8 +295,9 @@ struct TodoView: View {
     .sheet(item: $editingCategory) { category in
       AddCategorySheet(
         category: category,
-        onSave: { name, color in
-          viewModel.updateCategory(category, name: name, color: color, context: modelContext)
+        categories: categories,
+        onSave: { name, color, parent in
+          viewModel.updateCategory(category, name: name, color: color, parent: parent, context: modelContext)
         },
         onDelete: {
           viewModel.deleteCategory(category, context: modelContext)
@@ -457,61 +458,59 @@ struct TodoView: View {
           }
         }
       },
-      onEdit: { editingCategory = category },
-      onDelete: { viewModel.deleteCategory(category, context: modelContext) },
-      onTogglePin: { viewModel.toggleCategoryPin(category, context: modelContext) },
+      onEdit: { cat in editingCategory = cat },
+      onDelete: { cat in viewModel.deleteCategory(cat, context: modelContext) },
+      onTogglePin: { cat in viewModel.toggleCategoryPin(cat, context: modelContext) },
       onTodoToggle: { todo in viewModel.toggleCompletion(todo, context: modelContext) },
       onTodoTap: { todo in editingTodo = todo },
       onTodoDelete: { todo in viewModel.deleteTodo(todo, context: modelContext) },
       onTodoTogglePin: { todo in viewModel.toggleTodoPin(todo, context: modelContext) },
       onMoveTodo: { todo, newIndex in
         moveTodo(todo, toIndex: newIndex, inCategory: category)
+      },
+      onDropItem: { idString, targetCategory in
+        if let todoId = UUID(uuidString: idString),
+          let todo = allTodos.first(where: { $0.id == todoId })
+        {
+          todo.category = targetCategory
+          do {
+            try modelContext.save()
+          } catch {
+            ErrorPresenter.shared.present(error)
+            return false
+          }
+          return true
+        }
+
+        if let droppedCategoryId = UUID(uuidString: idString),
+          let draggedCat = categories.first(where: { $0.id == droppedCategoryId }),
+          draggedCat.id != targetCategory.id
+        {
+          // Try to nest first
+          if targetCategory.depth < 2 {
+            viewModel.moveCategory(draggedCat, toParent: targetCategory, context: modelContext)
+            return true
+          }
+
+          // If cannot nest (depth limit), then just reorder
+          let targetList = targetCategory.isPinned ? pinnedCategories : unpinnedCategories
+          if let targetIndex = targetList.firstIndex(where: { $0.id == targetCategory.id }) {
+            moveCategory(draggedCat, toIndex: targetIndex, inPinnedList: targetCategory.isPinned)
+          }
+          return true
+        }
+        return false
+      },
+      onTargetedChange: { isTargeted, targetCategory in
+        withAnimation(.easeInOut(duration: 0.15)) {
+          dropTargetCategory = isTargeted ? targetCategory : nil
+        }
       }
     )
-    .draggable(category.id.uuidString) {
-      Text(category.name)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
-    }
     .overlay(
       RoundedRectangle(cornerRadius: 16)
         .stroke(Color.accentColor, lineWidth: dropTargetCategory?.id == category.id ? 2 : 0)
     )
-    .dropDestination(for: String.self) { items, _ in
-      guard let idString = items.first else { return false }
-
-      if let todoId = UUID(uuidString: idString),
-        let todo = allTodos.first(where: { $0.id == todoId })
-      {
-        todo.category = category
-        do {
-          try modelContext.save()
-        } catch {
-          ErrorPresenter.shared.present(error)
-          return false
-        }
-        return true
-      }
-
-      if let droppedCategoryId = UUID(uuidString: idString),
-        let draggedCat = categories.first(where: { $0.id == droppedCategoryId }),
-        draggedCat.id != category.id
-      {
-        let targetList = category.isPinned ? pinnedCategories : unpinnedCategories
-        if let targetIndex = targetList.firstIndex(where: { $0.id == category.id }) {
-          moveCategory(draggedCat, toIndex: targetIndex, inPinnedList: category.isPinned)
-        }
-        return true
-      }
-
-      return false
-    } isTargeted: { isTargeted in
-      withAnimation(.easeInOut(duration: 0.15)) {
-        dropTargetCategory = isTargeted ? category : nil
-      }
-    }
   }
 
   private func moveCategory(_ category: TodoCategory, toIndex newIndex: Int, inPinnedList: Bool) {

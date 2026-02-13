@@ -20,7 +20,7 @@ struct AddTodoSheet: View {
   @State private var hasDueDate: Bool = false
   @State private var dueDate: Date = Date()
   @State private var reminderEnabled: Bool = false
-  @State private var selectedCategory: TodoCategory?
+  @State private var selectedCategoryId: UUID?
   @State private var recurrenceType: RecurrenceType?
   @State private var recurrenceInterval: Int = 1
   @State private var recurrenceEndDate: Date?
@@ -51,7 +51,7 @@ struct AddTodoSheet: View {
       _hasDueDate = State(initialValue: todo.dueDate != nil)
       _dueDate = State(initialValue: todo.dueDate ?? Date())
       _reminderEnabled = State(initialValue: (todo.reminderInterval ?? 0) > 0)
-      _selectedCategory = State(initialValue: todo.category)
+      _selectedCategoryId = State(initialValue: todo.category?.id)
       _recurrenceType = State(initialValue: todo.recurrenceTypeEnum)
       _recurrenceInterval = State(initialValue: todo.recurrenceInterval)
       _recurrenceEndDate = State(initialValue: todo.recurrenceEndDate)
@@ -85,16 +85,21 @@ struct AddTodoSheet: View {
         }
 
         Section(Localization.string(.category)) {
-          Picker(Localization.string(.category), selection: $selectedCategory) {
-            Text(Localization.string(.noCategory)).tag(nil as TodoCategory?)
-            ForEach(categories.filter { $0.name != TodoViewModel.noCategoryName }) { cat in
+          Picker(Localization.string(.category), selection: $selectedCategoryId) {
+            Text(Localization.string(.noCategory)).tag(nil as UUID?)
+            ForEach(flattenedCategories(categories)) { cat in
               HStack {
+                if cat.depth > 0 {
+                  ForEach(0..<cat.depth, id: \.self) { _ in
+                    Text("  ")
+                  }
+                }
                 Circle()
                   .fill(Color.eventColor(named: cat.color))
                   .frame(width: 10, height: 10)
                 Text(cat.name)
               }
-              .tag(cat as TodoCategory?)
+              .tag(cat.id as UUID?)
             }
           }
         }
@@ -211,11 +216,32 @@ struct AddTodoSheet: View {
     }
   }
 
+  private func flattenedCategories(_ categories: [TodoCategory]) -> [TodoCategory] {
+    let roots = categories.filter { $0.parent == nil && $0.name != TodoViewModel.noCategoryName }
+      .sorted { $0.sortOrder < $1.sortOrder }
+    var result: [TodoCategory] = []
+    for root in roots {
+      result.append(contentsOf: getCategoryHierarchy(root))
+    }
+    return result
+  }
+
+  private func getCategoryHierarchy(_ category: TodoCategory) -> [TodoCategory] {
+    var result = [category]
+    if let subcats = category.subcategories {
+      for subcat in subcats.sorted(by: { $0.sortOrder < $1.sortOrder }) {
+        result.append(contentsOf: getCategoryHierarchy(subcat))
+      }
+    }
+    return result
+  }
+
   private func saveTodo() {
     let repeatInterval =
       hasDueDate && reminderEnabled && repeatReminderInterval > 0 ? repeatReminderInterval : nil
     let repeatCount =
       hasDueDate && reminderEnabled && repeatReminderInterval > 0 ? repeatReminderCount : nil
+    let selectedCategory = categories.first(where: { $0.id == selectedCategoryId })
     onSave(
       title,
       notes.isEmpty ? nil : notes,

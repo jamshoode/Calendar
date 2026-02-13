@@ -74,6 +74,37 @@ extension Color {
   // MARK: - Surfaces
   static let surfaceCard = platformColor(ios: .secondarySystemGroupedBackground, mac: .controlBackgroundColor)
   static let surfaceElevated = platformColor(ios: .tertiarySystemBackground, mac: .textBackgroundColor)
+  
+  // Design V3 Glass Surfaces
+  static let glassPrimary = Color.white.opacity(0.1)
+  static let glassSecondary = Color.white.opacity(0.05)
+  static let glassTertiary = Color.black.opacity(0.05)
+  
+  // MARK: - Design V3 Effects
+  static let haloHighlight = Color.white.opacity(0.5)
+  static let haloShadow = Color.black.opacity(0.2)
+
+  // MARK: - Mesh Gradient Palettes
+  static let atmosphereBlue = [
+    Color(red: 0.1, green: 0.2, blue: 0.8),
+    Color(red: 0.3, green: 0.5, blue: 0.9),
+    Color(red: 0.05, green: 0.1, blue: 0.4),
+    Color(red: 0.4, green: 0.7, blue: 1.0)
+  ]
+  
+  static let atmosphereSunset = [
+    Color(red: 0.8, green: 0.2, blue: 0.2),
+    Color(red: 0.9, green: 0.5, blue: 0.1),
+    Color(red: 0.4, green: 0.1, blue: 0.3),
+    Color(red: 1.0, green: 0.8, blue: 0.2)
+  ]
+  
+  static let atmosphereNight = [
+    Color(red: 0.05, green: 0.05, blue: 0.2),
+    Color(red: 0.1, green: 0.1, blue: 0.3),
+    Color(red: 0.0, green: 0.0, blue: 0.1),
+    Color(red: 0.2, green: 0.2, blue: 0.5)
+  ]
 
   // MARK: - Text
   static let textPrimary = platformColor(ios: .label, mac: .labelColor)
