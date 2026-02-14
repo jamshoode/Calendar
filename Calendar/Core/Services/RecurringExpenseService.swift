@@ -161,7 +161,9 @@ class RecurringExpenseService {
       upcoming.append((template, nextDate))
     }
     
-    return upcoming.sorted { $0.date < $1.date }
+    return upcoming.sorted { (item1: (RecurringExpenseTemplate, Date), item2: (RecurringExpenseTemplate, Date)) -> Bool in
+      item1.1 < item2.1
+    }
   }
   
   /// Schedule a notification for expenses on a specific date
