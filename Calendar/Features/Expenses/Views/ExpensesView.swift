@@ -49,8 +49,8 @@ struct ExpensesView: View {
     if selectedPeriod == .all {
       // For "All" filter, sort by date descending and limit to prevent crashes
       result = expenses.sorted { $0.date > $1.date }
-      if result.count > 250 {
-        result = Array(result.prefix(250))
+      if result.count > 100 {
+        result = Array(result.prefix(100))
       }
     } else {
       let bounds = periodBounds(for: selectedPeriod)
