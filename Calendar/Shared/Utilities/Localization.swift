@@ -259,6 +259,7 @@ public struct Localization {
     case expenseHistory
     case expenseBudget
     case expenseInsights
+    case expensePeriodAll
     case expensePeriodWeekly
     case expensePeriodMonthly
     case expensePeriodYearly
@@ -799,6 +800,8 @@ public struct Localization {
       return lang == .ukrainian ? "Бюджет" : "Budget"
     case .expenseInsights:
       return lang == .ukrainian ? "Аналітика" : "Insights"
+    case .expensePeriodAll:
+      return lang == .ukrainian ? "Все" : "All"
     case .expensePeriodWeekly:
       return lang == .ukrainian ? "Тиждень" : "Weekly"
     case .expensePeriodMonthly:

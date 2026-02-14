@@ -32,9 +32,10 @@ struct ExpensesView: View {
   }
 
   enum ExpensePeriod: String, CaseIterable {
-    case weekly, monthly, yearly
+    case all, weekly, monthly, yearly
     var displayName: String {
       switch self {
+      case .all: return Localization.string(.expensePeriodAll)
       case .weekly: return Localization.string(.expensePeriodWeekly)
       case .monthly: return Localization.string(.expensePeriodMonthly)
       case .yearly: return Localization.string(.expensePeriodYearly)
@@ -43,6 +44,9 @@ struct ExpensesView: View {
   }
 
   private var filteredExpenses: [Expense] {
+    if selectedPeriod == .all {
+      return expenses
+    }
     let bounds = periodBounds(for: selectedPeriod)
     return expenses.filter { $0.date >= bounds.start && $0.date <= bounds.end }
   }
@@ -50,8 +54,18 @@ struct ExpensesView: View {
   private func periodBounds(for period: ExpensePeriod) -> (start: Date, end: Date) {
     let calendar = Calendar.current
     let today = Date()
+    
+    if period == .all {
+      // Return a very wide date range for "All" filter
+      let distantPast = calendar.date(byAdding: .year, value: -10, to: today)!
+      let distantFuture = calendar.date(byAdding: .year, value: 10, to: today)!
+      return (distantPast, distantFuture)
+    }
+    
     let interval: DateInterval
     switch period {
+    case .all:
+      interval = DateInterval(start: today, end: today)
     case .weekly:
       interval =
         calendar.dateInterval(of: .weekOfYear, for: today) ?? DateInterval(start: today, end: today)
