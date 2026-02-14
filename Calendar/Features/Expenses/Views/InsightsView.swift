@@ -129,8 +129,6 @@ struct InsightsView: View {
   }
   
   private func calculateTrends() -> [Trend] {
-    let calendar = Calendar.current
-    
     // Group current month by category
     let currentGrouped = Dictionary(grouping: currentMonthExpenses) { $0.primaryCategory }
     let lastGrouped = Dictionary(grouping: lastMonthExpenses) { $0.primaryCategory }

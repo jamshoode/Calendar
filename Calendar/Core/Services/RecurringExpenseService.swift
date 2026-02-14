@@ -16,9 +16,7 @@ class RecurringExpenseService {
   /// Generate recurring expenses from templates
   /// Call this on app launch and when viewing Budget tab
   func generateRecurringExpenses(context: ModelContext) {
-    let descriptor = FetchDescriptor<RecurringExpenseTemplate>(
-      predicate: #Predicate { $0.isActive == true }
-    )
+    let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
     
     do {
       let templates = try context.fetch(descriptor)
@@ -66,16 +64,16 @@ class RecurringExpenseService {
     let startOfDay = calendar.startOfDay(for: date)
     let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
     
-    let descriptor = FetchDescriptor<Expense>(
-      predicate: #Predicate { expense in
+    // Fetch all expenses and filter in memory (workaround for predicate limitations)
+    let descriptor = FetchDescriptor<Expense>()
+    
+    do {
+      let allExpenses = try context.fetch(descriptor)
+      let existing = allExpenses.filter { expense in
         expense.templateId == template.id &&
         expense.date >= startOfDay &&
         expense.date < endOfDay
       }
-    )
-    
-    do {
-      let existing = try context.fetch(descriptor)
       return !existing.isEmpty
     } catch {
       return false
@@ -123,12 +121,11 @@ class RecurringExpenseService {
     UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     
     // Get upcoming expenses (next 7 days)
-    let descriptor = FetchDescriptor<RecurringExpenseTemplate>(
-      predicate: #Predicate { $0.isActive == true && $0.isPaused == false }
-    )
+    let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
     
     do {
-      let templates = try context.fetch(descriptor)
+      let allTemplates = try context.fetch(descriptor)
+      let templates = allTemplates.filter { $0.isActive && !$0.isPaused }
       let upcomingExpenses = getUpcomingExpenses(from: templates, within: 7)
       
       guard !upcomingExpenses.isEmpty else { return }
@@ -222,12 +219,11 @@ class RecurringExpenseService {
   
   /// Check for missed recurring payments (3+ days overdue)
   func checkMissedPayments(context: ModelContext) -> [RecurringExpenseTemplate] {
-    let descriptor = FetchDescriptor<RecurringExpenseTemplate>(
-      predicate: #Predicate { $0.isActive == true && $0.isPaused == false }
-    )
+    let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
     
     do {
-      let templates = try context.fetch(descriptor)
+      let allTemplates = try context.fetch(descriptor)
+      let templates = allTemplates.filter { $0.isActive && !$0.isPaused }
       let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
       
       return templates.filter { template in

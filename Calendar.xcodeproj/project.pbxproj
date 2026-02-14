@@ -93,6 +93,16 @@
 		F5A1B01B2F4E000E007F8DEB /* CalendarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */; };
 		F5A1B01D2F4E000F007F8DEB /* CalendarTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */; };
 		F5A1B01F2F4E0010007F8DEB /* WeekStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */; };
+		F5A362D22F40875300030163 /* CSVImportSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362D02F40875300030163 /* CSVImportSession.swift */; };
+		F5A362D32F40875300030163 /* RecurringExpenseTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362D12F40875300030163 /* RecurringExpenseTemplate.swift */; };
+		F5A362D72F40876200030163 /* CSVImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362D42F40876200030163 /* CSVImportService.swift */; };
+		F5A362D82F40876200030163 /* PatternDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362D52F40876200030163 /* PatternDetectionService.swift */; };
+		F5A362D92F40876200030163 /* RecurringExpenseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362D62F40876200030163 /* RecurringExpenseService.swift */; };
+		F5A362DB2F40877700030163 /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362DA2F40877700030163 /* CSVParser.swift */; };
+		F5A362DF2F40878700030163 /* BudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362DC2F40878700030163 /* BudgetView.swift */; };
+		F5A362E02F40878700030163 /* CSVImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362DD2F40878700030163 /* CSVImportView.swift */; };
+		F5A362E12F40878700030163 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362DE2F40878700030163 /* InsightsView.swift */; };
+		F5A362E32F40879300030163 /* TemplateSuggestionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362E22F40879300030163 /* TemplateSuggestionCard.swift */; };
 		F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC972F34C45D0025B2E6 /* DebugView.swift */; };
 		F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */; };
 /* End PBXBuildFile section */
@@ -228,6 +238,16 @@
 		F5A1B01A2F4E000E007F8DEB /* CalendarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarListView.swift; sourceTree = "<group>"; };
 		F5A1B01C2F4E000F007F8DEB /* CalendarTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTimelineView.swift; sourceTree = "<group>"; };
 		F5A1B01E2F4E0010007F8DEB /* WeekStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekStrip.swift; sourceTree = "<group>"; };
+		F5A362D02F40875300030163 /* CSVImportSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportSession.swift; sourceTree = "<group>"; };
+		F5A362D12F40875300030163 /* RecurringExpenseTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringExpenseTemplate.swift; sourceTree = "<group>"; };
+		F5A362D42F40876200030163 /* CSVImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportService.swift; sourceTree = "<group>"; };
+		F5A362D52F40876200030163 /* PatternDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternDetectionService.swift; sourceTree = "<group>"; };
+		F5A362D62F40876200030163 /* RecurringExpenseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringExpenseService.swift; sourceTree = "<group>"; };
+		F5A362DA2F40877700030163 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
+		F5A362DC2F40878700030163 /* BudgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetView.swift; sourceTree = "<group>"; };
+		F5A362DD2F40878700030163 /* CSVImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportView.swift; sourceTree = "<group>"; };
+		F5A362DE2F40878700030163 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		F5A362E22F40879300030163 /* TemplateSuggestionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSuggestionCard.swift; sourceTree = "<group>"; };
 		F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettings.swift; sourceTree = "<group>"; };
 		F5BCFC972F34C45D0025B2E6 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -367,6 +387,8 @@
 				F593C0E82F33C234007F8DEB /* Alarm.swift */,
 				F593C0E92F33C234007F8DEB /* Event.swift */,
 				F593C0EA2F33C234007F8DEB /* TimerPreset.swift */,
+				F5A362D02F40875300030163 /* CSVImportSession.swift */,
+				F5A362D12F40875300030163 /* RecurringExpenseTemplate.swift */,
 				F593C0EB2F33C234007F8DEB /* TimerSession.swift */,
 				F554EFE42F34F4AA008B6601 /* TodoCategory.swift */,
 				F554EFE52F34F4AA008B6601 /* TodoItem.swift */,
@@ -383,6 +405,9 @@
 				F593C0ED2F33C234007F8DEB /* AudioService.swift */,
 				F5A1B0002F4E0001007F8DEB /* HolidayService.swift */,
 				F593C0EE2F33C234007F8DEB /* NotificationService.swift */,
+				F5A362D42F40876200030163 /* CSVImportService.swift */,
+				F5A362D52F40876200030163 /* PatternDetectionService.swift */,
+				F5A362D62F40876200030163 /* RecurringExpenseService.swift */,
 				F5968AAA2F3CED3000F50183 /* WeatherService.swift */,
 			);
 			path = Services;
@@ -552,6 +577,7 @@
 			children = (
 				F593C11A2F33C234007F8DEB /* Constants.swift */,
 				F593C11B2F33C234007F8DEB /* Formatters.swift */,
+				F5A362DA2F40877700030163 /* CSVParser.swift */,
 				F556A0532F33F0BD0071D8B8 /* Localization.swift */,
 				F5A1B0062F4E0004007F8DEB /* Typography.swift */,
 				F5A1B0082F4E0005007F8DEB /* Spacing.swift */,
@@ -627,6 +653,9 @@
 			isa = PBXGroup;
 			children = (
 				F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */,
+				F5A362DC2F40878700030163 /* BudgetView.swift */,
+				F5A362DD2F40878700030163 /* CSVImportView.swift */,
+				F5A362DE2F40878700030163 /* InsightsView.swift */,
 				F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */,
 			);
 			path = Views;
@@ -636,6 +665,7 @@
 			isa = PBXGroup;
 			children = (
 				F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */,
+				F5A362E22F40879300030163 /* TemplateSuggestionCard.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -846,6 +876,7 @@
 				F593C1222F33C234007F8DEB /* View+Glass.swift in Sources */,
 				F554F0062F34F9E6008B6601 /* SettingsSheet.swift in Sources */,
 				F593C1232F33C234007F8DEB /* CalendarApp.swift in Sources */,
+				F5A362E32F40879300030163 /* TemplateSuggestionCard.swift in Sources */,
 				F593C1242F33C234007F8DEB /* TimerView.swift in Sources */,
 				F593C1252F33C234007F8DEB /* NotificationService.swift in Sources */,
 				F50CBAD42F3F8F9D007685D6 /* DesignComponents.swift in Sources */,
@@ -871,7 +902,12 @@
 				F554EFF72F34F4DF008B6601 /* AddTodoSheet.swift in Sources */,
 				F554EFF82F34F4DF008B6601 /* SubtaskRow.swift in Sources */,
 				F554EFF92F34F4DF008B6601 /* PriorityBadge.swift in Sources */,
+				F5A362D22F40875300030163 /* CSVImportSession.swift in Sources */,
+				F5A362D32F40875300030163 /* RecurringExpenseTemplate.swift in Sources */,
 				F554EFFA2F34F4DF008B6601 /* TodoCheckbox.swift in Sources */,
+				F5A362D72F40876200030163 /* CSVImportService.swift in Sources */,
+				F5A362D82F40876200030163 /* PatternDetectionService.swift in Sources */,
+				F5A362D92F40876200030163 /* RecurringExpenseService.swift in Sources */,
 				F554EFFB2F34F4DF008B6601 /* TodoView.swift in Sources */,
 				F554EFFC2F34F4DF008B6601 /* TodoRow.swift in Sources */,
 				F554EFFD2F34F4DF008B6601 /* CategoryCard.swift in Sources */,
@@ -897,6 +933,7 @@
 				F593C13C2F33C234007F8DEB /* TimerDisplay.swift in Sources */,
 				F593C13D2F33C234007F8DEB /* AdaptiveTabBar.swift in Sources */,
 				F593C13F2F33C234007F8DEB /* AudioService.swift in Sources */,
+				F5A362DB2F40877700030163 /* CSVParser.swift in Sources */,
 				F5A1B0012F4E0001007F8DEB /* HolidayService.swift in Sources */,
 				F5A1B0032F4E0002007F8DEB /* HolidayCountryPicker.swift in Sources */,
 				F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */,
@@ -907,6 +944,9 @@
 				F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */,
 				F593C1422F33C234007F8DEB /* Constants.swift in Sources */,
 				F593C1432F33C234007F8DEB /* GlassButton.swift in Sources */,
+				F5A362DF2F40878700030163 /* BudgetView.swift in Sources */,
+				F5A362E02F40878700030163 /* CSVImportView.swift in Sources */,
+				F5A362E12F40878700030163 /* InsightsView.swift in Sources */,
 				F593C1CC2F33C57E007F8DEB /* AppState.swift in Sources */,
 				F593C1442F33C234007F8DEB /* Alarm.swift in Sources */,
 				F593C1452F33C234007F8DEB /* EventViewModel.swift in Sources */,

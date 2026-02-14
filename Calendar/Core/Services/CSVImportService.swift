@@ -17,58 +17,46 @@ class CSVImportService {
     // Create import session
     let session = CSVImportSession(fileName: fileName)
     
-    do {
-      // Parse CSV
-      guard let csvString = String(data: csvData, encoding: .utf8) else {
-        return CSVImportResult(
-          session: session,
-          transactions: [],
-          duplicates: [],
-          suggestions: [],
-          success: false,
-          error: ImportError.invalidEncoding
-        )
-      }
-      
-      let allTransactions = CSVParser.parse(csvString: csvString)
-      session.transactionCount = allTransactions.count
-      
-      // Filter out duplicates
-      let (uniqueTransactions, duplicates) = filterDuplicates(
-        transactions: allTransactions,
-        existingExpenses: existingExpenses
-      )
-      session.duplicateCount = duplicates.count
-      
-      // Detect patterns
-      let suggestions = patternDetection.detectPatterns(from: uniqueTransactions)
-      session.templatesSuggested = suggestions.count
-      
-      // Save session
-      context.insert(session)
-      
-      // Cleanup old sessions
-      cleanupOldSessions(context: context)
-      
-      return CSVImportResult(
-        session: session,
-        transactions: uniqueTransactions,
-        duplicates: duplicates,
-        suggestions: suggestions,
-        success: true,
-        error: nil
-      )
-      
-    } catch {
+    // Parse CSV
+    guard let csvString = String(data: csvData, encoding: .utf8) else {
       return CSVImportResult(
         session: session,
         transactions: [],
         duplicates: [],
         suggestions: [],
         success: false,
-        error: error
+        error: ImportError.invalidEncoding
       )
     }
+    
+    let allTransactions = CSVParser.parse(csvString: csvString)
+    session.transactionCount = allTransactions.count
+    
+    // Filter out duplicates
+    let (uniqueTransactions, duplicates) = filterDuplicates(
+      transactions: allTransactions,
+      existingExpenses: existingExpenses
+    )
+    session.duplicateCount = duplicates.count
+    
+    // Detect patterns
+    let suggestions = patternDetection.detectPatterns(from: uniqueTransactions)
+    session.templatesSuggested = suggestions.count
+    
+    // Save session
+    context.insert(session)
+    
+    // Cleanup old sessions
+    cleanupOldSessions(context: context)
+    
+    return CSVImportResult(
+      session: session,
+      transactions: uniqueTransactions,
+      duplicates: duplicates,
+      suggestions: suggestions,
+      success: true,
+      error: nil
+    )
   }
   
   /// Filter out transactions that are duplicates of existing expenses
@@ -146,12 +134,11 @@ class CSVImportService {
   
   /// Cleanup old import sessions (keep only last 2, delete after 30 days)
   private func cleanupOldSessions(context: ModelContext) {
-    let descriptor = FetchDescriptor<CSVImportSession>(
-      predicate: #Predicate { $0.isDeleted == false }
-    )
+    let descriptor = FetchDescriptor<CSVImportSession>()
     
     do {
-      let sessions = try context.fetch(descriptor)
+      let allSessions = try context.fetch(descriptor)
+      let sessions = allSessions.filter { !$0.isDeleted }
       
       // Sort by date (oldest first)
       let sortedSessions = sessions.sorted { $0.importDate < $1.importDate }
@@ -166,7 +153,7 @@ class CSVImportService {
       
       // Hard delete anything older than 30 days
       let cutoffDate = Date().addingTimeInterval(-30 * 24 * 60 * 60)
-      for session in sessions {
+      for session in allSessions {
         if session.importDate < cutoffDate {
           context.delete(session)
         }
@@ -182,12 +169,12 @@ class CSVImportService {
   /// Get import history
   func getImportHistory(context: ModelContext) -> [CSVImportSession] {
     let descriptor = FetchDescriptor<CSVImportSession>(
-      predicate: #Predicate { $0.isDeleted == false },
       sortBy: [SortDescriptor(\.importDate, order: .reverse)]
     )
     
     do {
-      return try context.fetch(descriptor)
+      let allSessions = try context.fetch(descriptor)
+      return allSessions.filter { !$0.isDeleted }
     } catch {
       return []
     }
