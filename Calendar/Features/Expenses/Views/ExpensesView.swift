@@ -385,8 +385,17 @@ struct HistoryView: View {
   private func periodBounds() -> (start: Date, end: Date) {
     let calendar = Calendar.current
     let today = Date()
+    
+    if period == .all {
+      let distantPast = calendar.date(byAdding: .year, value: -10, to: today)!
+      let distantFuture = calendar.date(byAdding: .year, value: 10, to: today)!
+      return (distantPast, distantFuture)
+    }
+    
     let interval: DateInterval
     switch period {
+    case .all:
+      interval = DateInterval(start: today, end: today)
     case .weekly:
       interval =
         calendar.dateInterval(of: .weekOfYear, for: today) ?? DateInterval(start: today, end: today)
