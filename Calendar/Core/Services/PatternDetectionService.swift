@@ -32,7 +32,7 @@ class PatternDetectionService {
       // Group by similar amounts (within tolerance)
       let amountGroups = groupByAmount(expenses)
       
-      for (_, amountGroup) in amountGroups {
+      for amountGroup in amountGroups {
         guard amountGroup.count >= minOccurrences else { continue }
         
         // Sort by date
