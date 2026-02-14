@@ -11,8 +11,10 @@ struct ExpensesView: View {
   @State private var showingAddExpense = false
   @State private var editingExpense: Expense? = nil
   @State private var showingCSVImport = false
-  
-  private let viewModel = ExpenseViewModel()
+  @State private var showingClearConfirmation = false
+  @State private var showingAddTemplate = false
+   
+   private let viewModel = ExpenseViewModel()
   
   enum ExpenseSegment: String, CaseIterable {
     case history = "History"
@@ -60,12 +62,30 @@ struct ExpensesView: View {
           
           Spacer()
           
-          Button {
-            showingCSVImport = true
-          } label: {
-            Image(systemName: "arrow.down.doc")
-              .font(.system(size: 16, weight: .semibold))
-              .foregroundColor(.accentColor)
+          HStack(spacing: 16) {
+            Button {
+              showingAddTemplate = true
+            } label: {
+              Image(systemName: "plus.circle")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.accentColor)
+            }
+            
+            Button {
+              showingCSVImport = true
+            } label: {
+              Image(systemName: "arrow.down.doc")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.accentColor)
+            }
+            
+            Button {
+              showingClearConfirmation = true
+            } label: {
+              Image(systemName: "trash")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.red)
+            }
           }
         }
         
@@ -189,6 +209,42 @@ struct ExpensesView: View {
     .sheet(isPresented: $showingCSVImport) {
       CSVImportView()
     }
+    .sheet(isPresented: $showingAddTemplate) {
+      AddTemplateSheet()
+    }
+    .confirmationDialog(
+      "Clear All Data?",
+      isPresented: $showingClearConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button("Clear All Expenses", role: .destructive) {
+        clearAllExpenses()
+      }
+      Button("Clear All Templates", role: .destructive) {
+        clearAllTemplates()
+      }
+      Button("Clear Everything", role: .destructive) {
+        clearAllExpenses()
+        clearAllTemplates()
+      }
+      Button("Cancel", role: .cancel) {}
+    } message: {
+      Text("This action cannot be undone. All your data will be permanently deleted.")
+    }
+  }
+  
+  private func clearAllExpenses() {
+    for expense in expenses {
+      modelContext.delete(expense)
+    }
+    try? modelContext.save()
+  }
+  
+  private func clearAllTemplates() {
+    for template in templates {
+      modelContext.delete(template)
+    }
+    try? modelContext.save()
   }
 }
 

@@ -7,8 +7,8 @@ class PatternDetectionService {
   /// Minimum number of occurrences to suggest a template
   private let minOccurrences = 3
   
-  /// Time window for detection (6 months in seconds)
-  private let detectionWindow: TimeInterval = 6 * 30 * 24 * 60 * 60
+  /// Time window for detection (3 months in seconds)
+  private let detectionWindow: TimeInterval = 3 * 30 * 24 * 60 * 60
   
   /// Amount variance tolerance (5%)
   private let amountTolerance = 0.05
