@@ -49,14 +49,23 @@ struct ExpensesView: View {
     if selectedPeriod == .all {
       // For "All" filter, sort by date descending and limit to prevent crashes
       result = expenses.sorted { $0.date > $1.date }
-      if result.count > 500 {
-        result = Array(result.prefix(500))
+      if result.count > 250 {
+        result = Array(result.prefix(250))
       }
     } else {
       let bounds = periodBounds(for: selectedPeriod)
       result = expenses.filter { $0.date >= bounds.start && $0.date <= bounds.end }
     }
     return result
+  }
+  
+  // Calculate totals using ALL expenses (not just filtered)
+  private var totalExpensesForPeriod: [Expense] {
+    if selectedPeriod == .all {
+      return expenses
+    }
+    let bounds = periodBounds(for: selectedPeriod)
+    return expenses.filter { $0.date >= bounds.start && $0.date <= bounds.end }
   }
 
   private func periodBounds(for period: ExpensePeriod) -> (start: Date, end: Date) {
@@ -189,6 +198,7 @@ struct ExpensesView: View {
         case .history:
           HistoryView(
             expenses: filteredExpenses,
+            allExpensesForTotals: totalExpensesForPeriod,
             period: selectedPeriod,
             viewModel: viewModel,
             onEdit: { expense in
@@ -299,6 +309,7 @@ struct ExpensesView: View {
 
 struct HistoryView: View {
   let expenses: [Expense]
+  let allExpensesForTotals: [Expense]
   let period: ExpensesView.ExpensePeriod
   let viewModel: ExpenseViewModel
   let onEdit: (Expense) -> Void
@@ -306,10 +317,10 @@ struct HistoryView: View {
   var body: some View {
     ScrollView {
       VStack(spacing: 24) {
-        // Total Amount
+        // Total Amount - calculated from ALL expenses for accuracy
         let bounds = periodBounds()
         let multiCurrencyTotals = viewModel.multiCurrencyTotalsForPeriod(
-          expenses: expenses, start: bounds.start, end: bounds.end)
+          expenses: allExpensesForTotals, start: bounds.start, end: bounds.end)
 
         VStack(spacing: 16) {
           VStack(spacing: 4) {
