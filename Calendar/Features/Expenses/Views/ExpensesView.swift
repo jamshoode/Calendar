@@ -44,11 +44,19 @@ struct ExpensesView: View {
   }
 
   private var filteredExpenses: [Expense] {
+    var result: [Expense]
+    
     if selectedPeriod == .all {
-      return expenses
+      // For "All" filter, sort by date descending and limit to prevent crashes
+      result = expenses.sorted { $0.date > $1.date }
+      if result.count > 500 {
+        result = Array(result.prefix(500))
+      }
+    } else {
+      let bounds = periodBounds(for: selectedPeriod)
+      result = expenses.filter { $0.date >= bounds.start && $0.date <= bounds.end }
     }
-    let bounds = periodBounds(for: selectedPeriod)
-    return expenses.filter { $0.date >= bounds.start && $0.date <= bounds.end }
+    return result
   }
 
   private func periodBounds(for period: ExpensePeriod) -> (start: Date, end: Date) {
