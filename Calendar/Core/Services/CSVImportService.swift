@@ -11,6 +11,7 @@ class CSVImportService {
     csvData: Data,
     fileName: String,
     existingExpenses: [Expense],
+    existingTemplates: [RecurringExpenseTemplate],
     context: ModelContext
   ) -> CSVImportResult {
     
@@ -40,7 +41,11 @@ class CSVImportService {
     session.duplicateCount = duplicates.count
     
     // Detect patterns
-    let suggestions = patternDetection.detectPatterns(from: uniqueTransactions)
+    var suggestions = patternDetection.detectPatterns(from: uniqueTransactions)
+    
+    // Filter out suggestions that already have templates
+    suggestions = filterExistingTemplates(suggestions: suggestions, existingTemplates: existingTemplates)
+    
     session.templatesSuggested = suggestions.count
     
     // Save session
@@ -76,6 +81,37 @@ class CSVImportService {
     }
     
     return (unique, duplicates)
+  }
+  
+  /// Filter out suggestions that already have templates
+  private func filterExistingTemplates(
+    suggestions: [TemplateSuggestion],
+    existingTemplates: [RecurringExpenseTemplate]
+  ) -> [TemplateSuggestion] {
+    return suggestions.filter { suggestion in
+      // Check if a template already exists for this merchant with similar amount
+      let normalizedSuggestion = patternDetection.normalizeMerchant(suggestion.merchant)
+      
+      for template in existingTemplates {
+        let normalizedTemplate = patternDetection.normalizeMerchant(template.merchant)
+        
+        // Check merchant match
+        guard normalizedSuggestion == normalizedTemplate else { continue }
+        
+        // Check amount similarity (within 20% tolerance)
+        let tolerance = suggestion.suggestedAmount * 0.20
+        guard abs(suggestion.suggestedAmount - template.amount) <= tolerance else { continue }
+        
+        // Check frequency match
+        guard suggestion.frequency == template.frequency else { continue }
+        
+        // This suggestion already has a template, filter it out
+        return false
+      }
+      
+      // No existing template found, keep this suggestion
+      return true
+    }
   }
   
   /// Create templates from suggestions

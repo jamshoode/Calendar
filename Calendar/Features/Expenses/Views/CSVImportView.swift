@@ -7,6 +7,7 @@ struct CSVImportView: View {
   @Environment(\.modelContext) private var modelContext
   
   @Query(sort: \Expense.date) private var existingExpenses: [Expense]
+  @Query(sort: \RecurringExpenseTemplate.createdAt) private var existingTemplates: [RecurringExpenseTemplate]
   
   @State private var showingFilePicker = false
   @State private var importResult: CSVImportResult?
@@ -226,6 +227,7 @@ struct CSVImportView: View {
             csvData: data,
             fileName: fileName,
             existingExpenses: self.existingExpenses,
+            existingTemplates: self.existingTemplates,
             context: self.modelContext
           )
           
