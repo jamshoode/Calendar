@@ -15,11 +15,11 @@ struct CalendarApp: App {
                 .environmentObject(appState)
                 .environmentObject(debugSettings)
                 .preferredColorScheme(debugSettings.themeOverride.colorScheme)
-                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self])
+                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self])
             #else
             ContentView()
                 .environmentObject(appState)
-                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self])
+                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self])
             #endif
         }
     }
