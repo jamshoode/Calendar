@@ -77,20 +77,46 @@ struct ExpensesView: View {
 
       ScrollView {
         VStack(spacing: 24) {
-          // Hero Total Amount
+          // Hero Total Amount with Multi-Currency Display
           let bounds = periodBounds(for: selectedPeriod)
-          let totalAmount = viewModel.totalForPeriod(expenses: filteredExpenses, start: bounds.start, end: bounds.end)
-          let totalCurrencySymbol = filteredExpenses.first?.currencyEnum.symbol ?? "$"
+          let multiCurrencyTotals = viewModel.multiCurrencyTotalsForPeriod(expenses: filteredExpenses, start: bounds.start, end: bounds.end)
 
-          VStack(spacing: 8) {
-            Text(Localization.string(.total).uppercased())
-              .font(.system(size: 10, weight: .black))
-              .foregroundColor(.textTertiary)
-              .tracking(2)
+          VStack(spacing: 16) {
+            // Main UAH Total
+            VStack(spacing: 4) {
+              Text(Localization.string(.total).uppercased())
+                .font(.system(size: 10, weight: .black))
+                .foregroundColor(.textTertiary)
+                .tracking(2)
+              
+              Text("₴\(String(format: "%.2f", multiCurrencyTotals.uah))")
+                .font(.system(size: 48, weight: .black, design: .rounded))
+                .foregroundColor(.textPrimary)
+            }
             
-            Text("\(totalCurrencySymbol)\(String(format: "%.2f", totalAmount))")
-              .font(.system(size: 48, weight: .black, design: .rounded))
-              .foregroundColor(.textPrimary)
+            // Secondary USD and EUR totals
+            HStack(spacing: 24) {
+              VStack(spacing: 2) {
+                Text("$")
+                  .font(.system(size: 12, weight: .bold))
+                  .foregroundColor(.textTertiary)
+                Text(String(format: "%.2f", multiCurrencyTotals.usd))
+                  .font(.system(size: 16, weight: .semibold, design: .rounded))
+                  .foregroundColor(.textSecondary)
+              }
+              
+              Divider()
+                .frame(height: 24)
+              
+              VStack(spacing: 2) {
+                Text("€")
+                  .font(.system(size: 12, weight: .bold))
+                  .foregroundColor(.textTertiary)
+                Text(String(format: "%.2f", multiCurrencyTotals.eur))
+                  .font(.system(size: 16, weight: .semibold, design: .rounded))
+                  .foregroundColor(.textSecondary)
+              }
+            }
           }
           .frame(maxWidth: .infinity)
           .padding(.vertical, 30)

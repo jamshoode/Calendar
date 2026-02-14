@@ -64,6 +64,26 @@ class ExpenseViewModel {
       .reduce(0) { $0 + $1.amount }
   }
 
+  /// Calculate total amount in UAH for a period (converts all currencies to UAH)
+  func totalInUAHForPeriod(expenses: [Expense], start: Date, end: Date) -> Double {
+    let filtered = expenses.filter { $0.date >= start && $0.date <= end }
+    return filtered.reduce(0) { total, expense in
+      total + expense.currencyEnum.convertToUAH(expense.amount)
+    }
+  }
+
+  /// Get multi-currency totals for a period
+  /// Returns: (uah: Double, usd: Double, eur: Double)
+  /// - uah: Total in UAH (converted from all currencies)
+  /// - usd: Total in USD (converted from UAH total)
+  /// - eur: Total in EUR (converted from UAH total)
+  func multiCurrencyTotalsForPeriod(expenses: [Expense], start: Date, end: Date) -> (uah: Double, usd: Double, eur: Double) {
+    let totalUAH = totalInUAHForPeriod(expenses: expenses, start: start, end: end)
+    let usd = Currency.usd.convertFromUAH(totalUAH)
+    let eur = Currency.eur.convertFromUAH(totalUAH)
+    return (uah: totalUAH, usd: usd, eur: eur)
+  }
+
   func totalByCategory(expenses: [Expense]) -> [(category: ExpenseCategory, total: Double)] {
     var map: [ExpenseCategory: Double] = [:]
     for expense in expenses {
