@@ -37,7 +37,7 @@ struct AddExpenseSheet: View {
       _title = State(initialValue: expense.title)
       _amountText = State(initialValue: String(format: "%.2f", expense.amount))
       _date = State(initialValue: expense.date)
-      _category = State(initialValue: expense.categoryEnum)
+      _category = State(initialValue: expense.primaryCategory)
       _paymentMethod = State(initialValue: expense.paymentMethodEnum)
       _currency = State(initialValue: expense.currencyEnum)
       _merchant = State(initialValue: expense.merchant ?? "")
