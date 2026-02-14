@@ -121,7 +121,7 @@ struct CSVImportView: View {
             .font(.caption)
             .foregroundColor(.secondary)
           
-          LazyVStack(spacing: 12) {
+          VStack(spacing: 12) {
             ForEach(result.suggestions) { suggestion in
               TemplateSuggestionCard(
                 suggestion: suggestion,
