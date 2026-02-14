@@ -10,5 +10,17 @@
 		<string>audio</string>
 		<string>remote-notification</string>
 	</array>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string>Calendar needs access to files to import bank statements.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Calendar needs access to documents to import CSV files.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Calendar needs access to downloads to import CSV files.</string>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 </dict>
 </plist>
