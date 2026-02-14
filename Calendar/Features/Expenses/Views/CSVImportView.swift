@@ -107,9 +107,15 @@ struct CSVImportView: View {
         }
         
         if !result.suggestions.isEmpty {
-          Text("Recurring Expense Patterns Detected")
-            .font(.headline)
-            .padding(.top)
+          HStack {
+            Text("Recurring Expense Patterns Detected")
+              .font(.headline)
+            
+            Text("(\(result.suggestions.count) found)")
+              .font(.caption)
+              .foregroundColor(.secondary)
+          }
+          .padding(.top)
           
           Text("Select patterns to create templates for automatic tracking")
             .font(.caption)
