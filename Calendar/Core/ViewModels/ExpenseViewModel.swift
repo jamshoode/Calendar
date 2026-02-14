@@ -18,7 +18,7 @@ class ExpenseViewModel {
       title: title,
       amount: amount,
       date: date,
-      category: category,
+      categories: [category],
       paymentMethod: paymentMethod,
       currency: currency,
       merchant: merchant,
@@ -43,9 +43,9 @@ class ExpenseViewModel {
     expense.title = title
     expense.amount = amount
     expense.date = date
-    expense.categoryEnum = category
-    expense.paymentMethodEnum = paymentMethod
-    expense.currencyEnum = currency
+    expense.categories = [category.rawValue]
+    expense.paymentMethod = paymentMethod.rawValue
+    expense.currency = currency.rawValue
     expense.merchant = merchant
     expense.notes = notes
     try context.save()
@@ -87,7 +87,7 @@ class ExpenseViewModel {
   func totalByCategory(expenses: [Expense]) -> [(category: ExpenseCategory, total: Double)] {
     var map: [ExpenseCategory: Double] = [:]
     for expense in expenses {
-      map[expense.categoryEnum, default: 0] += expense.amount
+      map[expense.primaryCategory, default: 0] += expense.amount
     }
     return map.sorted { $0.value > $1.value }.map { (category: $0.key, total: $0.value) }
   }
