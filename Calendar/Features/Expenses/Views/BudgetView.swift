@@ -7,6 +7,7 @@ struct BudgetView: View {
   let viewModel: ExpenseViewModel
   
   @Environment(\.modelContext) private var modelContext
+  @State private var editingTemplate: RecurringExpenseTemplate?
   
   private var activeTemplates: [RecurringExpenseTemplate] {
     templates.filter { $0.isActive && !$0.isCurrentlyPaused }
@@ -54,14 +55,14 @@ struct BudgetView: View {
         // Summary Cards
         HStack(spacing: 12) {
           BudgetSummaryCard(
-            title: "Monthly",
+            title: Localization.string(.expensePeriodMonthly),
             amount: monthlyTotal,
             icon: "calendar",
             color: .blue
           )
           
           BudgetSummaryCard(
-            title: "Weekly",
+            title: Localization.string(.expensePeriodWeekly),
             amount: weeklyTotal,
             icon: "arrow.2.circlepath",
             color: .green
@@ -69,7 +70,7 @@ struct BudgetView: View {
         }
         
         BudgetSummaryCard(
-          title: "Yearly Projection",
+          title: Localization.string(.yearlyProjection),
           amount: yearlyTotal,
           icon: "chart.line.uptrend.xyaxis",
           color: .purple
@@ -79,7 +80,7 @@ struct BudgetView: View {
         if !activeTemplates.isEmpty {
           VStack(alignment: .leading, spacing: 12) {
             HStack {
-              Text("Active Recurring (\(activeTemplates.count))")
+              Text(Localization.string(.activeRecurringX(activeTemplates.count)))
                 .font(.headline)
               
               Spacer()
@@ -106,7 +107,7 @@ struct BudgetView: View {
         // Paused Templates
         if !pausedTemplates.isEmpty {
           VStack(alignment: .leading, spacing: 12) {
-            Text("Paused (\(pausedTemplates.count))")
+            Text(Localization.string(.pausedX(pausedTemplates.count)))
               .font(.headline)
               .foregroundColor(.secondary)
             
@@ -128,10 +129,10 @@ struct BudgetView: View {
               .font(.system(size: 48))
               .foregroundColor(.secondary)
             
-            Text("No Recurring Expenses")
+            Text(Localization.string(.expenseNoRecurringExpenses))
               .font(.headline)
             
-            Text("Import a bank statement to automatically detect recurring expenses")
+            Text(Localization.string(.uploadCSV))
               .font(.caption)
               .foregroundColor(.secondary)
               .multilineTextAlignment(.center)
@@ -142,8 +143,11 @@ struct BudgetView: View {
       .padding(.horizontal, 20)
       .padding(.bottom, 120)
     }
+    .sheet(item: $editingTemplate) { template in
+      EditTemplateSheet(template: template)
+    }
   }
-  
+
   private func pauseTemplate(_ template: RecurringExpenseTemplate) {
     template.isPaused = true
     template.pausedUntil = nil
@@ -157,8 +161,7 @@ struct BudgetView: View {
   }
   
   private func editTemplate(_ template: RecurringExpenseTemplate) {
-    // Show edit sheet - for now just print
-    print("Edit template: \(template.title)")
+    editingTemplate = template
   }
   
   private func deleteTemplate(_ template: RecurringExpenseTemplate) {
@@ -245,7 +248,7 @@ struct TemplateRow: View {
               .font(.caption)
               .foregroundColor(.secondary)
             
-            Text("Next: \(formatDate(nextDate))")
+            Text(Localization.string(.nextOccurrence(formatDate(nextDate))))
               .font(.caption)
               .foregroundColor(.accentColor)
           }
@@ -258,25 +261,25 @@ struct TemplateRow: View {
       Menu {
         if onPause != nil {
           Button(action: onPause!) {
-            Label("Pause", systemImage: "pause.circle")
+            Label(Localization.string(.pause), systemImage: "pause.circle")
           }
         }
         
         if onResume != nil {
           Button(action: onResume!) {
-            Label("Resume", systemImage: "play.circle")
+            Label(Localization.string(.resume), systemImage: "play.circle")
           }
         }
         
         if onEdit != nil {
           Button(action: onEdit!) {
-            Label("Edit", systemImage: "pencil")
+            Label(Localization.string(.edit), systemImage: "pencil")
           }
         }
         
         if onDelete != nil {
           Button(role: .destructive, action: onDelete!) {
-            Label("Delete", systemImage: "trash")
+            Label(Localization.string(.delete), systemImage: "trash")
           }
         }
       } label: {

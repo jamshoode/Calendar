@@ -1,9 +1,11 @@
 import SwiftData
 import SwiftUI
 
-struct AddTemplateSheet: View {
+struct EditTemplateSheet: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.modelContext) private var modelContext
+
+  let template: RecurringExpenseTemplate
 
   @State private var title: String = ""
   @State private var amount: String = ""
@@ -12,8 +14,21 @@ struct AddTemplateSheet: View {
   @State private var category: ExpenseCategory = .other
   @State private var paymentMethod: PaymentMethod = .card
   @State private var notes: String = ""
-  @State private var startDate: Date = Date()
   @State private var amountTolerance: Double = 0.05
+  @State private var isActive: Bool = true
+
+  init(template: RecurringExpenseTemplate) {
+    self.template = template
+    _title = State(initialValue: template.title)
+    _amount = State(initialValue: String(format: "%.2f", template.amount))
+    _merchant = State(initialValue: template.merchant)
+    _frequency = State(initialValue: template.frequency)
+    _category = State(initialValue: template.primaryCategory)
+    _paymentMethod = State(initialValue: template.paymentMethodEnum)
+    _notes = State(initialValue: template.notes ?? "")
+    _amountTolerance = State(initialValue: template.amountTolerance)
+    _isActive = State(initialValue: template.isActive)
+  }
 
   var body: some View {
     NavigationStack {
@@ -66,8 +81,7 @@ struct AddTemplateSheet: View {
               }
             }
 
-            DatePicker(
-              Localization.string(.startDate), selection: $startDate, displayedComponents: .date)
+            Toggle(Localization.string(.active), isOn: $isActive)
           }
           .padding()
           .background(.ultraThinMaterial)
@@ -135,7 +149,7 @@ struct AddTemplateSheet: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 20)
       }
-      .navigationTitle(Localization.string(.addRecurringExpense))
+      .navigationTitle(Localization.string(.editRecurringExpense))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
@@ -181,52 +195,29 @@ struct AddTemplateSheet: View {
   private func saveTemplate() {
     guard let amountValue = Double(amount), amountValue > 0 else { return }
 
-    let template = RecurringExpenseTemplate(
-      title: title,
-      amount: amountValue,
-      amountTolerance: amountTolerance,
-      categories: [category],
-      paymentMethod: paymentMethod,
-      currency: .uah,
-      merchant: merchant.isEmpty ? title : merchant,
-      notes: notes.isEmpty ? nil : notes,
-      frequency: frequency,
-      startDate: startDate,
-      occurrenceCount: 1
-    )
+    template.title = title
+    template.amount = amountValue
+    template.merchant = merchant
+    template.frequency = frequency
+    template.categories = [category.rawValue]
+    template.paymentMethod = paymentMethod.rawValue
+    template.notes = notes.isEmpty ? nil : notes
+    template.amountTolerance = amountTolerance
+    template.isActive = isActive
+    template.updatedAt = Date()
 
-    modelContext.insert(template)
     try? modelContext.save()
 
     dismiss()
   }
 }
 
-struct CategoryButton: View {
-  let category: ExpenseCategory
-  let isSelected: Bool
-  let onTap: () -> Void
-
-  var body: some View {
-    Button(action: onTap) {
-      VStack(spacing: 6) {
-        Image(systemName: category.icon)
-          .font(.system(size: 20))
-          .foregroundColor(isSelected ? .white : category.color)
-
-        Text(category.displayName)
-          .font(.caption)
-          .foregroundColor(isSelected ? .white : .primary)
-          .lineLimit(1)
-      }
-      .frame(width: 72, height: 64)
-      .background(isSelected ? category.color : Color(.systemGray6))
-      .cornerRadius(12)
-    }
-    .buttonStyle(.plain)
-  }
-}
-
 #Preview {
-  AddTemplateSheet()
+  EditTemplateSheet(
+    template: RecurringExpenseTemplate(
+      title: "Netflix",
+      amount: 149.0,
+      merchant: "Netflix",
+      frequency: .monthly
+    ))
 }

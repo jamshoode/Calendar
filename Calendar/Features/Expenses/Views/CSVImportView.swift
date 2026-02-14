@@ -22,7 +22,7 @@ struct CSVImportView: View {
     NavigationStack {
       VStack {
         if isLoading {
-          ProgressView("Analyzing CSV...")
+          ProgressView(Localization.string(.analyzingCSV))
             .scaleEffect(1.2)
         } else if let result = importResult {
           importResultView(result: result)
@@ -30,11 +30,11 @@ struct CSVImportView: View {
           uploadPromptView
         }
       }
-      .navigationTitle("Import from Bank")
+      .navigationTitle(Localization.string(.importFromBank))
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") { dismiss() }
+          Button(Localization.string(.cancel)) { dismiss() }
         }
       }
       .fileImporter(
@@ -53,10 +53,10 @@ struct CSVImportView: View {
         .font(.system(size: 64))
         .foregroundColor(.accentColor)
       
-      Text("Import Bank Statement")
+      Text(Localization.string(.importBankStatement))
         .font(.title2.bold())
       
-      Text("Upload a CSV file from Monobank or PUMB to automatically detect recurring expenses and import transactions.")
+      Text(Localization.string(.uploadCSV))
         .multilineTextAlignment(.center)
         .foregroundColor(.secondary)
         .padding(.horizontal)
@@ -66,7 +66,7 @@ struct CSVImportView: View {
       } label: {
         HStack {
           Image(systemName: "folder")
-          Text("Select CSV File")
+          Text(Localization.string(.selectCSVFile))
         }
         .font(.headline)
         .foregroundColor(.white)
@@ -93,14 +93,14 @@ struct CSVImportView: View {
         // Summary stats
         HStack(spacing: 16) {
           StatCard(
-            title: "Transactions",
+            title: Localization.string(.transactions),
             value: "\(result.transactions.count)",
             icon: "doc.text",
             color: .blue
           )
           
           StatCard(
-            title: "Duplicates",
+            title: Localization.string(.duplicates),
             value: "\(result.duplicates.count)",
             icon: "xmark.circle",
             color: .orange
@@ -109,16 +109,16 @@ struct CSVImportView: View {
         
         if !result.suggestions.isEmpty {
           HStack {
-            Text("Recurring Expense Patterns Detected")
+            Text(Localization.string(.recurringPatternsDetected))
               .font(.headline)
             
-            Text("(\(result.suggestions.count) found)")
+            Text(Localization.string(.patternsFound) + " (\(result.suggestions.count))")
               .font(.caption)
               .foregroundColor(.secondary)
           }
           .padding(.top)
           
-          Text("Select patterns to create templates for automatic tracking")
+          Text(Localization.string(.selectPatterns))
             .font(.caption)
             .foregroundColor(.secondary)
           
@@ -148,7 +148,7 @@ struct CSVImportView: View {
           } label: {
             HStack {
               Image(systemName: "checkmark.circle.fill")
-              Text("Create \(selectedSuggestions.count) Templates")
+              Text(Localization.string(.createTemplatesX(selectedSuggestions.count)))
             }
             .font(.headline)
             .foregroundColor(.white)
@@ -164,7 +164,7 @@ struct CSVImportView: View {
           } label: {
             HStack {
               Image(systemName: "arrow.down.doc")
-              Text("Import All Transactions")
+              Text(Localization.string(.importAllTransactions))
             }
             .font(.subheadline)
             .foregroundColor(.accentColor)
@@ -177,7 +177,7 @@ struct CSVImportView: View {
           Button {
             importResult = nil
           } label: {
-            Text("Import Another File")
+            Text(Localization.string(.importAnotherFile))
               .font(.subheadline)
               .foregroundColor(.secondary)
           }
@@ -192,7 +192,7 @@ struct CSVImportView: View {
     switch result {
     case .success(let urls):
       guard let url = urls.first else {
-        errorMessage = "No file selected"
+        errorMessage = Localization.string(.noFileSelected)
         return
       }
       
@@ -212,7 +212,7 @@ struct CSVImportView: View {
         // Start accessing security-scoped resource
         guard url.startAccessingSecurityScopedResource() else {
           DispatchQueue.main.async {
-            self.errorMessage = "Cannot access file"
+            self.errorMessage = Localization.string(.cannotAccessFile)
             self.isLoading = false
           }
           return
@@ -243,7 +243,7 @@ struct CSVImportView: View {
         
       } catch {
         DispatchQueue.main.async {
-          self.errorMessage = "Failed to read file: \(error.localizedDescription)"
+          self.errorMessage = Localization.string(.failedToReadFile(error.localizedDescription))
           self.isLoading = false
         }
       }

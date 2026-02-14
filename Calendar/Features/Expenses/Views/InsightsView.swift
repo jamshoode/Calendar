@@ -37,7 +37,7 @@ struct InsightsView: View {
         // Month-over-month trends
         if !lastMonthExpenses.isEmpty {
           VStack(alignment: .leading, spacing: 16) {
-            Text("SPENDING TRENDS")
+            Text(Localization.string(.spendingTrends))
               .font(.system(size: 12, weight: .black))
               .tracking(1)
               .foregroundColor(.secondary)
@@ -55,7 +55,7 @@ struct InsightsView: View {
         // Category breakdown
         if !categoryBreakdown.isEmpty {
           VStack(alignment: .leading, spacing: 16) {
-            Text("THIS MONTH'S SPENDING")
+            Text(Localization.string(.thisMonthSpending))
               .font(.system(size: 12, weight: .black))
               .tracking(1)
               .foregroundColor(.secondary)
@@ -77,7 +77,7 @@ struct InsightsView: View {
         let income = calculateIncome()
         if income > 0 {
           VStack(alignment: .leading, spacing: 16) {
-            Text("INCOME THIS MONTH")
+            Text(Localization.string(.incomeThisMonth))
               .font(.system(size: 12, weight: .black))
               .tracking(1)
               .foregroundColor(.secondary)
@@ -93,7 +93,7 @@ struct InsightsView: View {
                 
                 let totalExpenses = currentMonthExpenses.reduce(0) { $0 + $1.amount }
                 let net = income - totalExpenses
-                Text("Net: ₴\(String(format: "%.2f", net))")
+                Text(Localization.string(.netIncome("₴\(String(format: "%.2f", net))")))
                   .font(.caption)
                   .foregroundColor(net >= 0 ? .green : .red)
               }
@@ -112,10 +112,10 @@ struct InsightsView: View {
               .font(.system(size: 48))
               .foregroundColor(.secondary)
             
-            Text("No Data Yet")
+            Text(Localization.string(.noDataYet))
               .font(.headline)
             
-            Text("Add some expenses to see insights and trends")
+            Text(Localization.string(.addExpensesForInsights))
               .font(.caption)
               .foregroundColor(.secondary)
               .multilineTextAlignment(.center)
@@ -194,7 +194,7 @@ struct TrendRow: View {
             .foregroundColor(.secondary)
           
           if trend.lastAmount > 0 {
-            Text("(was ₴\(String(format: "%.0f", trend.lastAmount)))")
+            Text(Localization.string(.wasAmount("₴\(String(format: "%.0f", trend.lastAmount))")))
               .font(.caption2)
               .foregroundColor(.secondary.opacity(0.7))
           }

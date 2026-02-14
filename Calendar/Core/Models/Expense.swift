@@ -145,10 +145,10 @@ enum ExpenseFrequency: String, Codable, CaseIterable {
   
   var displayName: String {
     switch self {
-    case .oneTime: return "One-time"
-    case .weekly: return "Weekly"
-    case .monthly: return "Monthly"
-    case .yearly: return "Yearly"
+    case .oneTime: return Localization.string(.none)
+    case .weekly: return Localization.string(.expenseWeekly)
+    case .monthly: return Localization.string(.expenseMonthly)
+    case .yearly: return Localization.string(.expenseYearly)
     }
   }
   

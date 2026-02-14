@@ -35,7 +35,7 @@ struct TemplateSuggestionCard: View {
               Text("•")
                 .foregroundColor(.secondary)
               
-              Text("Detected \(suggestion.occurrenceCount)x")
+              Text(Localization.string(.detectedXTimes(suggestion.occurrenceCount)))
                 .font(.caption)
                 .foregroundColor(.secondary)
             }
@@ -49,7 +49,7 @@ struct TemplateSuggestionCard: View {
         
         // Frequency selector
         HStack(spacing: 8) {
-          Text("Frequency:")
+          Text(Localization.string(.frequency) + ":")
             .font(.caption)
             .foregroundColor(.secondary)
           
@@ -74,7 +74,7 @@ struct TemplateSuggestionCard: View {
         
         // Categories
         HStack(spacing: 6) {
-          Text("Categories:")
+          Text(Localization.string(.category) + ":")
             .font(.caption)
             .foregroundColor(.secondary)
           
@@ -95,7 +95,7 @@ struct TemplateSuggestionCard: View {
         
         // Occurrence dates preview
         HStack(spacing: 4) {
-          Text("Last occurrences:")
+          Text(Localization.string(.lastOccurrences) + ":")
             .font(.caption2)
             .foregroundColor(.secondary)
           
@@ -147,9 +147,9 @@ struct ConfidenceBadge: View {
   
   private var label: String {
     switch confidence {
-    case 0.8...1.0: return "High"
-    case 0.6..<0.8: return "Medium"
-    default: return "Low"
+    case 0.8...1.0: return Localization.string(.priorityHigh)
+    case 0.6..<0.8: return Localization.string(.priorityMedium)
+    default: return Localization.string(.priorityLow)
     }
   }
   

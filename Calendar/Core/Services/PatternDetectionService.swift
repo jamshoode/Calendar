@@ -91,7 +91,7 @@ class PatternDetectionService {
   }
   
   /// Normalize merchant name for matching (less aggressive)
-  private func normalizeMerchant(_ merchant: String) -> String {
+  func normalizeMerchant(_ merchant: String) -> String {
     var normalized = merchant.lowercased()
     
     // Remove transaction IDs and numbers (common in bank statements)
