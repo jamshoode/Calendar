@@ -4,18 +4,18 @@ import SwiftData
 /// Service for detecting recurring expense patterns from transactions
 class PatternDetectionService {
   
-  /// Minimum number of occurrences to suggest a template
-  private let minOccurrences = 3
+  /// Minimum number of occurrences to suggest a template (reduced to catch more patterns)
+  private let minOccurrences = 2
   
   /// Time window for detection (3 months in seconds)
   private let detectionWindow: TimeInterval = 3 * 30 * 24 * 60 * 60
   
-  /// Amount variance tolerance (5%)
-  private let amountTolerance = 0.05
+  /// Amount variance tolerance (increased to 10% for variable subscriptions)
+  private let amountTolerance = 0.10
   
   /// Detect recurring patterns from transactions
   func detectPatterns(from transactions: [CSVTransaction]) -> [TemplateSuggestion] {
-    // Filter to last 6 months
+    // Filter to last 3 months
     let cutoffDate = Date().addingTimeInterval(-detectionWindow)
     let recentTransactions = transactions.filter { $0.date >= cutoffDate }
     
@@ -29,22 +29,30 @@ class PatternDetectionService {
       let expenses = merchantTransactions.filter { $0.isExpense }
       guard expenses.count >= minOccurrences else { continue }
       
+      // Check if this looks like a subscription by keywords
+      let isSubscription = isSubscriptionMerchant(normalizedMerchant)
+      
+      // For subscriptions, be more lenient with amount variance
+      let tolerance = isSubscription ? 0.15 : amountTolerance
+      
       // Group by similar amounts (within tolerance)
-      let amountGroups = groupByAmount(expenses)
+      let amountGroups = groupByAmount(expenses, tolerance: tolerance)
       
       for amountGroup in amountGroups {
-        guard amountGroup.count >= minOccurrences else { continue }
+        // For subscriptions, allow 2+ occurrences
+        let requiredOccurrences = isSubscription ? 2 : minOccurrences
+        guard amountGroup.count >= requiredOccurrences else { continue }
         
         // Sort by date
         let sorted = amountGroup.sorted { $0.date < $1.date }
         
-        // Detect frequency
-        guard let frequency = detectFrequency(from: sorted) else { continue }
+        // Detect frequency (more lenient for subscriptions)
+        guard let frequency = detectFrequency(from: sorted, isSubscription: isSubscription) else { continue }
         
         // Calculate average amount and confidence
         let amounts = sorted.map { abs($0.amount) }
         let avgAmount = amounts.reduce(0, +) / Double(amounts.count)
-        let confidence = calculateConfidence(dates: sorted.map { $0.date }, frequency: frequency)
+        let confidence = calculateConfidence(dates: sorted.map { $0.date }, frequency: frequency, isSubscription: isSubscription)
         
         // Suggest categories based on merchant name
         let categories = suggestCategories(for: normalizedMerchant)
@@ -67,28 +75,45 @@ class PatternDetectionService {
     return suggestions.sorted { $0.confidence > $1.confidence }
   }
   
-  /// Normalize merchant name for matching
+  /// Check if merchant looks like a subscription service
+  private func isSubscriptionMerchant(_ merchant: String) -> Bool {
+    let subscriptionKeywords = [
+      "netflix", "spotify", "apple", "google", "youtube", "microsoft", 
+      "adobe", "amazon", "prime", "disney", "hbo", "paramount", 
+      "subscription", "membership", "premium", "plus", "pro",
+      "icloud", "dropbox", "zoom", "slack", "notion", "figma",
+      "chatgpt", "openai", "midjourney", "canva", "grammarly",
+      "підписка", "абонемент", "premium"
+    ]
+    
+    let merchantLower = merchant.lowercased()
+    return subscriptionKeywords.contains { merchantLower.contains($0) }
+  }
+  
+  /// Normalize merchant name for matching (less aggressive)
   private func normalizeMerchant(_ merchant: String) -> String {
     var normalized = merchant.lowercased()
     
-    // Remove numbers and special characters
-    normalized = normalized.components(separatedBy: CharacterSet.decimalDigits).joined()
-    normalized = normalized.components(separatedBy: CharacterSet.punctuationCharacters).joined()
+    // Remove transaction IDs and numbers (common in bank statements)
+    // But keep numbers that might be part of the name
+    normalized = normalized.replacingOccurrences(of: "#\\d+", with: "", options: .regularExpression)
+    normalized = normalized.replacingOccurrences(of: "\\b\\d{4,}\\b", with: "", options: .regularExpression)
     
     // Remove common location suffixes
-    let locationWords = ["київ", "lviv", "odesa", "kharkiv", "dnipro", "vinnytsia"]
+    let locationWords = ["київ", "kyiv", "lviv", "odesa", "kharkiv", "dnipro", "vinnytsia", "ukraine"]
     for word in locationWords {
       normalized = normalized.replacingOccurrences(of: word, with: "")
     }
     
-    // Trim whitespace
+    // Trim whitespace and clean up
     normalized = normalized.trimmingCharacters(in: .whitespacesAndNewlines)
+    normalized = normalized.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
     
     return normalized
   }
   
   /// Group transactions by similar amounts
-  private func groupByAmount(_ transactions: [CSVTransaction]) -> [[CSVTransaction]] {
+  private func groupByAmount(_ transactions: [CSVTransaction], tolerance: Double) -> [[CSVTransaction]] {
     var groups: [[CSVTransaction]] = []
     var used = Set<UUID>()
     
@@ -99,13 +124,13 @@ class PatternDetectionService {
       used.insert(transaction.id)
       
       let baseAmount = abs(transaction.amount)
-      let tolerance = baseAmount * amountTolerance
+      let amountTolerance = baseAmount * tolerance
       
       for other in transactions {
         guard !used.contains(other.id) else { continue }
         
         let otherAmount = abs(other.amount)
-        if abs(baseAmount - otherAmount) <= tolerance {
+        if abs(baseAmount - otherAmount) <= amountTolerance {
           group.append(other)
           used.insert(other.id)
         }
@@ -117,9 +142,9 @@ class PatternDetectionService {
     return groups
   }
   
-  /// Detect frequency from sorted dates
-  private func detectFrequency(from transactions: [CSVTransaction]) -> ExpenseFrequency? {
-    guard transactions.count >= 3 else { return nil }
+  /// Detect frequency from sorted dates (more flexible ranges)
+  private func detectFrequency(from transactions: [CSVTransaction], isSubscription: Bool) -> ExpenseFrequency? {
+    guard transactions.count >= 2 else { return nil }
     
     let dates = transactions.map { $0.date }
     var intervals: [TimeInterval] = []
@@ -134,16 +159,16 @@ class PatternDetectionService {
     let avgInterval = intervals.reduce(0, +) / Double(intervals.count)
     let days = avgInterval / (24 * 60 * 60)
     
-    // Determine frequency based on average interval
-    // Weekly: 6-8 days
-    // Monthly: 28-32 days
-    // Yearly: 360-370 days
+    // More flexible ranges for subscriptions
+    let weeklyRange = isSubscription ? (5.0...10.0) : (6.0...8.0)
+    let monthlyRange = isSubscription ? (25.0...35.0) : (28.0...32.0)
+    let yearlyRange = isSubscription ? (350.0...380.0) : (360.0...370.0)
     
-    if days >= 6 && days <= 8 {
+    if weeklyRange.contains(days) {
       return .weekly
-    } else if days >= 28 && days <= 32 {
+    } else if monthlyRange.contains(days) {
       return .monthly
-    } else if days >= 360 && days <= 370 {
+    } else if yearlyRange.contains(days) {
       return .yearly
     }
     
@@ -151,8 +176,8 @@ class PatternDetectionService {
   }
   
   /// Calculate confidence score based on regularity
-  private func calculateConfidence(dates: [Date], frequency: ExpenseFrequency) -> Double {
-    guard dates.count >= 3 else { return 0.0 }
+  private func calculateConfidence(dates: [Date], frequency: ExpenseFrequency, isSubscription: Bool) -> Double {
+    guard dates.count >= 2 else { return 0.0 }
     
     let expectedInterval = Double(frequency.daysInterval) * 24 * 60 * 60
     var totalVariance: TimeInterval = 0
@@ -164,26 +189,31 @@ class PatternDetectionService {
     }
     
     let avgVariance = totalVariance / Double(dates.count - 1)
-    let confidence = max(0, 1 - avgVariance)
+    
+    // Subscriptions get a confidence boost
+    let baseConfidence = max(0, 1 - avgVariance)
+    let confidence = isSubscription ? min(1.0, baseConfidence + 0.1) : baseConfidence
     
     return min(1.0, confidence)
   }
   
-  /// Suggest categories based on merchant name
+  /// Suggest categories based on merchant name (expanded keywords)
   private func suggestCategories(for merchant: String) -> [ExpenseCategory] {
     let merchantLower = merchant.lowercased()
     
-    // Keyword mapping
+    // Expanded keyword mapping
     let keywords: [(keywords: [String], category: ExpenseCategory)] = [
-      (["пекарня", "булочна", "хліб", "coffee", "starbucks", "coffee"], .dining),
-      (["сільпо", "атб", "варус", "маркет", "groceries", "supermarket"], .groceries),
-      (["заправка", "wog", "окко", "автодор", "shell", "bp"], .transportation),
-      (["аптека", "pharmacy", "medical", "лікарня"], .healthcare),
-      (["кіно", "theatre", "theater", "concert", "entertainment"], .entertainment),
-      (["netflix", "spotify", "apple", "google", "subscription"], .subscriptions),
+      (["пекарня", "булочна", "хліб", "coffee", "starbucks", "cafe", "ресторан", "кафе"], .dining),
+      (["сільпо", "атб", "варус", "маркет", "groceries", "supermarket", "silpo", "atb"], .groceries),
+      (["заправка", "wog", "окко", "автодор", "shell", "bp", "fuel", "gas"], .transportation),
+      (["аптека", "pharmacy", "medical", "лікарня", "hospital", "drugstore"], .healthcare),
+      (["кіно", "theatre", "theater", "concert", "entertainment", "movie", "cinema"], .entertainment),
+      (["netflix", "spotify", "apple", "google", "subscription", "youtube", "disney", "hbo", "prime", "icloud"], .subscriptions),
       (["зал", "gym", "fitness", "sport"], .healthcare),
-      (["одяг", "clothes", "fashion", "zara", "h&m"], .shopping),
-      (["рент", "rent", "комунальні", "utilities"], .housing)
+      (["одяг", "clothes", "fashion", "zara", "h&m", "shopping"], .shopping),
+      (["рент", "rent", "комунальні", "utilities", "комуналка"], .housing),
+      (["таксі", "taxi", "uber", "bolt", "унік"], .transportation),
+      (["monobank", "поповнення", "переказ"], .other)
     ]
     
     for (words, category) in keywords {
@@ -208,8 +238,8 @@ class PatternDetectionService {
         continue
       }
       
-      // Check amount (within small tolerance)
-      let tolerance = transactionAmount * 0.01 // 1% tolerance
+      // Check amount (within 10% tolerance for variable amounts)
+      let tolerance = transactionAmount * 0.10
       guard abs(transactionAmount - expense.amount) <= tolerance else {
         continue
       }
