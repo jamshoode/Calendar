@@ -364,25 +364,53 @@ struct HistoryView: View {
           }
 
           HStack(spacing: 24) {
-            VStack(spacing: 2) {
-              Text("$")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.textTertiary)
-              Text(String(format: "%.2f", expenseTotals.usd))
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                .foregroundColor(.textSecondary)
+            // Expenses: USD / EUR
+            VStack(spacing: 8) {
+              HStack(spacing: 10) {
+                VStack(spacing: 2) {
+                  Text("$")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.textTertiary)
+                  Text(String(format: "%.2f", expenseTotals.usd))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.textSecondary)
+                }
+
+                VStack(spacing: 2) {
+                  Text("€")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.textTertiary)
+                  Text(String(format: "%.2f", expenseTotals.eur))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.textSecondary)
+                }
+              }
             }
 
             Divider()
-              .frame(height: 24)
+              .frame(height: 48)
 
-            VStack(spacing: 2) {
-              Text("€")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.textTertiary)
-              Text(String(format: "%.2f", expenseTotals.eur))
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                .foregroundColor(.textSecondary)
+            // Income: USD / EUR
+            VStack(spacing: 8) {
+              HStack(spacing: 10) {
+                VStack(spacing: 2) {
+                  Text("$")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.textTertiary)
+                  Text(String(format: "%.2f", incomeTotals.usd))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.textSecondary)
+                }
+
+                VStack(spacing: 2) {
+                  Text("€")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.textTertiary)
+                  Text(String(format: "%.2f", incomeTotals.eur))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.textSecondary)
+                }
+              }
             }
           }
         }
