@@ -114,44 +114,74 @@ struct WeatherProvider: TimelineProvider {
     }
 
     private func buildForecastDays(from weatherData: WeatherData?, events: [String: [String]]) -> [ForecastDayInfo] {
-        guard let weatherData = weatherData else {
-            return placeholderForecastDays()
-        }
-        
         let calendar = Calendar.current
+        let today = Date()
+        
+        // Calculate Monday of current week
+        let weekday = calendar.component(.weekday, from: today)
+        let adjustedWeekday = (weekday + 5) % 7 // Convert to 0=Monday, 6=Sunday
+        let mondayOfThisWeek = calendar.date(byAdding: .day, value: -adjustedWeekday, to: today)!
+        
         let formatter = DateFormatter()
         formatter.locale = WidgetLocalization.locale
         let dayNames = formatter.shortStandaloneWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        let orderedNames = Array(dayNames.dropFirst()) + [dayNames.first!] // Mon, Tue, Wed, Thu, Fri, Sat, Sun
         
         let dateKeyFormatter = DateFormatter()
         dateKeyFormatter.dateFormat = "yyyy-MM-dd"
         
         var forecastDays: [ForecastDayInfo] = []
         
-        // Use the actual daily forecast from the API
-        for dailyPoint in weatherData.dailyForecast {
-            let dayDate = dailyPoint.time
+        // Build 7 days starting from Monday
+        for i in 0..<7 {
+            let dayDate = calendar.date(byAdding: .day, value: i, to: mondayOfThisWeek)!
             let dayOfMonth = calendar.component(.day, from: dayDate)
-            let isToday = calendar.isDate(dayDate, inSameDayAs: Date())
-            let weekdayIndex = calendar.component(.weekday, from: dayDate) - 1
+            let isToday = calendar.isDate(dayDate, inSameDayAs: today)
             let key = dateKeyFormatter.string(from: dayDate)
             let colors = events[key] ?? []
             
+            // Find matching forecast data for this day
+            let (icon, minTemp, maxTemp) = findForecastForDate(dayDate, in: weatherData)
+            
             let info = ForecastDayInfo(
-                name: dayNames[weekdayIndex].prefix(3).uppercased(),
+                name: orderedNames[i % 7].prefix(3).uppercased(),
                 date: dayOfMonth,
                 fullDate: dayDate,
-                weatherIcon: dailyPoint.code.icon(isDay: true),
-                minTemp: dailyPoint.minTemp,
-                maxTemp: dailyPoint.maxTemp,
+                weatherIcon: icon,
+                minTemp: minTemp,
+                maxTemp: maxTemp,
                 isToday: isToday,
-                isWeekend: (weekdayIndex == 0 || weekdayIndex == 6),
+                isWeekend: i >= 5,
                 eventColors: colors
             )
             forecastDays.append(info)
         }
         
         return forecastDays
+    }
+    
+    private func findForecastForDate(_ date: Date, in weatherData: WeatherData?) -> (icon: String, minTemp: Double, maxTemp: Double) {
+        guard let weatherData = weatherData else {
+            return ("questionmark.circle", 0, 0)
+        }
+        
+        let calendar = Calendar.current
+        let normalizedDate = calendar.startOfDay(for: date)
+        
+        // Search through daily forecast for matching date
+        for dailyPoint in weatherData.dailyForecast {
+            let pointDate = calendar.startOfDay(for: dailyPoint.time)
+            if normalizedDate == pointDate {
+                return (dailyPoint.code.icon(isDay: true), dailyPoint.minTemp, dailyPoint.maxTemp)
+            }
+        }
+        
+        // Fallback to first forecast if no match
+        if let firstDaily = weatherData.dailyForecast.first {
+            return (firstDaily.code.icon(isDay: true), firstDaily.minTemp, firstDaily.maxTemp)
+        }
+        
+        return ("questionmark.circle", 0, 0)
     }
 
     private func loadWeatherData(from defaults: UserDefaults) -> WeatherData? {
