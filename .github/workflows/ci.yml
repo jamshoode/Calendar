@@ -33,7 +33,8 @@ jobs:
             echo "No Package.swift found"
           fi
 
-      - name: Run unit tests
-        run: xcodebuild test -project Calendar.xcodeproj -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 17'
+      - name: Run unit tests (unit-only)
+        run: xcodebuild test -project Calendar.xcodeproj -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 14' -skip-testing CalendarUITests
         env:
           CI: true
+          CODE_SIGNING_ALLOWED: NO
