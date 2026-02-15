@@ -309,11 +309,11 @@ struct MediumWeatherWidgetView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Top section: Weather info
-            HStack(alignment: .top) {
-                // Left: Weather icon + current temp
-                VStack(spacing: 4) {
+            HStack(alignment: .center) {
+                // Left: Weather icon + current temp (vertical)
+                VStack(spacing: 2) {
                     Image(systemName: entry.weatherIcon)
-                        .font(.system(size: 32, weight: .medium))
+                        .font(.system(size: 36, weight: .medium))
                         .foregroundColor(scheme.accent)
                         .symbolRenderingMode(.multicolor)
 
@@ -324,8 +324,10 @@ struct MediumWeatherWidgetView: View {
 
                 Spacer()
 
-                // Right: Min/Max temps
+                // Right: Min/Max temps (moved down with padding)
                 VStack(alignment: .trailing, spacing: 4) {
+                    Spacer()
+                    
                     Text("\(Int(entry.minTemp))° / \(Int(entry.maxTemp))°")
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(scheme.textSecondary)
@@ -336,12 +338,12 @@ struct MediumWeatherWidgetView: View {
                             .foregroundColor(scheme.textSecondary)
                             .lineLimit(1)
                     }
+                    
+                    Spacer()
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 12)
-
-            Spacer(minLength: 8)
+            .padding(.vertical, 8)
 
             // Divider
             Rectangle()
@@ -349,12 +351,12 @@ struct MediumWeatherWidgetView: View {
                 .frame(height: 0.5)
                 .padding(.horizontal, 12)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 6)
 
-            // Bottom: Week strip with weather icons
+            // Bottom: Week strip (NO weather icons)
             HStack(spacing: 0) {
                 ForEach(entry.weekDays) { day in
-                    DayWeatherColumn(day: day, scheme: scheme)
+                    DayColumnMedium(day: day, scheme: scheme)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -435,7 +437,50 @@ struct LargeWeatherWidgetView: View {
     }
 }
 
-// MARK: - Day Weather Column (Medium)
+// MARK: - Day Column (Medium - No weather icons)
+
+struct DayColumnMedium: View {
+    let day: DayWeatherInfo
+    let scheme: WidgetColorScheme
+
+    var body: some View {
+        VStack(spacing: 6) {
+            // Day name
+            Text(day.name.prefix(3).uppercased())
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .foregroundColor(
+                    day.isToday
+                        ? scheme.accent
+                        : day.isWeekend
+                            ? scheme.textSecondary
+                            : scheme.textPrimary
+                )
+
+            // Day number with event ring (no weather icon)
+            ZStack {
+                // Today highlight
+                if day.isToday {
+                    Circle()
+                        .fill(scheme.todayHighlight)
+                        .frame(width: 26, height: 26)
+                }
+
+                // Event ring if events exist
+                if !day.eventColors.isEmpty {
+                    DayEventRing(eventColors: day.eventColors, scheme: scheme, size: 28)
+                }
+
+                Text("\(day.date)")
+                    .font(.system(size: 13, weight: day.isToday ? .bold : .semibold, design: .rounded))
+                    .foregroundColor(day.isToday ? .white : scheme.textPrimary)
+            }
+            .frame(width: 30, height: 30)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Day Weather Column (with weather icons - for reference, used in Large)
 
 struct DayWeatherColumn: View {
     let day: DayWeatherInfo
