@@ -172,8 +172,8 @@ struct CombinedProvider: TimelineProvider {
         
         var forecastDays: [ForecastDayInfo] = []
         
-        // Build 7 days starting from Monday
-        for i in 0..<7 {
+        // Build 14 days (2 weeks) starting from Monday
+        for i in 0..<14 {
             let dayDate = calendar.date(byAdding: .day, value: i, to: mondayOfThisWeek)!
             let dayOfMonth = calendar.component(.day, from: dayDate)
             let isToday = calendar.isDate(dayDate, inSameDayAs: today)
@@ -306,7 +306,7 @@ struct CombinedProvider: TimelineProvider {
         formatter.locale = WidgetLocalization.locale
         let dayNames = formatter.shortStandaloneWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-        return (0..<7).map { i in
+        return (0..<14).map { i in
             let date = calendar.date(byAdding: .day, value: i, to: Date())!
             let weekdayIndex = calendar.component(.weekday, from: date) - 1
             return ForecastDayInfo(
@@ -427,37 +427,25 @@ struct CombinedWidgetEntryView: View {
                 .frame(height: 0.5)
                 .padding(.horizontal, 12)
 
-            Spacer(minLength: 8)
-
-            // Middle: Weather forecast strip
-            HStack(spacing: 8) {
-                ForEach(entry.forecastDays) { day in
-                    CombinedForecastDayColumn(day: day, scheme: scheme)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .padding(.horizontal, 12)
-
             // Divider
             Rectangle()
                 .fill(scheme.divider)
                 .frame(height: 0.5)
                 .padding(.horizontal, 12)
-                .padding(.top, 8)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 6)
 
-            // Bottom: Two weeks calendar
+            // Combined: Two weeks with weather for all days
             VStack(spacing: 8) {
-                // This week
-                CombinedWeekRow(week: entry.thisWeek, scheme: scheme)
+                // This week with weather
+                CombinedWeatherWeekRow(week: entry.thisWeek, forecastDays: entry.forecastDays, scheme: scheme)
                 
-                // Next week
-                CombinedWeekRow(week: entry.nextWeek, scheme: scheme)
+                // Next week with weather
+                CombinedWeatherWeekRow(week: entry.nextWeek, forecastDays: entry.forecastDays, scheme: scheme)
             }
             .padding(.horizontal, 12)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 6)
         }
         .containerBackground(for: .widget) {
             widgetGradientBackground(scheme: scheme)
@@ -467,81 +455,33 @@ struct CombinedWidgetEntryView: View {
 
 // MARK: - Subviews
 
-struct CombinedForecastDayColumn: View {
-    let day: ForecastDayInfo
-    let scheme: WidgetColorScheme
-
-    var body: some View {
-        VStack(spacing: 4) {
-            // Day name
-            Text(day.name.prefix(3).uppercased())
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .foregroundColor(
-                    day.isToday
-                        ? scheme.accent
-                        : day.isWeekend
-                            ? scheme.textSecondary
-                            : scheme.textPrimary
-                )
-
-            // Weather icon
-            Image(systemName: day.weatherIcon)
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(scheme.accent)
-                .symbolRenderingMode(.multicolor)
-
-            // Min/Max temps
-            VStack(spacing: 2) {
-                Text("\(Int(day.maxTemp))°")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundColor(scheme.textPrimary)
-                Text("\(Int(day.minTemp))°")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
-                    .foregroundColor(scheme.textSecondary)
-            }
-
-            // Day number with today highlight
-            ZStack {
-                if day.isToday {
-                    Circle()
-                        .fill(scheme.todayHighlight)
-                        .frame(width: 22, height: 22)
-                }
-
-                if !day.eventColors.isEmpty {
-                    DayEventRing(eventColors: day.eventColors, scheme: scheme, size: 24)
-                }
-
-                Text("\(day.date)")
-                    .font(.system(size: 11, weight: day.isToday ? .bold : .semibold, design: .rounded))
-                    .foregroundColor(day.isToday ? .white : scheme.textPrimary)
-            }
-            .frame(width: 26, height: 26)
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-struct CombinedWeekRow: View {
+struct CombinedWeatherWeekRow: View {
     let week: [DayInfo]
+    let forecastDays: [ForecastDayInfo]
     let scheme: WidgetColorScheme
+    
+    private func getWeatherForDay(_ day: DayInfo) -> ForecastDayInfo? {
+        return forecastDays.first { Calendar.current.isDate($0.fullDate, inSameDayAs: day.fullDate) }
+    }
 
     var body: some View {
         HStack(spacing: 0) {
             ForEach(week) { day in
-                CombinedDayCell(day: day, scheme: scheme)
+                let weather = getWeatherForDay(day)
+                CombinedWeatherDayCell(day: day, weather: weather, scheme: scheme)
                     .frame(maxWidth: .infinity)
             }
         }
     }
 }
 
-struct CombinedDayCell: View {
+struct CombinedWeatherDayCell: View {
     let day: DayInfo
+    let weather: ForecastDayInfo?
     let scheme: WidgetColorScheme
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
             // Day name
             Text(day.name.prefix(3).uppercased())
                 .font(.system(size: 8, weight: .bold, design: .rounded))
@@ -552,24 +492,49 @@ struct CombinedDayCell: View {
                             ? scheme.textSecondary
                             : scheme.textPrimary
                 )
+            
+            // Weather icon
+            if let weather = weather {
+                Image(systemName: weather.weatherIcon)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(scheme.accent)
+                    .symbolRenderingMode(.multicolor)
+            } else {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(scheme.textSecondary)
+            }
+            
+            // Min/Max temps (small)
+            if let weather = weather {
+                Text("\(Int(weather.maxTemp))°/\(Int(weather.minTemp))°")
+                    .font(.system(size: 7, weight: .medium, design: .rounded))
+                    .foregroundColor(scheme.textSecondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            } else {
+                Text("--/--")
+                    .font(.system(size: 7, weight: .medium, design: .rounded))
+                    .foregroundColor(scheme.textSecondary)
+            }
 
             // Day number with rings
             ZStack {
                 if day.isToday {
                     Circle()
                         .fill(scheme.todayHighlight)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 18, height: 18)
                 }
 
                 if !day.eventColors.isEmpty {
-                    DayEventRing(eventColors: day.eventColors, scheme: scheme, size: 22)
+                    DayEventRing(eventColors: day.eventColors, scheme: scheme, size: 20)
                 }
 
                 Text("\(day.date)")
-                    .font(.system(size: 10, weight: day.isToday ? .bold : .semibold, design: .rounded))
+                    .font(.system(size: 9, weight: day.isToday ? .bold : .semibold, design: .rounded))
                     .foregroundColor(day.isToday ? .white : scheme.textPrimary)
             }
-            .frame(width: 24, height: 24)
+            .frame(width: 22, height: 22)
         }
         .padding(.vertical, 2)
     }
