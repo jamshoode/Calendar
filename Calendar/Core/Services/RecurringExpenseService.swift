@@ -72,9 +72,14 @@ class RecurringExpenseService {
           if multiplier > 500 { break }
         }
 
-        // Update last generated date to the actual last expense date
+        // Update last generated date, but do NOT move it into the future.
+        // Only advance lastGeneratedDate if the last generated expense is today or in the past.
         if let lastExpenseDate = lastGeneratedExpenseDate {
-          template.lastGeneratedDate = lastExpenseDate
+          if lastExpenseDate <= Date() {
+            template.lastGeneratedDate = lastExpenseDate
+          } else {
+            // If we only generated future occurrences, leave lastGeneratedDate unchanged
+          }
         }
       }
 

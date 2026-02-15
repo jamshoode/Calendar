@@ -94,8 +94,15 @@ struct BudgetView: View {
             }
             
             ForEach(activeTemplates) { template in
+              // Prefer the nearest generated Expense date (>= today); fallback to the template's next due date from today
+              let todayStart = Calendar.current.startOfDay(for: Date())
+              let futureGenerated = expenses.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= todayStart }
+              let nextGeneratedDate = futureGenerated.min(by: { $0.date < $1.date })?.date
+              let displayNext = nextGeneratedDate ?? template.nextDueDate(from: Date())
+
               TemplateRow(
                 template: template,
+                nextDate: displayNext,
                 onPause: { pauseTemplate(template) },
                 onEdit: { editTemplate(template) },
                 onDelete: { deleteTemplate(template) }
@@ -112,8 +119,14 @@ struct BudgetView: View {
               .foregroundColor(.secondary)
             
             ForEach(pausedTemplates) { template in
+              let todayStart = Calendar.current.startOfDay(for: Date())
+              let futureGenerated = expenses.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= todayStart }
+              let nextGeneratedDate = futureGenerated.min(by: { $0.date < $1.date })?.date
+              let displayNext = nextGeneratedDate ?? template.nextDueDate(from: Date())
+
               TemplateRow(
                 template: template,
+                nextDate: displayNext,
                 onResume: { resumeTemplate(template) },
                 onEdit: { editTemplate(template) },
                 onDelete: { deleteTemplate(template) }
@@ -208,6 +221,7 @@ struct BudgetSummaryCard: View {
 
 struct TemplateRow: View {
   let template: RecurringExpenseTemplate
+  var nextDate: Date? = nil
   var onPause: (() -> Void)?
   var onResume: (() -> Void)?
   var onEdit: (() -> Void)?
@@ -242,12 +256,13 @@ struct TemplateRow: View {
             .font(.caption)
             .foregroundColor(.secondary)
           
-          if let nextDate = template.nextDueDate() {
+          let displayNextDate = nextDate ?? template.nextDueDate(from: Date())
+          if let nextDateToShow = displayNextDate {
             Text("•")
               .font(.caption)
               .foregroundColor(.secondary)
             
-            Text(Localization.string(.nextOccurrence(formatDate(nextDate))))
+            Text(Localization.string(.nextOccurrence(formatDate(nextDateToShow))))
               .font(.caption)
               .foregroundColor(.accentColor)
           }
