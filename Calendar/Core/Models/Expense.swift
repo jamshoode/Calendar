@@ -19,6 +19,12 @@ class Expense {
   var isGenerated: Bool        // true = auto-created from template
   var isIncome: Bool = false   // true = income, false = expense
   
+  // Protect user edits made directly to generated expenses
+  var isManuallyEdited: Bool = false
+  
+  // Snapshot/version marker copied from the template when the expense was generated
+  var templateSnapshotHash: String?
+  
   var primaryCategory: ExpenseCategory {
     ExpenseCategory(rawValue: categories.first ?? "other") ?? .other
   }

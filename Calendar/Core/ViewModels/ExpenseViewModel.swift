@@ -54,6 +54,10 @@ class ExpenseViewModel {
     expense.merchant = merchant
     expense.notes = notes
     expense.isIncome = isIncome
+
+    // Mark as manually edited to avoid being overwritten by template propagation
+    expense.isManuallyEdited = true
+
     try context.save()
     syncExpensesToWidget(context: context)
   }

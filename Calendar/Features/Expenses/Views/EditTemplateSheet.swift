@@ -16,6 +16,11 @@ struct EditTemplateSheet: View {
   @State private var notes: String = ""
   @State private var amountTolerance: Double = 0.05
   @State private var isActive: Bool = true
+  @State private var applyToFutureGenerated: Bool = false
+  @State private var affectedCount: Int = 0
+  @State private var showUpdateResult: Bool = false
+  @State private var lastUpdatedCount: Int = 0
+  @State private var lastSkippedCount: Int = 0
 
   init(template: RecurringExpenseTemplate) {
     self.template = template
@@ -144,6 +149,35 @@ struct EditTemplateSheet: View {
           .cornerRadius(16)
           .glassHalo(cornerRadius: 16)
 
+          // Apply to future generated expenses (optional)
+          VStack(spacing: 8) {
+            Toggle(isOn: $applyToFutureGenerated) {
+              VStack(alignment: .leading) {
+                Text("Apply changes to future generated expenses")
+                  .font(.subheadline)
+                  .foregroundColor(.primary)
+                Text("Manual edits will be preserved")
+                  .font(.caption)
+                  .foregroundColor(.secondary)
+              }
+            }
+            .toggleStyle(SwitchToggleStyle(tint: .accentColor))
+
+            if affectedCount > 0 {
+              Text("Will update \(affectedCount) future item\(affectedCount == 1 ? "" : "s")")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            } else {
+              Text(Localization.string(.noDataYet))
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+          .padding()
+          .background(.ultraThinMaterial)
+          .cornerRadius(12)
+          .glassHalo(cornerRadius: 12)
+
           Spacer(minLength: 40)
         }
         .padding(.horizontal, 20)
@@ -162,6 +196,20 @@ struct EditTemplateSheet: View {
           }
           .disabled(title.isEmpty || amount.isEmpty || merchant.isEmpty)
         }
+      }
+      .onAppear {
+        // Compute how many future generated items would be affected (preview)
+        affectedCount = RecurringExpenseService.shared.countFutureGeneratedExpenses(for: template, from: Date(), context: modelContext)
+      }
+      .alert(isPresented: $showUpdateResult) {
+        Alert(
+          title: Text("Applied changes"),
+          message: Text("Updated \(lastUpdatedCount) item\(lastUpdatedCount == 1 ? "" : "s") — skipped \(lastSkippedCount) manual edit\(lastSkippedCount == 1 ? "" : "s")."),
+          primaryButton: .default(Text("Undo")) {
+            _ = RecurringExpenseService.shared.undoLastTemplateUpdate(templateId: template.id, context: modelContext)
+          },
+          secondaryButton: .cancel(Text("OK"))
+        )
       }
     }
   }
@@ -208,8 +256,16 @@ struct EditTemplateSheet: View {
 
     try? modelContext.save()
     
-    // Regenerate expenses with updated template values
+    // Regenerate missing occurrences first
     RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
+
+    // If user asked — update future generated expenses created from this template
+    if applyToFutureGenerated {
+      let result = RecurringExpenseService.shared.updateGeneratedExpenses(for: template, applyFrom: Date(), context: modelContext)
+      lastUpdatedCount = result.updatedCount
+      lastSkippedCount = result.skippedManualCount
+      showUpdateResult = true
+    }
 
     dismiss()
   }

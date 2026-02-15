@@ -130,7 +130,9 @@ class RecurringExpenseService {
       isGenerated: true,
       isIncome: template.isIncome
     )
-    
+    // Record the template's updatedAt as a lightweight snapshot marker
+    expense.templateSnapshotHash = "\(template.updatedAt.timeIntervalSince1970)"
+
     context.insert(expense)
   }
   
@@ -250,6 +252,138 @@ class RecurringExpenseService {
     }
   }
   
+  // MARK: - Update Generated Expenses (apply template edits)
+  
+  private struct _UndoSnapshot: Codable {
+    let expenseId: UUID
+    let title: String
+    let amount: Double
+    let merchant: String?
+    let notes: String?
+    let categories: [String]
+    let paymentMethod: String
+    let currency: String
+    let isIncome: Bool
+    let templateSnapshotHash: String?
+  }
+
+  /// Count matching future generated expenses for preview/UI
+  func countFutureGeneratedExpenses(for template: RecurringExpenseTemplate, from date: Date = Date(), context: ModelContext) -> Int {
+    do {
+      let all = try context.fetch(FetchDescriptor<Expense>())
+      let startOfDay = Calendar.current.startOfDay(for: date)
+      return all.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= startOfDay }.count
+    } catch {
+      return 0
+    }
+  }
+
+  /// Update future generated expenses using values from the template.
+  /// Skips any expenses that were manually edited by the user.
+  func updateGeneratedExpenses(for template: RecurringExpenseTemplate, applyFrom date: Date = Date(), context: ModelContext) -> (updatedCount: Int, skippedManualCount: Int) {
+    let startOfDay = Calendar.current.startOfDay(for: date)
+    var updated = 0
+    var skipped = 0
+    var undoSnapshots: [_UndoSnapshot] = []
+
+    do {
+      let allExpenses = try context.fetch(FetchDescriptor<Expense>())
+      let candidates = allExpenses.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= startOfDay }
+
+      for expense in candidates {
+        if expense.isManuallyEdited {
+          skipped += 1
+          continue
+        }
+
+        // Save a pre-update snapshot for possible undo
+        let snap = _UndoSnapshot(
+          expenseId: expense.id,
+          title: expense.title,
+          amount: expense.amount,
+          merchant: expense.merchant,
+          notes: expense.notes,
+          categories: expense.categories,
+          paymentMethod: expense.paymentMethod,
+          currency: expense.currency,
+          isIncome: expense.isIncome,
+          templateSnapshotHash: expense.templateSnapshotHash
+        )
+        undoSnapshots.append(snap)
+
+        // Apply template fields
+        expense.title = template.title
+        expense.amount = template.amount
+        expense.categories = template.allCategories.map { $0.rawValue }
+        expense.paymentMethod = template.paymentMethod
+        expense.currency = template.currency
+        expense.merchant = template.merchant
+        expense.notes = template.notes
+        expense.isIncome = template.isIncome
+        expense.templateSnapshotHash = "\(template.updatedAt.timeIntervalSince1970)"
+
+        updated += 1
+      }
+
+      // Persist undo buffer in UserDefaults (short-lived)
+      if !undoSnapshots.isEmpty {
+        if let data = try? JSONEncoder().encode(undoSnapshots) {
+          UserDefaults.standard.set(data, forKey: "lastTemplateUpdate.\(template.id.uuidString)")
+        }
+      }
+
+      try context.save()
+
+      // Resync widgets & notifications
+      ExpenseViewModel().syncExpensesToWidget(context: context)
+      scheduleUpcomingNotifications(context: context)
+
+    } catch {
+      print("Error updating generated expenses: \(error)")
+    }
+
+    return (updated, skipped)
+  }
+
+  /// Undo the most recent template-driven update (best-effort)
+  func undoLastTemplateUpdate(templateId: UUID, context: ModelContext) -> Bool {
+    // Load snapshot (best-effort simple implementation)
+    let key = "lastTemplateUpdate.\(templateId.uuidString)"
+    guard let data = UserDefaults.standard.data(forKey: key),
+          let snaps = try? JSONDecoder().decode([_UndoSnapshot].self, from: data) else {
+      return false
+    }
+
+    var applied = false
+    do {
+      for snap in snaps {
+        if let expense = try context.fetch(FetchDescriptor<Expense>()).first(where: { $0.id == snap.expenseId }) {
+          expense.title = snap.title
+          expense.amount = snap.amount
+          expense.merchant = snap.merchant
+          expense.notes = snap.notes
+          expense.categories = snap.categories
+          expense.paymentMethod = snap.paymentMethod
+          expense.currency = snap.currency
+          expense.isIncome = snap.isIncome
+          expense.templateSnapshotHash = snap.templateSnapshotHash
+          applied = true
+        }
+      }
+      if applied {
+        try context.save()
+        ExpenseViewModel().syncExpensesToWidget(context: context)
+        scheduleUpcomingNotifications(context: context)
+        UserDefaults.standard.removeObject(forKey: "lastTemplateUpdate.")
+      }
+    } catch {
+      print("Failed to undo template update: \(error)")
+      return false
+    }
+
+    return applied
+  }
+
   // MARK: - Missed Payment Detection
   
   /// Check for missed recurring payments (3+ days overdue)
