@@ -132,3 +132,48 @@ public struct GeocodingResult: Codable {
     let country: String
     let admin1: String?
 }
+
+// MARK: - Weather History for Widget
+public struct WeatherHistory: Codable {
+    public var entries: [WeatherHistoryEntry]
+    public let city: String
+    
+    public init(city: String, entries: [WeatherHistoryEntry] = []) {
+        self.city = city
+        self.entries = entries
+    }
+    
+    // Add or update an entry for a specific date
+    public mutating func addEntry(_ entry: WeatherHistoryEntry) {
+        // Remove existing entry for same date if exists
+        entries.removeAll { Calendar.current.isDate($0.date, inSameDayAs: entry.date) }
+        entries.append(entry)
+        
+        // Sort by date
+        entries.sort { $0.date < $1.date }
+        
+        // Keep only last 14 days to prevent unlimited growth
+        let cutoffDate = Calendar.current.date(byAdding: .day, value: -14, to: Date())!
+        entries.removeAll { $0.date < cutoffDate }
+    }
+    
+    // Get entry for a specific date
+    public func entry(for date: Date) -> WeatherHistoryEntry? {
+        return entries.first { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    }
+}
+
+public struct WeatherHistoryEntry: Codable, Identifiable {
+    public var id: String { "\(date.timeIntervalSince1970)" }
+    public let date: Date
+    public let minTemp: Double
+    public let maxTemp: Double
+    public let code: WeatherCode
+    
+    public init(date: Date, minTemp: Double, maxTemp: Double, code: WeatherCode) {
+        self.date = date
+        self.minTemp = minTemp
+        self.maxTemp = maxTemp
+        self.code = code
+    }
+}

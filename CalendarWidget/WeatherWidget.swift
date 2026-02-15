@@ -42,6 +42,25 @@ struct DayWeatherInfo: Identifiable {
     let eventColors: [String]
 }
 
+// MARK: - Weather History Models (for caching past forecasts)
+
+struct WeatherHistory: Codable {
+    var entries: [WeatherHistoryEntry]
+    let city: String
+    
+    func entry(for date: Date) -> WeatherHistoryEntry? {
+        return entries.first { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    }
+}
+
+struct WeatherHistoryEntry: Codable, Identifiable {
+    var id: String { "\(date.timeIntervalSince1970)" }
+    let date: Date
+    let minTemp: Double
+    let maxTemp: Double
+    let code: WeatherCode
+}
+
 // MARK: - Provider
 
 struct WeatherProvider: TimelineProvider {
@@ -87,14 +106,17 @@ struct WeatherProvider: TimelineProvider {
         // Read weather data
         let weatherData = loadWeatherData(from: defaults)
         
+        // Read weather history
+        let weatherHistory = loadWeatherHistory(from: defaults)
+        
         // Read calendar events
         let events = decodeEventData(defaults.string(forKey: "widgetEventData"))
         
         // Build week days with weather and events
         let weekDays = buildWeekDays(for: date, weatherData: weatherData, events: events)
         
-        // Build forecast days from actual weather data
-        let forecastDays = buildForecastDays(from: weatherData, events: events)
+        // Build forecast days from weather history (includes cached past data)
+        let forecastDays = buildForecastDays(from: weatherData, history: weatherHistory, events: events)
         
         // Get current weather
         let currentWeather = getCurrentWeather(from: weatherData, for: date)
@@ -113,11 +135,7 @@ struct WeatherProvider: TimelineProvider {
         )
     }
 
-    private func buildForecastDays(from weatherData: WeatherData?, events: [String: [String]]) -> [ForecastDayInfo] {
-        guard let weatherData = weatherData else {
-            return placeholderForecastDays()
-        }
-        
+    private func buildForecastDays(from weatherData: WeatherData?, history: WeatherHistory?, events: [String: [String]]) -> [ForecastDayInfo] {
         let calendar = Calendar.current
         let today = Date()
         
@@ -144,8 +162,8 @@ struct WeatherProvider: TimelineProvider {
             let key = dateKeyFormatter.string(from: dayDate)
             let colors = events[key] ?? []
             
-            // Find matching forecast data for this day
-            let (icon, minTemp, maxTemp) = findForecastForDate(dayDate, in: weatherData, calendar: calendar)
+            // First try to find in history (cached past data)
+            let (icon, minTemp, maxTemp) = findForecastInHistory(dayDate, history: history, currentData: weatherData, calendar: calendar)
             
             let info = ForecastDayInfo(
                 name: orderedNames[i % 7].prefix(3).uppercased(),
@@ -164,24 +182,34 @@ struct WeatherProvider: TimelineProvider {
         return forecastDays
     }
     
-    private func findForecastForDate(_ date: Date, in weatherData: WeatherData?, calendar: Calendar) -> (icon: String, minTemp: Double, maxTemp: Double) {
-        guard let weatherData = weatherData else {
-            return ("questionmark.circle", 0, 0)
+    private func findForecastInHistory(_ date: Date, history: WeatherHistory?, currentData: WeatherData?, calendar: Calendar) -> (icon: String, minTemp: Double, maxTemp: Double) {
+        let normalizedTarget = calendar.startOfDay(for: date)
+        let today = calendar.startOfDay(for: Date())
+        
+        // First check history (for past days)
+        if let history = history, let entry = history.entry(for: normalizedTarget) {
+            return (entry.code.icon(isDay: true), entry.minTemp, entry.maxTemp)
         }
         
-        // Normalize both dates to midnight for comparison
-        let normalizedTarget = calendar.startOfDay(for: date)
-        
-        // Search through daily forecast for matching date
-        for dailyPoint in weatherData.dailyForecast {
-            let normalizedPoint = calendar.startOfDay(for: dailyPoint.time)
-            if normalizedTarget == normalizedPoint {
-                return (dailyPoint.code.icon(isDay: true), dailyPoint.minTemp, dailyPoint.maxTemp)
+        // Then check current forecast data (for today and future)
+        if let currentData = currentData {
+            for dailyPoint in currentData.dailyForecast {
+                let normalizedPoint = calendar.startOfDay(for: dailyPoint.time)
+                if normalizedTarget == normalizedPoint {
+                    return (dailyPoint.code.icon(isDay: true), dailyPoint.minTemp, dailyPoint.maxTemp)
+                }
             }
         }
         
-        // No matching forecast found (date is in the past or beyond forecast range)
-        // Return placeholder instead of fallback to first day
+        // No data found - if it's a past day, maybe show yesterday's data as fallback?
+        // Or show placeholder for days beyond forecast range
+        if normalizedTarget < today {
+            // Try to find the most recent historical data
+            if let history = history, let mostRecent = history.entries.last {
+                return (mostRecent.code.icon(isDay: true), mostRecent.minTemp, mostRecent.maxTemp)
+            }
+        }
+        
         return ("questionmark.circle", 0, 0)
     }
 
@@ -189,6 +217,15 @@ struct WeatherProvider: TimelineProvider {
         guard let data = defaults.data(forKey: "widgetWeatherData") else { return nil }
         do {
             return try JSONDecoder().decode(WeatherData.self, from: data)
+        } catch {
+            return nil
+        }
+    }
+    
+    private func loadWeatherHistory(from defaults: UserDefaults) -> WeatherHistory? {
+        guard let data = defaults.data(forKey: "widgetWeatherHistory") else { return nil }
+        do {
+            return try JSONDecoder().decode(WeatherHistory.self, from: data)
         } catch {
             return nil
         }
