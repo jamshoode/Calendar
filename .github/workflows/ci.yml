@@ -16,7 +16,24 @@ jobs:
       - name: Run SwiftLint
         run: swiftlint lint --strict || true
 
+      - name: Install dependencies (CocoaPods / SwiftPM)
+        run: |
+          set -eo pipefail
+          if [ -f Podfile ]; then
+            echo "Podfile detected — installing CocoaPods and running pod install"
+            brew install cocoapods || true
+            pod install --repo-update
+          else
+            echo "No Podfile found"
+          fi
+          if [ -f Package.swift ]; then
+            echo "Package.swift detected — resolving Swift packages"
+            swift package resolve
+          else
+            echo "No Package.swift found"
+          fi
+
       - name: Run unit tests
-        run: xcodebuild test -workspace Calendar.xcworkspace -scheme Calendar -destination 'platform=iOS Simulator,name=iPhone 14'
+        run: xcodebuild test -workspace Calendar.xcworkspace -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 14'
         env:
           CI: true
