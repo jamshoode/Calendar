@@ -34,6 +34,6 @@ jobs:
           fi
 
       - name: Run unit tests
-        run: xcodebuild test -project Calendar.xcodeproj -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 15'
+        run: xcodebuild test -project Calendar.xcodeproj -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 17'
         env:
           CI: true
