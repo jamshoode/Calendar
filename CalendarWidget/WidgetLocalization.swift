@@ -32,6 +32,8 @@ struct WidgetLocalization {
     case todo
     case paused
     case stopwatch
+    case weather
+    case weatherWidgetDescription
   }
 
   static func string(_ key: Key) -> String {
@@ -64,6 +66,12 @@ struct WidgetLocalization {
       return lang == .ukrainian ? "Пауза" : "Paused"
     case .stopwatch:
       return lang == .ukrainian ? "Секундомір" : "Stopwatch"
+    case .weather:
+      return lang == .ukrainian ? "Погода" : "Weather"
+    case .weatherWidgetDescription:
+      return lang == .ukrainian
+        ? "Показує погоду та календар на тиждень."
+        : "Shows weather and weekly calendar."
     }
   }
 }
