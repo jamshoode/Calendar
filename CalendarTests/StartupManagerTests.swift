@@ -3,6 +3,7 @@ import XCTest
 
 @testable import Calendar
 
+@MainActor
 final class StartupManagerTests: XCTestCase {
   var container: ModelContainer!
   var context: ModelContext!
@@ -15,21 +16,15 @@ final class StartupManagerTests: XCTestCase {
     context = ModelContext(container)
   }
 
-  func testStartupCompletes() throws {
+  func testStartupCompletes() async throws {
     // keep test fast by using a short minimumDisplayDuration
     let manager = StartupManager(timeout: 1, minimumDisplayDuration: 0.01)
     manager.start(using: context)
 
-    let exp = expectation(description: "startup completes")
-
-    Task {
-      while manager.isRunning {
-        try await Task.sleep(nanoseconds: 50_000_000)
-      }
-      exp.fulfill()
+    while manager.isRunning {
+      try await Task.sleep(nanoseconds: 50_000_000)
     }
 
-    wait(for: [exp], timeout: 5.0)
     XCTAssertFalse(manager.isRunning)
   }
 
@@ -49,34 +44,24 @@ final class StartupManagerTests: XCTestCase {
     manager.start(using: context)
 
     // wait until manager stops running or timeout
-    let exp = expectation(description: "startup background work completes")
-    Task {
-      while manager.isRunning {
-        try await Task.sleep(nanoseconds: 25_000_000)
-      }
-      exp.fulfill()
+    while manager.isRunning {
+      try await Task.sleep(nanoseconds: 25_000_000)
     }
-    wait(for: [exp], timeout: 5.0)
 
     // Ensure background-generated expenses exist in main context (merge happened)
     let expenses = try context.fetch(FetchDescriptor<Expense>())
     XCTAssertTrue(expenses.contains { $0.templateId == template.id })
   }
 
-  func testTimeoutSetsTimedOut() throws {
+  func testTimeoutSetsTimedOut() async throws {
     // keep test fast by using a short minimumDisplayDuration
     let manager = StartupManager(timeout: 0.1, minimumDisplayDuration: 0.01)
     manager.start(using: context)
 
-    let exp = expectation(description: "timed out")
-    Task {
-      while !manager.timedOut {
-        try await Task.sleep(nanoseconds: 10_000_000)
-      }
-      exp.fulfill()
+    while !manager.timedOut {
+      try await Task.sleep(nanoseconds: 10_000_000)
     }
 
-    wait(for: [exp], timeout: 2.0)
     XCTAssertTrue(manager.timedOut)
   }
 }
