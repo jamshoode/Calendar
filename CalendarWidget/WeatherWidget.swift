@@ -839,22 +839,65 @@ struct DayEventRing: View {
                 let entry = entries[i]
                 let radius = outerRadius - CGFloat(i) * (ringLineWidth + ringGap)
 
-                var path = Path()
-                path.addArc(
-                    center: center,
-                    radius: radius,
-                    startAngle: .degrees(0),
-                    endAngle: .degrees(360),
-                    clockwise: false
-                )
-                context.stroke(
-                    path,
-                    with: .color(entry.color),
-                    style: StrokeStyle(lineWidth: ringLineWidth, lineCap: .round)
-                )
+                if entry.isHoliday {
+                    // Wavy/scalloped circle for holidays
+                    drawWavyCircle(
+                        context: context,
+                        center: center,
+                        radius: radius,
+                        color: entry.color,
+                        lineWidth: ringLineWidth
+                    )
+                } else {
+                    var path = Path()
+                    path.addArc(
+                        center: center,
+                        radius: radius,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(360),
+                        clockwise: false
+                    )
+                    context.stroke(
+                        path,
+                        with: .color(entry.color),
+                        style: StrokeStyle(lineWidth: ringLineWidth, lineCap: .round)
+                    )
+                }
             }
         }
         .frame(width: size, height: size)
+    }
+
+    /// Draws a wavy/scalloped circle for holiday events
+    private func drawWavyCircle(
+        context: GraphicsContext,
+        center: CGPoint,
+        radius: CGFloat,
+        color: Color,
+        lineWidth: CGFloat,
+        scallops: Int = 6,
+        waveDepth: CGFloat = 1.5
+    ) {
+        var path = Path()
+        let steps = 360
+        for i in 0...steps {
+            let angle = Double(i) * .pi * 2.0 / Double(steps)
+            let wave = sin(Double(scallops) * angle) * Double(waveDepth)
+            let r = radius + CGFloat(wave)
+            let x = center.x + r * CGFloat(cos(angle - .pi / 2))
+            let y = center.y + r * CGFloat(sin(angle - .pi / 2))
+            if i == 0 {
+                path.move(to: CGPoint(x: x, y: y))
+            } else {
+                path.addLine(to: CGPoint(x: x, y: y))
+            }
+        }
+        path.closeSubpath()
+        context.stroke(
+            path,
+            with: .color(color),
+            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+        )
     }
 }
 
