@@ -161,12 +161,25 @@ struct WeatherProvider: TimelineProvider {
 
         let calendar = Calendar.current
         
-        // Try to find matching daily forecast
+        // Try to find matching daily forecast by comparing year/month/day components
+        // This handles timezone issues better than isDate:inSameDayAs
+        for dailyPoint in weatherData.dailyForecast {
+            let pointComponents = calendar.dateComponents([.year, .month, .day], from: dailyPoint.time)
+            let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+            
+            if pointComponents.year == dateComponents.year &&
+               pointComponents.month == dateComponents.month &&
+               pointComponents.day == dateComponents.day {
+                return (dailyPoint.code.icon(isDay: true), dailyPoint.minTemp, dailyPoint.maxTemp)
+            }
+        }
+
+        // If no match found, try using isDate as fallback
         if let dailyPoint = weatherData.dailyForecast.first(where: { calendar.isDate($0.time, inSameDayAs: date) }) {
             return (dailyPoint.code.icon(isDay: true), dailyPoint.minTemp, dailyPoint.maxTemp)
         }
 
-        // Fallback to first daily point or defaults
+        // Last resort: return first day if it exists
         if let firstDaily = weatherData.dailyForecast.first {
             return (firstDaily.code.icon(isDay: true), firstDaily.minTemp, firstDaily.maxTemp)
         }
