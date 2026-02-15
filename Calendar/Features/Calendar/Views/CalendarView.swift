@@ -24,6 +24,8 @@ struct CalendarView: View {
     filter: #Predicate<TodoItem> { $0.parentTodo == nil && $0.dueDate != nil },
     sort: \TodoItem.dueDate)
   private var todosWithDueDate: [TodoItem]
+  @Query(sort: \Expense.date) private var expenses: [Expense]
+  @Query private var expenseTemplates: [RecurringExpenseTemplate]
   @Environment(\.modelContext) private var modelContext
 
   @State private var viewMode: CalendarViewMode = .grid
@@ -32,6 +34,7 @@ struct CalendarView: View {
   @State private var showingSettings = false
   @State private var editingEvent: Event?
   @State private var editingTodo: TodoItem?
+  @State private var editingExpense: Expense?
   @State private var detailEvent: Event?
 
   var body: some View {
@@ -67,6 +70,7 @@ struct CalendarView: View {
                     selectedDate: viewModel.selectedDate,
                     events: eventsForMonth,
                     todos: todosForMonth,
+                    expenses: expensesForMonth,
                     onSelectDate: { date in
                       let selectedMonth = Calendar.current.component(.month, from: date)
                       let currentMonth = Calendar.current.component(.month, from: viewModel.currentMonth)
@@ -89,6 +93,7 @@ struct CalendarView: View {
                     date: viewModel.selectedDate ?? Date(),
                     events: eventsForSelectedDate,
                     todos: todosForSelectedDate,
+                    expenses: expensesForSelectedDate,
                     onEdit: { event in detailEvent = event },
                     onDelete: { event in
                       guard !event.isHoliday else { return }
@@ -99,6 +104,7 @@ struct CalendarView: View {
                       todoViewModel.toggleCompletion(todo, context: modelContext)
                     },
                     onTodoTap: { todo in editingTodo = todo },
+                    onExpenseTap: { expense in editingExpense = expense },
                     showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
                       || !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
                     onJumpToToday: {
@@ -133,6 +139,7 @@ struct CalendarView: View {
                 currentMonth: viewModel.currentMonth,
                 events: eventsForMonth,
                 todos: todosForMonth,
+                expenses: expensesForMonth,
                 onEventTap: { event in detailEvent = event },
                 onDateSelect: { date in viewModel.selectDate(date) }
               )
@@ -144,6 +151,7 @@ struct CalendarView: View {
                   set: { viewModel.selectedDate = $0 }
                 ),
                 events: eventsForSelectedDate,
+                expenses: expensesForSelectedDate,
                 onEventTap: { event in detailEvent = event },
                 onDateSelect: { date in viewModel.selectDate(date) },
                 currentMonth: viewModel.currentMonth
@@ -245,6 +253,27 @@ struct CalendarView: View {
     return todosWithDueDate.filter { todo in
       guard let dueDate = todo.dueDate else { return false }
       return dueDate.isSameDay(as: dateToCheck)
+    }
+  }
+
+  private var expensesForMonth: [Expense] {
+    let startOfMonth = viewModel.currentMonth.startOfMonth
+    let endOfMonth = viewModel.currentMonth.endOfMonth
+    let monthlyTemplateIds = Set(expenseTemplates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
+    
+    return expenses.filter {
+        $0.date >= startOfMonth && $0.date <= endOfMonth &&
+        ($0.templateId != nil && monthlyTemplateIds.contains($0.templateId!))
+    }
+  }
+
+  private var expensesForSelectedDate: [Expense] {
+    let dateToCheck = viewModel.selectedDate ?? Date()
+    let monthlyTemplateIds = Set(expenseTemplates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
+    
+    return expenses.filter {
+        $0.date.isSameDay(as: dateToCheck) &&
+        ($0.templateId != nil && monthlyTemplateIds.contains($0.templateId!))
     }
   }
 

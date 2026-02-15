@@ -3,6 +3,9 @@ import SwiftData
 
 @main
 struct CalendarApp: App {
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #endif
     @StateObject private var appState = AppState()
     #if DEBUG
     @StateObject private var debugSettings = DebugSettings()
@@ -15,11 +18,11 @@ struct CalendarApp: App {
                 .environmentObject(appState)
                 .environmentObject(debugSettings)
                 .preferredColorScheme(debugSettings.themeOverride.colorScheme)
-                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self])
+                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self, Alarm.self, TimerPreset.self, TimerSession.self])
             #else
             ContentView()
                 .environmentObject(appState)
-                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self])
+                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self, Alarm.self, TimerPreset.self, TimerSession.self])
             #endif
         }
     }
@@ -76,6 +79,15 @@ struct ContentView: View {
     }
     .onAppear {
       EventViewModel().syncEventsToWidget(context: modelContext)
+      RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
+      TodoViewModel().cleanupCompletedTodos(context: modelContext)
+      TodoViewModel().rescheduleAllNotifications(context: modelContext)
+      
+      // Check for missed recurring payments
+      let missed = RecurringExpenseService.shared.checkMissedPayments(context: modelContext)
+      if !missed.isEmpty {
+        print("⚠️ \(missed.count) missed recurring payment(s) detected")
+      }
     }
   }
 }

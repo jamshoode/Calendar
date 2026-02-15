@@ -207,6 +207,9 @@ struct EditTemplateSheet: View {
     template.updatedAt = Date()
 
     try? modelContext.save()
+    
+    // Regenerate expenses with updated template values
+    RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
 
     dismiss()
   }

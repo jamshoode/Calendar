@@ -123,12 +123,6 @@ class TimerViewModel: ObservableObject {
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
   }
 
-  func updatePomodoroState(sessions: Int, isWork: Bool) {
-    workSessions = sessions
-    isWorkSession = isWork
-    saveState()
-  }
-
   private func startTick() {
     timer = Timer.publish(every: 0.1, on: .main, in: .common)
       .autoconnect()

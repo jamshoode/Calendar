@@ -21,6 +21,7 @@ class RecurringExpenseTemplate {
   var occurrenceCount: Int     // How many times detected/occurred
   var createdAt: Date
   var updatedAt: Date
+  var isIncome: Bool = false   // true = income, false = expense
   
   var primaryCategory: ExpenseCategory {
     ExpenseCategory(rawValue: categories.first ?? "other") ?? .other
@@ -52,11 +53,36 @@ class RecurringExpenseTemplate {
     return otherAmount >= lowerBound && otherAmount <= upperBound
   }
   
-  /// Calculate next due date
+  /// Calculate next due date by stepping from startDate to preserve day-of-month alignment
   func nextDueDate(from date: Date? = nil) -> Date? {
     let baseDate = date ?? lastGeneratedDate ?? startDate
     guard frequency != .oneTime else { return nil }
-    return frequency.nextDate(from: baseDate)
+    
+    let calendar = Calendar.current
+    
+    // Step from startDate by adding N periods until we find a date after baseDate
+    var multiplier = 1
+    while multiplier < 500 {
+      let candidateDate: Date?
+      switch frequency {
+      case .weekly:
+        candidateDate = calendar.date(byAdding: .weekOfYear, value: multiplier, to: startDate)
+      case .monthly:
+        candidateDate = calendar.date(byAdding: .month, value: multiplier, to: startDate)
+      case .yearly:
+        candidateDate = calendar.date(byAdding: .year, value: multiplier, to: startDate)
+      case .oneTime:
+        return nil
+      }
+      
+      guard let candidate = candidateDate else { return nil }
+      
+      if candidate > baseDate {
+        return candidate
+      }
+      multiplier += 1
+    }
+    return nil
   }
   
   /// Check if template is currently paused
@@ -81,7 +107,8 @@ class RecurringExpenseTemplate {
     notes: String? = nil,
     frequency: ExpenseFrequency = .monthly,
     startDate: Date = Date(),
-    occurrenceCount: Int = 1
+    occurrenceCount: Int = 1,
+    isIncome: Bool = false
   ) {
     self.id = UUID()
     self.title = title
@@ -101,6 +128,7 @@ class RecurringExpenseTemplate {
     self.occurrenceCount = occurrenceCount
     self.createdAt = Date()
     self.updatedAt = Date()
+    self.isIncome = isIncome
   }
 }
 

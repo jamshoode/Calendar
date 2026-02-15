@@ -11,6 +11,12 @@ class AlarmViewModel: ObservableObject {
         let alarm = Alarm(time: time)
         context.insert(alarm)
         
+        do {
+            try context.save()
+        } catch {
+            ErrorPresenter.shared.present(error)
+        }
+        
         UserDefaults.shared.set(true, forKey: "hasActiveAlarm")
         UserDefaults.shared.synchronize()
         
@@ -43,6 +49,7 @@ class AlarmViewModel: ObservableObject {
     
     func deleteAlarm(alarm: Alarm, context: ModelContext) {
         context.delete(alarm)
+        try? context.save()
         
         UserDefaults.shared.set(false, forKey: "hasActiveAlarm")
         UserDefaults.shared.synchronize()

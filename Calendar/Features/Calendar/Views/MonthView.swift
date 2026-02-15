@@ -5,6 +5,7 @@ struct MonthView: View {
   let selectedDate: Date?
   let events: [Event]
   var todos: [TodoItem] = []
+  var expenses: [Expense] = []
   let onSelectDate: (Date) -> Void
 
   private let calendar = Calendar.current
@@ -65,7 +66,8 @@ struct MonthView: View {
           isSelected: isSelected,
           isToday: isToday,
           events: isCurrentMonth ? eventsForDate(date) : [],
-          todos: isCurrentMonth ? todosForDate(date) : []
+          todos: isCurrentMonth ? todosForDate(date) : [],
+          expenses: isCurrentMonth ? expensesForDate(date) : []
         )
         .onTapGesture {
           onSelectDate(date)
@@ -84,5 +86,9 @@ struct MonthView: View {
       guard let dueDate = todo.dueDate else { return false }
       return dueDate.isSameDay(as: date) && !todo.isCompleted
     }
+  }
+
+  private func expensesForDate(_ date: Date) -> [Expense] {
+    expenses.filter { $0.date.isSameDay(as: date) }
   }
 }

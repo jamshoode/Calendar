@@ -7,9 +7,7 @@ class RecurringExpenseService {
   
   static let shared = RecurringExpenseService()
   
-  private init() {
-    requestNotificationPermissions()
-  }
+  private init() {}
   
   // MARK: - Expense Generation
   
@@ -23,25 +21,58 @@ class RecurringExpenseService {
       
       for template in templates {
         guard !template.isCurrentlyPaused else { continue }
+        guard template.frequency != .oneTime else { continue }
         
-        let lastDate = template.lastGeneratedDate ?? template.startDate
-        var nextDate = template.nextDueDate(from: lastDate)
+        // Generate up to 2 months ahead
+        let twoMonthsFromNow = Date().addingTimeInterval(60 * 24 * 60 * 60)
+        let calendar = Calendar.current
         
-        // Generate up to 1 month ahead
-        let oneMonthFromNow = Date().addingTimeInterval(30 * 24 * 60 * 60)
+        // Always step from startDate by adding N periods to preserve day-of-month
+        // e.g., startDate = Nov 24 → Dec 24, Jan 24, Feb 24, etc.
+        var multiplier = 0
+        var lastGeneratedExpenseDate: Date? = nil
         
-        while let date = nextDate, date <= oneMonthFromNow {
-          // Check if expense already exists for this date
+        while true {
+          let candidateDate: Date?
+          switch template.frequency {
+          case .weekly:
+            candidateDate = calendar.date(byAdding: .weekOfYear, value: multiplier, to: template.startDate)
+          case .monthly:
+            candidateDate = calendar.date(byAdding: .month, value: multiplier, to: template.startDate)
+          case .yearly:
+            candidateDate = calendar.date(byAdding: .year, value: multiplier, to: template.startDate)
+          case .oneTime:
+            candidateDate = nil
+          }
+          
+          guard let date = candidateDate else { break }
+          
+          // Skip the startDate itself (occurrence 0) — only generate future ones
+          // But include it if it's today or in the future
+          if multiplier == 0 && date < calendar.startOfDay(for: Date()) {
+            multiplier += 1
+            continue
+          }
+          
+          // Stop if we've gone past our generation window
+          if date > twoMonthsFromNow { break }
+          
+          // Create expense if it doesn't exist
           if !expenseExists(for: template, on: date, context: context) {
             createExpense(from: template, on: date, context: context)
           }
           
-          // Move to next occurrence
-          nextDate = template.nextDueDate(from: date)
+          lastGeneratedExpenseDate = date
+          multiplier += 1
+          
+          // Safety: prevent infinite loops
+          if multiplier > 500 { break }
         }
         
-        // Update last generated date
-        template.lastGeneratedDate = Date()
+        // Update last generated date to the actual last expense date
+        if let lastExpenseDate = lastGeneratedExpenseDate {
+          template.lastGeneratedDate = lastExpenseDate
+        }
       }
       
       try context.save()
@@ -96,7 +127,8 @@ class RecurringExpenseService {
       merchant: template.merchant,
       notes: template.notes,
       templateId: template.id,
-      isGenerated: true
+      isGenerated: true,
+      isIncome: template.isIncome
     )
     
     context.insert(expense)
@@ -104,23 +136,21 @@ class RecurringExpenseService {
   
   // MARK: - Notifications
   
-  /// Request notification permissions
-  private func requestNotificationPermissions() {
-    UNUserNotificationCenter.current().requestAuthorization(
-      options: [.alert, .badge, .sound]
-    ) { granted, error in
-      if let error = error {
-        print("Notification permission error: \(error)")
-      }
+  /// Schedule notifications for upcoming recurring expenses
+  func scheduleUpcomingNotifications(context: ModelContext) {
+    // Only cancel existing EXPENSE notifications (not alarm/event/todo ones)
+    UNUserNotificationCenter.current().getPendingNotificationRequests { [weak self] requests in
+      let expenseIds = requests
+        .filter { $0.identifier.hasPrefix("recurring-expense-") }
+        .map { $0.identifier }
+      UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: expenseIds)
+      
+      // Now schedule new ones
+      self?.scheduleNewExpenseNotifications(context: context)
     }
   }
   
-  /// Schedule notifications for upcoming recurring expenses
-  func scheduleUpcomingNotifications(context: ModelContext) {
-    // Cancel existing notifications
-    UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-    
-    // Get upcoming expenses (next 7 days)
+  private func scheduleNewExpenseNotifications(context: ModelContext) {
     let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
     
     do {
@@ -175,15 +205,18 @@ class RecurringExpenseService {
     
     if expenses.count == 1 {
       let expense = expenses[0]
+      let symbol = expense.template.currencyEnum.symbol
       content.title = "💰 Upcoming Payment"
-      content.body = "\(expense.template.title) - ₴\(String(format: "%.2f", expense.template.amount)) due tomorrow"
+      content.body = "\(expense.template.title) - \(symbol)\(String(format: "%.2f", expense.template.amount)) due tomorrow"
     } else {
       let total = expenses.reduce(0) { $0 + $1.template.amount }
       let names = expenses.prefix(3).map { $0.template.title }.joined(separator: ", ")
       let more = expenses.count > 3 ? " and \(expenses.count - 3) more" : ""
+      // Use the first expense's currency as the common symbol
+      let symbol = expenses.first?.template.currencyEnum.symbol ?? "₴"
       
       content.title = "💰 \(expenses.count) Payments Due Tomorrow"
-      content.body = "Total: ₴\(String(format: "%.2f", total)) - \(names)\(more)"
+      content.body = "Total: \(symbol)\(String(format: "%.2f", total)) - \(names)\(more)"
     }
     
     content.sound = .default

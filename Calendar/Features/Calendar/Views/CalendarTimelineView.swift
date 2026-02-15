@@ -5,6 +5,7 @@ import SwiftData
 struct CalendarTimelineView: View {
   @Binding var selectedDate: Date
   let events: [Event]
+  let expenses: [Expense]
   let onEventTap: (Event) -> Void
   let onDateSelect: (Date) -> Void
   let currentMonth: Date
@@ -14,12 +15,15 @@ struct CalendarTimelineView: View {
   private let hourHeight: CGFloat = 56
 
   private var timelineEvents: [Event] {
-    // Holiday events displayed as all-day; regular events on timeline
-    events.filter { !$0.isHoliday }
+    events.filter { !$0.isHoliday && $0.date.isSameDay(as: selectedDate) }
+  }
+
+  private var timelineExpenses: [Expense] {
+    expenses.filter { $0.date.isSameDay(as: selectedDate) }
   }
 
   private var allDayEvents: [Event] {
-    events.filter { $0.isHoliday }
+    events.filter { $0.isHoliday && $0.date.isSameDay(as: selectedDate) }
   }
 
   var body: some View {
@@ -74,6 +78,24 @@ struct CalendarTimelineView: View {
                     startHour: startHour
                   )
                   .onTapGesture { onEventTap(event) }
+                }
+
+                // Expense blocks
+                ForEach(timelineExpenses) { expense in
+                  TimelineExpenseBlock(
+                    expense: expense,
+                    hourHeight: hourHeight,
+                    startHour: startHour
+                  )
+                }
+
+                // Expense blocks
+                ForEach(timelineExpenses) { expense in
+                  TimelineExpenseBlock(
+                    expense: expense,
+                    hourHeight: hourHeight,
+                    startHour: startHour
+                  )
                 }
               }
               .frame(width: timelineWidth)
@@ -198,6 +220,53 @@ private struct TimelineEventBlock: View {
     }
     .frame(height: blockHeight)
     .background(Color.eventColor(named: event.color).opacity(0.12))
+    .clipShape(RoundedRectangle(cornerRadius: 8))
+    .padding(.leading, 60)  // After the hour label column
+    .offset(y: topOffset)
+  }
+}
+
+private struct TimelineExpenseBlock: View {
+  let expense: Expense
+  let hourHeight: CGFloat
+  let startHour: Int
+
+  private var topOffset: CGFloat {
+    let cal = Calendar.current
+    let hour = cal.component(.hour, from: expense.date)
+    let minute = cal.component(.minute, from: expense.date)
+    return CGFloat(hour - startHour) * hourHeight + CGFloat(minute) / 60.0 * hourHeight
+  }
+
+  private var blockHeight: CGFloat {
+    // Default size for expense block
+    max(hourHeight * 0.6, 30)
+  }
+
+  var body: some View {
+    HStack(spacing: 0) {
+      RoundedRectangle(cornerRadius: 3)
+        .fill(Color.orange)
+        .frame(width: 4)
+
+      VStack(alignment: .leading, spacing: 2) {
+        Text(expense.title)
+          .font(Typography.caption)
+          .fontWeight(.semibold)
+          .foregroundColor(Color.textPrimary)
+          .lineLimit(1)
+
+        Text(expense.amount.formatted(.currency(code: expense.currency)))
+          .font(.system(size: 10))
+          .foregroundColor(Color.textSecondary)
+      }
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
+
+      Spacer()
+    }
+    .frame(height: blockHeight)
+    .background(Color.orange.opacity(0.12))
     .clipShape(RoundedRectangle(cornerRadius: 8))
     .padding(.leading, 60)  // After the hour label column
     .offset(y: topOffset)

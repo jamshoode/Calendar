@@ -82,6 +82,7 @@ public struct Localization {
     case tabExpenses
     case tabClock
     case tabWeather
+    case tabBudget
 
     // UI Labels
     case today
@@ -103,9 +104,7 @@ public struct Localization {
     case alarmWillRingAt(String)
     case alarmSetFor(String)
     case countdown
-    case pomodoro
     case selectTimerType
-    case pomodoroSession(Int, Int)
     case timeRemaining(String)
     case alarmTime(String)
 
@@ -264,6 +263,9 @@ public struct Localization {
     case expensePeriodMonthly
     case expensePeriodYearly
     case expenseTotalCapitalized
+    case expenseExpensesLabel
+    case expenseIncomeLabel
+    case expenseIncomeToggle
     
     // Expense Dialogs
     case clearAllDataPrompt
@@ -432,6 +434,8 @@ public struct Localization {
       return lang == .ukrainian ? "Витрати" : "Expenses"
     case .tabClock:
       return lang == .ukrainian ? "Годинник" : "Clock"
+    case .tabBudget:
+      return lang == .ukrainian ? "Бюджет" : "Budget"
 
     // Alarm View
     case .noAlarmSet:
@@ -463,12 +467,8 @@ public struct Localization {
       return lang == .ukrainian ? "Будильник встановлено на \(time)" : "Alarm set for \(time)"
     case .countdown:
       return lang == .ukrainian ? "Зворотній відлік" : "Countdown"
-    case .pomodoro:
-      return lang == .ukrainian ? "Помодоро" : "Pomodoro"
     case .selectTimerType:
       return lang == .ukrainian ? "Оберіть тип таймера" : "Select timer type"
-    case .pomodoroSession(let current, let total):
-      return lang == .ukrainian ? "Сесія \(current) з \(total)" : "Session \(current) of \(total)"
     case .timeRemaining(let time):
       return lang == .ukrainian ? "Залишилось часу: \(time)" : "Time remaining: \(time)"
     case .alarmTime(let time):
@@ -810,6 +810,12 @@ public struct Localization {
       return lang == .ukrainian ? "Рік" : "Yearly"
     case .expenseTotalCapitalized:
       return lang == .ukrainian ? "ЗАГАЛОМ" : "TOTAL"
+    case .expenseExpensesLabel:
+      return lang == .ukrainian ? "ВИТРАТИ" : "EXPENSES"
+    case .expenseIncomeLabel:
+      return lang == .ukrainian ? "ДОХІД" : "INCOME"
+    case .expenseIncomeToggle:
+      return lang == .ukrainian ? "Дохід" : "Income"
     case .clearAllDataPrompt:
       return lang == .ukrainian ? "Очистити всі дані?" : "Clear All Data?"
     case .clearAllExpensesConfirm:

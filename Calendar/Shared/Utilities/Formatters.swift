@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 struct Formatters {
     static let dateFormatter: DateFormatter = {
@@ -25,12 +26,14 @@ struct Formatters {
     static let monthYearFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
+        formatter.locale = Localization.locale
         return formatter
     }()
     
     static let weekdayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
+        formatter.locale = Localization.locale
         return formatter
     }()
     

@@ -73,40 +73,9 @@ struct InsightsView: View {
           .cornerRadius(12)
         }
         
-        // Income section
-        let income = calculateIncome()
-        if income > 0 {
-          VStack(alignment: .leading, spacing: 16) {
-            Text(Localization.string(.incomeThisMonth))
-              .font(.system(size: 12, weight: .black))
-              .tracking(1)
-              .foregroundColor(.secondary)
-            
-            HStack {
-              Image(systemName: "arrow.down.circle.fill")
-                .foregroundColor(.green)
-                .font(.title2)
-              
-              VStack(alignment: .leading) {
-                Text("₴\(String(format: "%.2f", income))")
-                  .font(.title2.bold())
-                
-                let totalExpenses = currentMonthExpenses.reduce(0) { $0 + $1.amount }
-                let net = income - totalExpenses
-                Text(Localization.string(.netIncome("₴\(String(format: "%.2f", net))")))
-                  .font(.caption)
-                  .foregroundColor(net >= 0 ? .green : .red)
-              }
-              
-              Spacer()
-            }
-          }
-          .padding()
-          .background(Color(.systemGray6))
-          .cornerRadius(12)
-        }
         
         if expenses.isEmpty {
+
           VStack(spacing: 16) {
             Image(systemName: "chart.pie")
               .font(.system(size: 48))
@@ -156,14 +125,6 @@ struct InsightsView: View {
     
     // Sort by absolute change
     return trends.sorted { abs($0.change) > abs($1.change) }
-  }
-  
-  private func calculateIncome() -> Double {
-    // Sum all positive amounts (income) from current month
-    // Note: In the updated model, we'd need to track income separately
-    // For now, this is a placeholder
-    return 0
-  }
 }
 
 struct Trend: Identifiable {
@@ -189,12 +150,12 @@ struct TrendRow: View {
           .font(.subheadline)
         
         HStack(spacing: 4) {
-          Text("₴\(String(format: "%.0f", trend.currentAmount))")
+          Text("\(Currency.uah.symbol)\(String(format: "%.0f", trend.currentAmount))")
             .font(.caption)
             .foregroundColor(.secondary)
           
           if trend.lastAmount > 0 {
-            Text(Localization.string(.wasAmount("₴\(String(format: "%.0f", trend.lastAmount))")))
+            Text(Localization.string(.wasAmount("\(Currency.uah.symbol)\(String(format: "%.0f", trend.lastAmount))")))
               .font(.caption2)
               .foregroundColor(.secondary.opacity(0.7))
           }
@@ -221,45 +182,46 @@ struct TrendRow: View {
   }
 }
 
-struct CategoryBreakdownRow: View {
-  let category: ExpenseCategory
-  let amount: Double
-  let percentage: Double
-  
-  var body: some View {
-    VStack(spacing: 8) {
-      HStack {
-        HStack(spacing: 8) {
-          Image(systemName: category.icon)
-            .foregroundColor(category.color)
-            .frame(width: 20)
-          
-          Text(category.displayName)
-            .font(.subheadline)
-        }
+    struct CategoryBreakdownRow: View {
+        let category: ExpenseCategory
+        let amount: Double
+        let percentage: Double
         
-        Spacer()
-        
-        VStack(alignment: .trailing, spacing: 2) {
-          Text("₴\(String(format: "%.0f", amount))")
-            .font(.subheadline.bold())
-          
-          Text("\(String(format: "%.1f", percentage))%")
-            .font(.caption)
-            .foregroundColor(.secondary)
+        var body: some View {
+            VStack(spacing: 8) {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: category.icon)
+                            .foregroundColor(category.color)
+                            .frame(width: 20)
+                        
+                        Text(category.displayName)
+                            .font(.subheadline)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("\(Currency.uah.symbol)\(String(format: "%.0f", amount))")
+                            .font(.subheadline.bold())
+                        
+                        Text("\(String(format: "%.1f", percentage))%")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                // Progress bar
+                GeometryReader { geometry in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(category.color)
+                        .frame(width: geometry.size.width * (percentage / 100), height: 4)
+                }
+                .frame(height: 4)
+            }
+            .padding(.vertical, 4)
         }
-      }
-      
-      // Progress bar
-      GeometryReader { geometry in
-        RoundedRectangle(cornerRadius: 2)
-          .fill(category.color)
-          .frame(width: geometry.size.width * (percentage / 100), height: 4)
-      }
-      .frame(height: 4)
     }
-    .padding(.vertical, 4)
-  }
 }
 
 #Preview {

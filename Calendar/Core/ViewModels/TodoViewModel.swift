@@ -443,6 +443,7 @@ class TodoViewModel: ObservableObject {
     
     defaults?.synchronize()
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
+    WidgetCenter.shared.reloadTimelines(ofKind: "CombinedWidget")
   }
 }
 

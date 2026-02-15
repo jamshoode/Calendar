@@ -95,7 +95,7 @@ struct Provider: TimelineProvider {
     let forcedScheme = defaults.string(forKey: "debug_themeOverride")
     let events = Self.decodeEventData(defaults.string(forKey: "widgetEventData"))
 
-    let timerIds = ["default", "countdown", "pomodoro"]
+    let timerIds = ["default", "countdown"]
     var activeTimerId: String?
     for id in timerIds {
       if defaults.bool(forKey: "\(id).isRunning") || defaults.bool(forKey: "\(id).isPaused") {

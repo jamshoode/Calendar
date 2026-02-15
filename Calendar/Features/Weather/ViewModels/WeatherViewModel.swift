@@ -63,7 +63,7 @@ public class WeatherViewModel: ObservableObject {
             self.cachedWeatherHistory = historyEncoded
             
             // Share with widget via shared UserDefaults
-            if let sharedDefaults = UserDefaults(suiteName: Constants.App.appGroupIdentifier) {
+            if let sharedDefaults = UserDefaults(suiteName: Constants.Storage.appGroupIdentifier) {
                 sharedDefaults.set(encoded, forKey: Constants.Widget.weatherDataKey)
                 sharedDefaults.set(historyEncoded, forKey: "widgetWeatherHistory")
                 sharedDefaults.synchronize()

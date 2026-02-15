@@ -4,10 +4,6 @@ public struct Constants {
   static let appName = "Calendar"
 
   struct Timer {
-    static let pomodoroWorkDuration: TimeInterval = 25 * 60
-    static let pomodoroShortBreakDuration: TimeInterval = 5 * 60
-    static let pomodoroLongBreakDuration: TimeInterval = 15 * 60
-    static let pomodoroSessionsBeforeLongBreak = 4
     static let defaultSnoozeDuration: TimeInterval = 5 * 60
   }
 
@@ -24,9 +20,7 @@ public struct Constants {
     static let appGroupIdentifier = "group.com.shoode.calendar"
   }
 
-  struct App {
-    static let appGroupIdentifier = "group.com.shoode.calendar"
-  }
+
 
   struct Widget {
     static let weatherDataKey = "widgetWeatherData"

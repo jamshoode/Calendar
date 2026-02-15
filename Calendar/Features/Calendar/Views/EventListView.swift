@@ -5,11 +5,13 @@ struct EventListView: View {
   let date: Date?
   let events: [Event]
   var todos: [TodoItem] = []
+  var expenses: [Expense] = []
   let onEdit: (Event) -> Void
   let onDelete: (Event) -> Void
   let onAdd: () -> Void
   var onTodoToggle: ((TodoItem) -> Void)?
   var onTodoTap: ((TodoItem) -> Void)?
+  var onExpenseTap: ((Expense) -> Void)?
   var showJumpToToday: Bool = false
   var onJumpToToday: (() -> Void)?
 
@@ -25,16 +27,38 @@ struct EventListView: View {
   }
 
   private var allItemCount: Int {
-    events.count + incompleteTodos.count
+    events.count + incompleteTodos.count + expenses.count
   }
 
-  private var previewEvents: [Event] {
-    Array(events.prefix(3))
-  }
 
-  private var previewTodos: [TodoItem] {
-    let remaining = max(0, 3 - events.count)
-    return Array(incompleteTodos.prefix(remaining))
+
+  // Helper to determine what to show in the limited space (max 3 items)
+  private func getPreviewItems() -> (events: [Event], expenses: [Expense], todos: [TodoItem]) {
+    var pEvents: [Event] = []
+    var pExpenses: [Expense] = []
+    var pTodos: [TodoItem] = []
+    
+    var remainingSlots = 3
+    
+    // 1. Events take priority
+    let eventCount = min(events.count, remainingSlots)
+    pEvents = Array(events.prefix(eventCount))
+    remainingSlots -= eventCount
+    
+    // 2. Expenses next
+    if remainingSlots > 0 {
+        let expenseCount = min(expenses.count, remainingSlots)
+        pExpenses = Array(expenses.prefix(expenseCount))
+        remainingSlots -= expenseCount
+    }
+    
+    // 3. Todos last
+    if remainingSlots > 0 {
+        let todoCount = min(incompleteTodos.count, remainingSlots)
+        pTodos = Array(incompleteTodos.prefix(todoCount))
+    }
+    
+    return (pEvents, pExpenses, pTodos)
   }
 
   var body: some View {
@@ -82,7 +106,7 @@ struct EventListView: View {
       // Content area
       ScrollView {
           VStack(alignment: .leading, spacing: 10) {
-            if events.isEmpty && incompleteTodos.isEmpty {
+            if events.isEmpty && incompleteTodos.isEmpty && expenses.isEmpty {
               VStack(spacing: 8) {
                   Image(systemName: "calendar.badge.plus")
                     .font(.system(size: 24))
@@ -94,12 +118,19 @@ struct EventListView: View {
               .frame(maxWidth: .infinity)
               .padding(.vertical, 20)
             } else {
-              ForEach(previewEvents) { event in
+              let previews = getPreviewItems()
+              
+              ForEach(previews.events) { event in
                 CompactEventRow(event: event)
                   .onTapGesture { onEdit(event) }
               }
 
-              ForEach(previewTodos) { todo in
+              ForEach(previews.expenses) { expense in
+                CompactExpenseRow(expense: expense)
+                  .onTapGesture { onExpenseTap?(expense) }
+              }
+
+              ForEach(previews.todos) { todo in
                 CompactTodoRow(todo: todo, onToggle: { onTodoToggle?(todo) })
                   .onTapGesture { onTodoTap?(todo) }
               }
@@ -132,12 +163,14 @@ struct EventListView: View {
         date: date,
         events: events,
         todos: incompleteTodos,
+        expenses: expenses,
         isToday: isToday,
         onEdit: onEdit,
         onDelete: onDelete,
         onAdd: onAdd,
         onTodoToggle: onTodoToggle,
-        onTodoTap: onTodoTap
+        onTodoTap: onTodoTap,
+        onExpenseTap: onExpenseTap
       )
       .presentationDetents([.medium, .large])
     }
@@ -152,6 +185,19 @@ struct CompactEventRow: View {
       Text(event.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.textPrimary).lineLimit(1)
       Spacer()
       Text(event.date.formatted(date: .omitted, time: .shortened)).font(Typography.caption).foregroundColor(Color.textSecondary)
+    }
+    .padding(.horizontal, 12).padding(.vertical, 8).background(.white.opacity(0.05)).clipShape(RoundedRectangle(cornerRadius: 12))
+  }
+}
+
+struct CompactExpenseRow: View {
+  let expense: Expense
+  var body: some View {
+    HStack(spacing: 8) {
+      Circle().fill(Color.orange).frame(width: 8, height: 8)
+      Text(expense.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.textPrimary).lineLimit(1)
+      Spacer()
+      Text(expense.amount.formatted(.currency(code: expense.currency))).font(Typography.caption).foregroundColor(Color.textSecondary)
     }
     .padding(.horizontal, 12).padding(.vertical, 8).background(.white.opacity(0.05)).clipShape(RoundedRectangle(cornerRadius: 12))
   }
@@ -185,12 +231,14 @@ struct EventListDetailSheet: View {
   let date: Date?
   let events: [Event]
   let todos: [TodoItem]
+  let expenses: [Expense]
   let isToday: Bool
   let onEdit: (Event) -> Void
   let onDelete: (Event) -> Void
   let onAdd: () -> Void
   var onTodoToggle: ((TodoItem) -> Void)?
   var onTodoTap: ((TodoItem) -> Void)?
+  var onExpenseTap: ((Expense) -> Void)?
 
   var body: some View {
     NavigationStack {
@@ -201,6 +249,17 @@ struct EventListDetailSheet: View {
               ForEach(events) { event in
                 EventRow(event: event).onTapGesture { onEdit(event) }
               }
+              
+              if !expenses.isEmpty {
+                HStack {
+                  Text(Localization.string(.tabBudget).uppercased()).font(.system(size: 10, weight: .black)).foregroundColor(Color.textTertiary).tracking(2)
+                  Spacer()
+                }.padding(.top, 16).padding(.leading, 4)
+                ForEach(expenses) { expense in
+                  ExpenseRow(expense: expense).onTapGesture { onExpenseTap?(expense) }
+                }
+              }
+
               if !todos.isEmpty {
                 HStack {
                   Text(Localization.string(.tabTodo).uppercased()).font(.system(size: 10, weight: .black)).foregroundColor(Color.textTertiary).tracking(2)
@@ -238,6 +297,8 @@ struct EventRow: View {
     .padding(12).background(.ultraThinMaterial).clipShape(RoundedRectangle(cornerRadius: 12))
   }
 }
+
+
 
 struct EventListTodoRow: View {
   let todo: TodoItem

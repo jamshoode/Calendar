@@ -131,7 +131,7 @@ struct CombinedProvider: TimelineProvider {
         let currentWeather = getCurrentWeather(from: weatherData, for: date)
         
         // Get timer/alarm/todo data
-        let timerIds = ["default", "countdown", "pomodoro"]
+        let timerIds = ["default", "countdown"]
         var activeTimerId: String?
         for id in timerIds {
             if defaults.bool(forKey: "widget_\(id)_hasTimer") {
@@ -177,12 +177,13 @@ struct CombinedProvider: TimelineProvider {
     }
     
     private func loadUpcomingItems(from defaults: UserDefaults) -> [UpcomingItem] {
-        var items: [UpcomingItem] = []
+        var todos: [UpcomingItem] = []
+        var expenses: [UpcomingItem] = []
         
         // Load todos
         if let todoData = defaults.data(forKey: "widgetUpcomingTodos"),
-           let todos = try? JSONDecoder().decode([WidgetTodoItem].self, from: todoData) {
-            items.append(contentsOf: todos.map { todo in
+           let widgetTodos = try? JSONDecoder().decode([WidgetTodoItem].self, from: todoData) {
+            todos = widgetTodos.map { todo in
                 UpcomingItem(
                     id: todo.id,
                     title: todo.title,
@@ -194,13 +195,18 @@ struct CombinedProvider: TimelineProvider {
                     currency: nil,
                     expenseCategory: nil
                 )
-            })
+            }
         }
         
-        // Load expenses
+        // If we have todos, show them (taking top 2)
+        if !todos.isEmpty {
+            return todos.sorted { $0.date < $1.date }.prefix(2).map { $0 }
+        }
+        
+        // Load expenses (only if no todos)
         if let expenseData = defaults.data(forKey: "widgetUpcomingExpenses"),
-           let expenses = try? JSONDecoder().decode([WidgetExpenseItem].self, from: expenseData) {
-            items.append(contentsOf: expenses.map { expense in
+           let widgetExpenses = try? JSONDecoder().decode([WidgetExpenseItem].self, from: expenseData) {
+            expenses = widgetExpenses.map { expense in
                 UpcomingItem(
                     id: expense.id,
                     title: expense.title,
@@ -212,11 +218,11 @@ struct CombinedProvider: TimelineProvider {
                     currency: expense.currency,
                     expenseCategory: expense.category
                 )
-            })
+            }
         }
         
         // Sort by date and take top 2
-        return items.sorted { $0.date < $1.date }.prefix(2).map { $0 }
+        return expenses.sorted { $0.date < $1.date }.prefix(2).map { $0 }
     }
 
     // MARK: - Helper Methods

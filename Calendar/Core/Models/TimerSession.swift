@@ -3,8 +3,6 @@ import Foundation
 
 enum TimerType: String, Codable {
     case countdown
-    case pomodoroWork
-    case pomodoroBreak
 }
 
 @Model

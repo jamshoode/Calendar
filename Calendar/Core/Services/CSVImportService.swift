@@ -161,7 +161,8 @@ class CSVImportService {
       merchant: transaction.merchant,
       notes: nil,
       templateId: template?.id,
-      isGenerated: false
+      isGenerated: false,
+      isIncome: transaction.isIncome
     )
     
     context.insert(expense)

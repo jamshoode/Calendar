@@ -40,7 +40,7 @@ struct PresetButton: View {
               .foregroundColor(.accentColor)
           }
           .frame(maxWidth: .infinity)
-          .frame(height: 64)
+          .frame(height: 24)
       }
     }
     .buttonStyle(.plain)

@@ -197,6 +197,9 @@ struct AddTemplateSheet: View {
 
     modelContext.insert(template)
     try? modelContext.save()
+    
+    // Generate expenses immediately for the new template
+    RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
 
     dismiss()
   }

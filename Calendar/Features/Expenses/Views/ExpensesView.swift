@@ -81,8 +81,6 @@ struct ExpensesView: View {
     
     let interval: DateInterval
     switch period {
-    case .all:
-      interval = DateInterval(start: today, end: today)
     case .weekly:
       interval =
         calendar.dateInterval(of: .weekOfYear, for: today) ?? DateInterval(start: today, end: today)
@@ -92,6 +90,8 @@ struct ExpensesView: View {
     case .yearly:
       interval =
         calendar.dateInterval(of: .year, for: today) ?? DateInterval(start: today, end: today)
+    default:
+      interval = DateInterval(start: today, end: today)
     }
     return (
       interval.start, calendar.date(byAdding: .second, value: -1, to: interval.end) ?? interval.end
@@ -239,17 +239,19 @@ struct ExpensesView: View {
     .sheet(isPresented: $showingAddExpense) {
       AddExpenseSheet(
         expense: editingExpense,
-        onSave: { title, amount, date, category, paymentMethod, currency, merchant, notes in
+        onSave: { title, amount, date, category, paymentMethod, currency, merchant, notes, isIncome in
           do {
             if let expense = editingExpense {
               try viewModel.updateExpense(
                 expense, title: title, amount: amount, date: date, category: category,
                 paymentMethod: paymentMethod, currency: currency, merchant: merchant, notes: notes,
+                isIncome: isIncome,
                 context: modelContext)
             } else {
               try viewModel.addExpense(
                 title: title, amount: amount, date: date, category: category,
                 paymentMethod: paymentMethod, currency: currency, merchant: merchant, notes: notes,
+                isIncome: isIncome,
                 context: modelContext)
             }
           } catch {
@@ -317,21 +319,48 @@ struct HistoryView: View {
   var body: some View {
     ScrollView {
       VStack(spacing: 24) {
-        // Total Amount - calculated from ALL expenses for accuracy
+        // Total Amount - split into Expenses and Income columns
         let bounds = periodBounds()
-        let multiCurrencyTotals = viewModel.multiCurrencyTotalsForPeriod(
-          expenses: allExpensesForTotals, start: bounds.start, end: bounds.end)
+        let expenseTotals = viewModel.multiCurrencyTotalsForPeriod(
+          expenses: allExpensesForTotals, start: bounds.start, end: bounds.end, isIncome: false)
+        let incomeTotals = viewModel.multiCurrencyTotalsForPeriod(
+          expenses: allExpensesForTotals, start: bounds.start, end: bounds.end, isIncome: true)
 
         VStack(spacing: 16) {
-          VStack(spacing: 4) {
-            Text(Localization.string(.expenseTotalCapitalized))
-              .font(.system(size: 10, weight: .black))
-              .foregroundColor(.textTertiary)
-              .tracking(2)
+          // Two columns: Expenses | Income
+          HStack(spacing: 12) {
+            // Expenses column
+            VStack(spacing: 4) {
+              Text(Localization.string(.expenseExpensesLabel))
+                .font(.system(size: 10, weight: .black))
+                .foregroundColor(.textTertiary)
+                .tracking(2)
 
-            Text("₴\(String(format: "%.2f", multiCurrencyTotals.uah))")
-              .font(.system(size: 48, weight: .black, design: .rounded))
-              .foregroundColor(.textPrimary)
+              Text("\(Currency.uah.symbol)\(String(format: "%.2f", expenseTotals.uah))")
+                .font(.system(size: 28, weight: .black, design: .rounded))
+                .foregroundColor(.textPrimary)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+
+            Divider()
+              .frame(height: 48)
+
+            // Income column
+            VStack(spacing: 4) {
+              Text(Localization.string(.expenseIncomeLabel))
+                .font(.system(size: 10, weight: .black))
+                .foregroundColor(.textTertiary)
+                .tracking(2)
+
+              Text("\(Currency.uah.symbol)\(String(format: "%.2f", incomeTotals.uah))")
+                .font(.system(size: 28, weight: .black, design: .rounded))
+                .foregroundColor(.green)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
           }
 
           HStack(spacing: 24) {
@@ -339,7 +368,7 @@ struct HistoryView: View {
               Text("$")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.textTertiary)
-              Text(String(format: "%.2f", multiCurrencyTotals.usd))
+              Text(String(format: "%.2f", expenseTotals.usd))
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundColor(.textSecondary)
             }
@@ -351,7 +380,7 @@ struct HistoryView: View {
               Text("€")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.textTertiary)
-              Text(String(format: "%.2f", multiCurrencyTotals.eur))
+              Text(String(format: "%.2f", expenseTotals.eur))
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundColor(.textSecondary)
             }
@@ -413,8 +442,6 @@ struct HistoryView: View {
     
     let interval: DateInterval
     switch period {
-    case .all:
-      interval = DateInterval(start: today, end: today)
     case .weekly:
       interval =
         calendar.dateInterval(of: .weekOfYear, for: today) ?? DateInterval(start: today, end: today)
@@ -424,6 +451,8 @@ struct HistoryView: View {
     case .yearly:
       interval =
         calendar.dateInterval(of: .year, for: today) ?? DateInterval(start: today, end: today)
+    default:
+      interval = DateInterval(start: today, end: today)
     }
     return (
       interval.start, calendar.date(byAdding: .second, value: -1, to: interval.end) ?? interval.end

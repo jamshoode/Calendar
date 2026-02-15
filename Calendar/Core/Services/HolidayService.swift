@@ -235,7 +235,7 @@ final class HolidayService {
     let currentYear = calendar.component(.year, from: Date())
 
     // Sync if we're in a new month compared to the last sync
-    return currentYear > lastSyncYear || currentMonth > lastSyncMonth
+    return currentYear > lastSyncYear || (currentYear == lastSyncYear && currentMonth > lastSyncMonth)
   }
 
   /// Look up language for a country code from the static map.

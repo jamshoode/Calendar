@@ -7,7 +7,7 @@ struct AddExpenseSheet: View {
 
   let expense: Expense?
   let onSave:
-    ((String, Double, Date, ExpenseCategory, PaymentMethod, Currency, String?, String?) -> Void)?
+    ((String, Double, Date, ExpenseCategory, PaymentMethod, Currency, String?, String?, Bool) -> Void)?
   let onDelete: (() -> Void)?
 
   @State private var title: String = ""
@@ -18,13 +18,14 @@ struct AddExpenseSheet: View {
   @State private var currency: Currency = .uah
   @State private var merchant: String = ""
   @State private var notes: String = ""
+  @State private var isIncome: Bool = false
 
   private let viewModel = ExpenseViewModel()
 
   init(
     expense: Expense? = nil,
     onSave: (
-      (String, Double, Date, ExpenseCategory, PaymentMethod, Currency, String?, String?) -> Void
+      (String, Double, Date, ExpenseCategory, PaymentMethod, Currency, String?, String?, Bool) -> Void
     )? =
       nil,
     onDelete: (() -> Void)? = nil
@@ -42,6 +43,7 @@ struct AddExpenseSheet: View {
       _currency = State(initialValue: expense.currencyEnum)
       _merchant = State(initialValue: expense.merchant ?? "")
       _notes = State(initialValue: expense.notes ?? "")
+      _isIncome = State(initialValue: expense.isIncome)
     }
   }
 
@@ -57,6 +59,16 @@ struct AddExpenseSheet: View {
             TextField(Localization.string(.expenseAmount), text: $amountText)
               .keyboardType(.decimalPad)
           }
+        }
+        
+        Section {
+          Toggle(Localization.string(.expenseIncomeToggle), isOn: $isIncome)
+            .tint(.green)
+        }
+        
+        Section {
+          Toggle(Localization.string(.expenseIncomeToggle), isOn: $isIncome)
+            .tint(.green)
         }
 
         Section(Localization.string(.date)) {
@@ -189,7 +201,8 @@ struct AddExpenseSheet: View {
       onSave(
         title, amount, date, category, paymentMethod, currency,
         merchant.isEmpty ? nil : merchant,
-        notes.isEmpty ? nil : notes
+        notes.isEmpty ? nil : notes,
+        isIncome
       )
       dismiss()
     } else if let expense = expense {
@@ -199,6 +212,7 @@ struct AddExpenseSheet: View {
           category: category, paymentMethod: paymentMethod, currency: currency,
           merchant: merchant.isEmpty ? nil : merchant,
           notes: notes.isEmpty ? nil : notes,
+          isIncome: isIncome,
           context: modelContext
         )
         dismiss()
@@ -212,6 +226,7 @@ struct AddExpenseSheet: View {
           category: category, paymentMethod: paymentMethod, currency: currency,
           merchant: merchant.isEmpty ? nil : merchant,
           notes: notes.isEmpty ? nil : notes,
+          isIncome: isIncome,
           context: modelContext
         )
         dismiss()

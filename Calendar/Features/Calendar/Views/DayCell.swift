@@ -7,6 +7,7 @@ struct DayCell: View {
   let isToday: Bool
   let events: [Event]
   var todos: [TodoItem] = []
+  var expenses: [Expense] = []
 
   var body: some View {
     VStack(spacing: 4) {
@@ -38,6 +39,9 @@ struct DayCell: View {
           if !todos.isEmpty {
             TodoIndicator(count: todos.count)
           }
+          if !expenses.isEmpty {
+            ExpenseIndicator(count: expenses.count)
+          }
         }
       }
       .frame(height: 6)
@@ -66,6 +70,16 @@ struct TodoIndicator: View {
   var body: some View {
     Circle()
       .fill(Color.statusInProgress)
+      .frame(width: 5, height: 5)
+  }
+}
+
+struct ExpenseIndicator: View {
+  let count: Int
+  
+  var body: some View {
+    Circle()
+      .fill(Color.orange)
       .frame(width: 5, height: 5)
   }
 }

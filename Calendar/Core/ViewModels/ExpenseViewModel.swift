@@ -13,6 +13,7 @@ class ExpenseViewModel {
     currency: Currency,
     merchant: String?,
     notes: String?,
+    isIncome: Bool,
     context: ModelContext
   ) throws {
     let expense = Expense(
@@ -23,10 +24,12 @@ class ExpenseViewModel {
       paymentMethod: paymentMethod,
       currency: currency,
       merchant: merchant,
-      notes: notes
+      notes: notes,
+      isIncome: isIncome
     )
     context.insert(expense)
     try context.save()
+    syncExpensesToWidget(context: context)
   }
 
   func updateExpense(
@@ -39,6 +42,7 @@ class ExpenseViewModel {
     currency: Currency,
     merchant: String?,
     notes: String?,
+    isIncome: Bool,
     context: ModelContext
   ) throws {
     expense.title = title
@@ -49,25 +53,28 @@ class ExpenseViewModel {
     expense.currency = currency.rawValue
     expense.merchant = merchant
     expense.notes = notes
+    expense.isIncome = isIncome
     try context.save()
+    syncExpensesToWidget(context: context)
   }
 
   func deleteExpense(_ expense: Expense, context: ModelContext) throws {
     context.delete(expense)
     try context.save()
+    syncExpensesToWidget(context: context)
   }
 
   // MARK: - Aggregation
 
-  func totalForPeriod(expenses: [Expense], start: Date, end: Date) -> Double {
+  func totalForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> Double {
     expenses
-      .filter { $0.date >= start && $0.date <= end }
+      .filter { $0.date >= start && $0.date <= end && (isIncome == nil || $0.isIncome == isIncome!) }
       .reduce(0) { $0 + $1.amount }
   }
 
   /// Calculate total amount in UAH for a period (converts all currencies to UAH)
-  func totalInUAHForPeriod(expenses: [Expense], start: Date, end: Date) -> Double {
-    let filtered = expenses.filter { $0.date >= start && $0.date <= end }
+  func totalInUAHForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> Double {
+    let filtered = expenses.filter { $0.date >= start && $0.date <= end && (isIncome == nil || $0.isIncome == isIncome!) }
     return filtered.reduce(0) { total, expense in
       total + expense.currencyEnum.convertToUAH(expense.amount)
     }
@@ -78,8 +85,8 @@ class ExpenseViewModel {
   /// - uah: Total in UAH (converted from all currencies)
   /// - usd: Total in USD (converted from UAH total)
   /// - eur: Total in EUR (converted from UAH total)
-  func multiCurrencyTotalsForPeriod(expenses: [Expense], start: Date, end: Date) -> (uah: Double, usd: Double, eur: Double) {
-    let totalUAH = totalInUAHForPeriod(expenses: expenses, start: start, end: end)
+  func multiCurrencyTotalsForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> (uah: Double, usd: Double, eur: Double) {
+    let totalUAH = totalInUAHForPeriod(expenses: expenses, start: start, end: end, isIncome: isIncome)
     let usd = Currency.usd.convertFromUAH(totalUAH)
     let eur = Currency.eur.convertFromUAH(totalUAH)
     return (uah: totalUAH, usd: usd, eur: eur)
@@ -125,7 +132,18 @@ class ExpenseViewModel {
     
     do {
       let expenses = try context.fetch(descriptor)
-      let widgetExpenses = expenses.prefix(2).map { expense -> WidgetExpenseItem in
+      
+      // Filter for Monthly Recurring Expenses only
+      // We need to fetch templates to check linkage
+      let templateDescriptor = FetchDescriptor<RecurringExpenseTemplate>()
+      let templates = try context.fetch(templateDescriptor)
+      let monthlyTemplateIds = Set(templates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
+      
+      let widgetExpenses = expenses.filter { expense in
+        guard let templateId = expense.templateId else { return false }
+        return monthlyTemplateIds.contains(templateId)
+      }
+      .prefix(2).map { expense -> WidgetExpenseItem in
         WidgetExpenseItem(
           id: expense.id.uuidString,
           title: expense.title,
@@ -142,6 +160,7 @@ class ExpenseViewModel {
         defaults?.synchronize()
       }
       WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
+      WidgetCenter.shared.reloadTimelines(ofKind: "CombinedWidget")
     } catch {
       // Silently fail for widget sync
     }

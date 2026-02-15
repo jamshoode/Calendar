@@ -5,24 +5,27 @@ struct CalendarListView: View {
   let currentMonth: Date
   let events: [Event]
   let todos: [TodoItem]
+  let expenses: [Expense]
   let onEventTap: (Event) -> Void
   let onDateSelect: (Date) -> Void
 
   private let calendar = Calendar.current
 
   /// All days in the current month that have at least one event or todo.
-  private var daysWithContent: [(date: Date, events: [Event], todos: [TodoItem])] {
+  private var daysWithContent: [(date: Date, events: [Event], todos: [TodoItem], expenses: [Expense])] {
     let start = currentMonth.startOfMonth
     let end = currentMonth.endOfMonth
-    var result: [(Date, [Event], [TodoItem])] = []
+    var result: [(Date, [Event], [TodoItem], [Expense])] = []
     var day = start
     while day <= end {
       let dayEvents = events.filter { $0.date.isSameDay(as: day) }
       let dayTodos = todos.filter {
         ($0.dueDate ?? .distantFuture).isSameDay(as: day) && !$0.isCompleted
       }
-      if !dayEvents.isEmpty || !dayTodos.isEmpty {
-        result.append((day, dayEvents, dayTodos))
+      let dayExpenses = expenses.filter { $0.date.isSameDay(as: day) }
+      
+      if !dayEvents.isEmpty || !dayTodos.isEmpty || !dayExpenses.isEmpty {
+        result.append((day, dayEvents, dayTodos, dayExpenses))
       }
       day = calendar.date(byAdding: .day, value: 1, to: day)!
     }
@@ -40,6 +43,7 @@ struct CalendarListView: View {
               date: entry.date,
               events: entry.events,
               todos: entry.todos,
+              expenses: entry.expenses,
               isToday: entry.date.isToday,
               onEventTap: onEventTap,
               onDateSelect: onDateSelect
@@ -77,6 +81,7 @@ private struct CalendarListDayRow: View {
   let date: Date
   let events: [Event]
   let todos: [TodoItem]
+  let expenses: [Expense]
   let isToday: Bool
   let onEventTap: (Event) -> Void
   let onDateSelect: (Date) -> Void
@@ -102,6 +107,10 @@ private struct CalendarListDayRow: View {
         ForEach(events) { event in
           CalendarListEventCard(event: event)
             .onTapGesture { onEventTap(event) }
+        }
+        
+        ForEach(expenses) { expense in
+          CalendarListExpenseCard(expense: expense)
         }
 
         ForEach(todos) { todo in
@@ -151,6 +160,34 @@ private struct CalendarListEventCard: View {
         }
       }
 
+      Spacer()
+    }
+    .padding(12)
+    .background(Color.surfaceCard)
+    .clipShape(RoundedRectangle(cornerRadius: Spacing.smallRadius))
+  }
+}
+
+private struct CalendarListExpenseCard: View {
+  let expense: Expense
+  
+  var body: some View {
+    HStack(spacing: 10) {
+      RoundedRectangle(cornerRadius: 2)
+        .fill(Color.orange)
+        .frame(width: 4)
+        
+      VStack(alignment: .leading, spacing: 4) {
+        Text(expense.title)
+          .font(Typography.headline)
+          .foregroundColor(Color.textPrimary)
+          .lineLimit(1)
+        
+        Text(expense.amount.formatted(.currency(code: expense.currency)))
+          .font(Typography.caption)
+          .foregroundColor(Color.textSecondary)
+      }
+      
       Spacer()
     }
     .padding(12)

@@ -17,6 +17,7 @@ class Expense {
   // Recurring expense tracking
   var templateId: UUID?        // Links to RecurringTemplate (nil = one-time)
   var isGenerated: Bool        // true = auto-created from template
+  var isIncome: Bool = false   // true = income, false = expense
   
   var primaryCategory: ExpenseCategory {
     ExpenseCategory(rawValue: categories.first ?? "other") ?? .other
@@ -60,7 +61,8 @@ class Expense {
     merchant: String? = nil,
     notes: String? = nil,
     templateId: UUID? = nil,
-    isGenerated: Bool = false
+    isGenerated: Bool = false,
+    isIncome: Bool = false
   ) {
     self.id = UUID()
     self.title = title
@@ -74,6 +76,7 @@ class Expense {
     self.createdAt = Date()
     self.templateId = templateId
     self.isGenerated = isGenerated
+    self.isIncome = isIncome
   }
 }
 

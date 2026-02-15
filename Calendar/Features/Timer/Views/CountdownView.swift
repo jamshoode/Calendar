@@ -5,10 +5,13 @@ struct CountdownView: View {
   let presets: [TimerPreset]
 
   var body: some View {
-    VStack(spacing: 32) {
+    VStack {
       TimerDisplay(
         remainingTime: viewModel.remainingTime, isRunning: viewModel.isRunning,
-        isStopwatch: viewModel.isStopwatch)
+        isStopwatch: viewModel.isStopwatch
+      )
+      .padding(.trailing, 20)
+      .padding(.bottom, 20)
 
       TimerControls(
         isRunning: viewModel.isRunning,
@@ -39,6 +42,7 @@ struct CountdownView: View {
           viewModel.selectedPreset = nil
         }
       )
+      .padding(.bottom, 20)
 
       if !viewModel.isRunning && !viewModel.isPaused && !presets.isEmpty {
         PresetsGrid(presets: presets) { preset in
@@ -47,9 +51,6 @@ struct CountdownView: View {
           viewModel.startTimer(duration: preset.duration)
         }
       }
-
-      Spacer()
     }
-    .padding()
   }
 }

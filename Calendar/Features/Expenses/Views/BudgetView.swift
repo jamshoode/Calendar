@@ -171,8 +171,7 @@ struct BudgetView: View {
   }
   
   private func generateMissingExpenses() {
-    // Generate expenses from templates
-    // This will be implemented in Phase 5
+    RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
   }
 }
 
@@ -191,7 +190,7 @@ struct BudgetSummaryCard: View {
       }
       
       VStack(alignment: .leading, spacing: 4) {
-        Text("₴\(String(format: "%.0f", amount))")
+        Text("\(Currency.uah.symbol)\(String(format: "%.0f", amount))")
           .font(.title2.bold())
           .foregroundColor(.primary)
         
@@ -231,7 +230,7 @@ struct TemplateRow: View {
           .font(.subheadline.bold())
         
         HStack(spacing: 6) {
-          Text("₴\(String(format: "%.2f", template.amount))")
+          Text("\(template.currencyEnum.symbol)\(String(format: "%.2f", template.amount))")
             .font(.caption)
             .foregroundColor(.secondary)
           

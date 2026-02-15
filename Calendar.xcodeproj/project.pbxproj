@@ -43,7 +43,6 @@
 		F593C1272F33C234007F8DEB /* PresetsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C10B2F33C234007F8DEB /* PresetsGrid.swift */; };
 		F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FC2F33C234007F8DEB /* EventIndicator.swift */; };
 		F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0E42F33C234007F8DEB /* AppDelegate.swift */; };
-		F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C10A2F33C234007F8DEB /* PomodoroView.swift */; };
 		F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1032F33C234007F8DEB /* MonthView.swift */; };
 		F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C1122F33C234007F8DEB /* GlassBackground.swift */; };
 		F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593C0FF2F33C234007F8DEB /* AddEventView.swift */; };
@@ -200,7 +199,6 @@
 		F593C1062F33C234007F8DEB /* TimerControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerControls.swift; sourceTree = "<group>"; };
 		F593C1072F33C234007F8DEB /* TimerDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerDisplay.swift; sourceTree = "<group>"; };
 		F593C1092F33C234007F8DEB /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
-		F593C10A2F33C234007F8DEB /* PomodoroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroView.swift; sourceTree = "<group>"; };
 		F593C10B2F33C234007F8DEB /* PresetsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsGrid.swift; sourceTree = "<group>"; };
 		F593C10C2F33C234007F8DEB /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		F593C1102F33C234007F8DEB /* AdaptiveSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveSidebar.swift; sourceTree = "<group>"; };
@@ -515,7 +513,7 @@
 			isa = PBXGroup;
 			children = (
 				F593C1092F33C234007F8DEB /* CountdownView.swift */,
-				F593C10A2F33C234007F8DEB /* PomodoroView.swift */,
+		
 				F593C10B2F33C234007F8DEB /* PresetsGrid.swift */,
 				F593C10C2F33C234007F8DEB /* TimerView.swift */,
 			);
@@ -894,7 +892,7 @@
 				F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */,
 				F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */,
 				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
-				F593C12A2F33C234007F8DEB /* PomodoroView.swift in Sources */,
+		
 				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
 				F554F0022F34F9AE008B6601 /* SideSheetModifier.swift in Sources */,
 				F5968AA92F3CED2800F50183 /* WeatherModel.swift in Sources */,

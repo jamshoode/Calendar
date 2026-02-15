@@ -112,7 +112,7 @@ class TodoItem {
     self.createdAt = Date()
     self.sortOrder = sortOrder
     self.isPinned = false
-    self.category = nil
+    self.category = category
     self.parentTodo = parentTodo
     self.subtasks = []
     self.recurrenceType = recurrenceType?.rawValue
