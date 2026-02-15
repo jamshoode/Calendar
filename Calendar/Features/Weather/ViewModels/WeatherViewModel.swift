@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import WidgetKit
 
 public class WeatherViewModel: ObservableObject {
     @Published public var weatherData: WeatherData?
@@ -37,6 +38,13 @@ public class WeatherViewModel: ObservableObject {
         do {
             let encoded = try JSONEncoder().encode(data)
             self.cachedWeatherData = encoded
+            
+            // Share with widget via shared UserDefaults
+            if let sharedDefaults = UserDefaults(suiteName: Constants.App.appGroupIdentifier) {
+                sharedDefaults.set(encoded, forKey: Constants.Widget.weatherDataKey)
+                sharedDefaults.synchronize()
+                WidgetCenter.shared.reloadTimelines(ofKind: "WeatherWidget")
+            }
         } catch {
             print("Failed to encode weather for cache: \(error)")
         }
