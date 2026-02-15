@@ -34,7 +34,7 @@ jobs:
           fi
 
       - name: Run unit tests (unit-only)
-        run: xcodebuild test -project Calendar.xcodeproj -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 17' -skip-testing CalendarUITests
+        run: xcodebuild test -project Calendar.xcodeproj -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing CalendarTests
         env:
           CI: true
           CODE_SIGNING_ALLOWED: NO
