@@ -84,7 +84,11 @@ struct AlarmCard: View {
     .sheet(isPresented: $showingTimePicker) {
       TimePickerView(initialTime: alarm.time) { time in
         alarm.time = time
-        try? modelContext.save()
+        do {
+          try modelContext.save()
+        } catch {
+          ErrorPresenter.presentOnMain(error)
+        }
         if alarm.isEnabled {
           NotificationService.shared.cancelAlarmNotifications()
           NotificationService.shared.scheduleAlarmNotification(date: time)

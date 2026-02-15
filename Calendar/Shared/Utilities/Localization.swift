@@ -112,6 +112,17 @@ public struct Localization {
     case pageNotFound
     case selectTabPrompt
 
+    // Startup / Splash
+    case splashStarting
+    case splashContinueInBackground
+    case splashPreGenerating
+    case splashPreparing
+    case splashSyncingWidgets
+    case splashGeneratingRecurring
+    case splashCleaningTodos
+    case splashRefreshingWeather
+    case splashFinalizing
+
     // Weekdays (Manual if needed, or use Locale)
     // We will often use DateFormatter with .locale, but for explicit UI labels:
     case mon, tue, wed, thu, fri, sat, sun
@@ -252,7 +263,7 @@ public struct Localization {
     case weatherSnow
     case weatherThunderstorm
     case weatherCloudy
-    
+
     // Expense View UI
     case expenseHeader
     case expenseHistory
@@ -266,13 +277,13 @@ public struct Localization {
     case expenseExpensesLabel
     case expenseIncomeLabel
     case expenseIncomeToggle
-    
+
     // Expense Dialogs
     case clearAllDataPrompt
     case clearAllExpensesConfirm
     case clearAllTemplatesConfirm
     case clearEverythingConfirm
-    
+
     // CSV Import
     case importFromBank
     case transactions
@@ -282,14 +293,14 @@ public struct Localization {
     case noFileSelected
     case selectPatternsPrompt
     case createTemplatesX(Int)
-    
+
     // Budget & Recurring
     case activeRecurringX(Int)
     case pausedX(Int)
     case pause
     case resume
     case nextOccurrence(String)
-    
+
     // Insights
     case spendingTrends
     case thisMonthSpending
@@ -298,7 +309,7 @@ public struct Localization {
     case wasAmount(String)
     case detectedXTimes(Int)
     case failedToReadFile(String)
-    
+
     // Additional Expense Keys
     case noExpenses
     case activeRecurring
@@ -344,7 +355,9 @@ public struct Localization {
     case .clearEverything:
       return lang == .ukrainian ? "Очистити все" : "Clear Everything"
     case .cannotBeUndone:
-      return lang == .ukrainian ? "Цю дію не можна скасувати. Всі ваші дані будуть видалені назавжди." : "This action cannot be undone. All your data will be permanently deleted."
+      return lang == .ukrainian
+        ? "Цю дію не можна скасувати. Всі ваші дані будуть видалені назавжди."
+        : "This action cannot be undone. All your data will be permanently deleted."
 
     // Calendar
     case .selectDate:
@@ -480,6 +493,29 @@ public struct Localization {
     case .selectTabPrompt:
       return lang == .ukrainian
         ? "Будь ласка, оберіть вкладку на бічній панелі" : "Please select a tab from the sidebar"
+
+    // Startup / Splash
+    case .splashStarting:
+      return lang == .ukrainian ? "Запуск…" : "Starting…"
+    case .splashContinueInBackground:
+      return lang == .ukrainian ? "Продовжити у фоновому режимі" : "Continue in background"
+    case .splashPreGenerating:
+      return lang == .ukrainian
+        ? "Підготовка даних та синхронізація віджетів — це може зайняти кілька секунд."
+        : "Pre-generating data and syncing widgets — this may take a few seconds."
+
+    case .splashPreparing:
+      return lang == .ukrainian ? "Підготовка…" : "Preparing…"
+    case .splashSyncingWidgets:
+      return lang == .ukrainian ? "Синхронізація віджетів…" : "Syncing widgets…"
+    case .splashGeneratingRecurring:
+      return lang == .ukrainian ? "Генерація повторюваних записів…" : "Generating recurring items…"
+    case .splashCleaningTodos:
+      return lang == .ukrainian ? "Очищення завдань…" : "Cleaning up todos…"
+    case .splashRefreshingWeather:
+      return lang == .ukrainian ? "Оновлення погоди…" : "Refreshing weather…"
+    case .splashFinalizing:
+      return lang == .ukrainian ? "Завершення…" : "Finalizing…"
 
     // Todo
     case .tabTodo:
@@ -707,15 +743,20 @@ public struct Localization {
     case .importBankStatement:
       return lang == .ukrainian ? "Імпорт виписки банку" : "Import Bank Statement"
     case .uploadCSV:
-      return lang == .ukrainian ? "Завантажте CSV файл з Monobank або PUMB для автоматичного виявлення періодичних витрат." : "Upload a CSV file from Monobank or PUMB to automatically detect recurring expenses."
+      return lang == .ukrainian
+        ? "Завантажте CSV файл з Monobank або PUMB для автоматичного виявлення періодичних витрат."
+        : "Upload a CSV file from Monobank or PUMB to automatically detect recurring expenses."
     case .selectCSVFile:
       return lang == .ukrainian ? "Обрати CSV файл" : "Select CSV File"
     case .recurringPatternsDetected:
-      return lang == .ukrainian ? "Виявлено періодичні витрати" : "Recurring Expense Patterns Detected"
+      return lang == .ukrainian
+        ? "Виявлено періодичні витрати" : "Recurring Expense Patterns Detected"
     case .patternsFound:
       return lang == .ukrainian ? "знайдено" : "found"
     case .selectPatterns:
-      return lang == .ukrainian ? "Оберіть шаблони для автоматичного відстеження" : "Select patterns to create templates for automatic tracking"
+      return lang == .ukrainian
+        ? "Оберіть шаблони для автоматичного відстеження"
+        : "Select patterns to create templates for automatic tracking"
     case .createTemplates:
       return lang == .ukrainian ? "Створити шаблони" : "Create Templates"
     case .importAllTransactions:
@@ -731,7 +772,9 @@ public struct Localization {
     case .noDataYet:
       return lang == .ukrainian ? "Даних ще немає" : "No Data Yet"
     case .addExpensesForInsights:
-      return lang == .ukrainian ? "Додайте витрати, щоб побачити аналітику та тренди" : "Add some expenses to see insights and trends"
+      return lang == .ukrainian
+        ? "Додайте витрати, щоб побачити аналітику та тренди"
+        : "Add some expenses to see insights and trends"
     case .detected:
       return lang == .ukrainian ? "Виявлено" : "Detected"
     case .categories:
@@ -759,7 +802,8 @@ public struct Localization {
     case .searchCity:
       return lang == .ukrainian ? "Пошук міста..." : "Search city..."
     case .weatherSearchPrompt:
-      return lang == .ukrainian ? "Пошукайте місто, щоб побачити погоду" : "Search for a city to see weather"
+      return lang == .ukrainian
+        ? "Пошукайте місто, щоб побачити погоду" : "Search for a city to see weather"
     case .weatherClear:
       return lang == .ukrainian ? "Ясно" : "Clear"
     case .weatherPartlyCloudy:
@@ -837,7 +881,9 @@ public struct Localization {
     case .noFileSelected:
       return lang == .ukrainian ? "Файл не обрано" : "No file selected"
     case .selectPatternsPrompt:
-      return lang == .ukrainian ? "Оберіть шаблони для автоматичного відстеження" : "Select patterns to create templates for automatic tracking"
+      return lang == .ukrainian
+        ? "Оберіть шаблони для автоматичного відстеження"
+        : "Select patterns to create templates for automatic tracking"
     case .createTemplatesX(let count):
       return lang == .ukrainian ? "Створити \(count) шаблонів" : "Create \(count) Templates"
     case .activeRecurringX(let count):
@@ -857,7 +903,8 @@ public struct Localization {
     case .detectedXTimes(let count):
       return lang == .ukrainian ? "Виявлено \(count)р." : "Detected \(count)x"
     case .failedToReadFile(let error):
-      return lang == .ukrainian ? "Не вдалося прочитати файл: \(error)" : "Failed to read file: \(error)"
+      return lang == .ukrainian
+        ? "Не вдалося прочитати файл: \(error)" : "Failed to read file: \(error)"
     }
   }
 }

@@ -1,0 +1,25 @@
+disabled_rules:
+  - trailing_whitespace
+
+custom_rules:
+  no_print:
+    included: "**/*.swift"
+    name: "No print() in production code"
+    regex: "\bprint\s*\("
+    match_kinds: [\"function-call\"]
+    message: "Use Logger or ErrorPresenter instead of print()"
+    severity: error
+
+  no_try_questionable_save:
+    included: "**/*.swift"
+    name: "No try? context.save()"
+    regex: "try\?\s+(context|modelContext)\.save\s*\("
+    message: "Handle save errors explicitly (do/try/catch)"
+    severity: error
+
+  no_synchronize:
+    included: "**/*.swift"
+    name: "No UserDefaults.synchronize()"
+    regex: "UserDefaults\.synchronize\s*\("
+    message: "UserDefaults.synchronize() is deprecated — remove it"
+    severity: error

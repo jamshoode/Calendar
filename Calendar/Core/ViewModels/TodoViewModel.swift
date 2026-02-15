@@ -7,7 +7,9 @@ class TodoViewModel: ObservableObject {
 
   static let noCategoryName = "No Category"
 
-  func createCategory(name: String, color: String, parent: TodoCategory? = nil, context: ModelContext) {
+  func createCategory(
+    name: String, color: String, parent: TodoCategory? = nil, context: ModelContext
+  ) {
     if let parent = parent, parent.depth >= 2 {
       ErrorPresenter.shared.present(message: "Cannot nest category deeper than 3 levels")
       return
@@ -395,7 +397,7 @@ class TodoViewModel: ObservableObject {
     }
   }
 
-  func syncTodoCountToWidget(context: ModelContext) {
+  func syncTodoCountToWidget(context: ModelContext, userDefaults: UserDefaults? = nil) {
     let descriptor = FetchDescriptor<TodoItem>(
       predicate: #Predicate { todo in
         todo.isCompleted == false && todo.parentTodo == nil
@@ -410,13 +412,14 @@ class TodoViewModel: ObservableObject {
       ErrorPresenter.shared.present(error)
       count = 0
     }
-    
+
     // Share upcoming todos (next 7 days) for widget
     let calendar = Calendar.current
     let now = Date()
     let weekLater = calendar.date(byAdding: .day, value: 7, to: now)!
-    
-    let upcomingTodos = todos
+
+    let upcomingTodos =
+      todos
       .filter { todo in
         guard let dueDate = todo.dueDate else { return false }
         return dueDate >= now && dueDate <= weekLater
@@ -432,16 +435,15 @@ class TodoViewModel: ObservableObject {
           categoryColor: todo.category?.color ?? "gray"
         )
       }
-    
-    let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
+
+    let defaults = userDefaults ?? UserDefaults(suiteName: Constants.Storage.appGroupIdentifier)
     defaults?.set(count, forKey: "incompleteTodoCount")
-    
+
     // Share upcoming todos
     if let encoded = try? JSONEncoder().encode(Array(upcomingTodos)) {
       defaults?.set(encoded, forKey: "widgetUpcomingTodos")
     }
-    
-    defaults?.synchronize()
+
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     WidgetCenter.shared.reloadTimelines(ofKind: "CombinedWidget")
   }

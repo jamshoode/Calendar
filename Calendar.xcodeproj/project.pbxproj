@@ -106,6 +106,16 @@
 		F5A362E72F4091E700030163 /* EditTemplateSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A362E62F4091E700030163 /* EditTemplateSheet.swift */; };
 		F5BCFC992F34C45D0025B2E6 /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC972F34C45D0025B2E6 /* DebugView.swift */; };
 		F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */; };
+		F5D65F462F4212F6004F7A39 /* StartupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F452F4212F6004F7A39 /* StartupManager.swift */; };
+		F5D65F482F42130D004F7A39 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F472F42130D004F7A39 /* SplashView.swift */; };
+		F5D65F582F421409004F7A39 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D65F572F421409004F7A39 /* XCTest.framework */; platformFilter = ios; };
+		F5D65F5C2F42147B004F7A39 /* StartupManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4A2F4213D0004F7A39 /* StartupManagerTests.swift */; };
+		F5D65F5D2F421480004F7A39 /* TodoCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4B2F4213D0004F7A39 /* TodoCategoryTests.swift */; };
+		F5D65F5E2F421484004F7A39 /* CalendarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F492F4213D0004F7A39 /* CalendarTests.swift */; };
+		F5D65F5F2F421488004F7A39 /* CalendarUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4D2F4213D0004F7A39 /* CalendarUITests.swift */; };
+		F5D65F602F42148C004F7A39 /* CalendarUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4E2F4213D0004F7A39 /* CalendarUITestsLaunchTests.swift */; };
+		F5D65F612F421490004F7A39 /* StartupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */; };
+		F5D65F622F421498004F7A39 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D65F572F421409004F7A39 /* XCTest.framework */; platformFilter = ios; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -252,6 +262,15 @@
 		F5A362E62F4091E700030163 /* EditTemplateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTemplateSheet.swift; sourceTree = "<group>"; };
 		F5BCFC962F34C45D0025B2E6 /* DebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettings.swift; sourceTree = "<group>"; };
 		F5BCFC972F34C45D0025B2E6 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
+		F5D65F452F4212F6004F7A39 /* StartupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManager.swift; sourceTree = "<group>"; };
+		F5D65F472F42130D004F7A39 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		F5D65F492F4213D0004F7A39 /* CalendarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTests.swift; sourceTree = "<group>"; };
+		F5D65F4A2F4213D0004F7A39 /* StartupManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupManagerTests.swift; sourceTree = "<group>"; };
+		F5D65F4B2F4213D0004F7A39 /* TodoCategoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCategoryTests.swift; sourceTree = "<group>"; };
+		F5D65F4D2F4213D0004F7A39 /* CalendarUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarUITests.swift; sourceTree = "<group>"; };
+		F5D65F4E2F4213D0004F7A39 /* CalendarUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupUITests.swift; sourceTree = "<group>"; };
+		F5D65F572F421409004F7A39 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -287,6 +306,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5D65F622F421498004F7A39 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +314,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5D65F582F421409004F7A39 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,6 +400,8 @@
 				F593C1532F33C31D007F8DEB /* CalendarWidget */,
 				F593C14E2F33C31D007F8DEB /* Frameworks */,
 				F556A0252F33C9E70071D8B8 /* CalendarTests.xctest */,
+				F5D65F4C2F4213D0004F7A39 /* CalendarTests */,
+				F5D65F502F4213D0004F7A39 /* CalendarUITests */,
 				F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */,
 			);
 			sourceTree = "<group>";
@@ -409,6 +432,7 @@
 				F593C0EE2F33C234007F8DEB /* NotificationService.swift */,
 				F5A362D42F40876200030163 /* CSVImportService.swift */,
 				F5A362D52F40876200030163 /* PatternDetectionService.swift */,
+				F5D65F452F4212F6004F7A39 /* StartupManager.swift */,
 				F5A362D62F40876200030163 /* RecurringExpenseService.swift */,
 				F5968AAA2F3CED3000F50183 /* WeatherService.swift */,
 			);
@@ -513,7 +537,6 @@
 			isa = PBXGroup;
 			children = (
 				F593C1092F33C234007F8DEB /* CountdownView.swift */,
-		
 				F593C10B2F33C234007F8DEB /* PresetsGrid.swift */,
 				F593C10C2F33C234007F8DEB /* TimerView.swift */,
 			);
@@ -551,6 +574,7 @@
 				F593C1102F33C234007F8DEB /* AdaptiveSidebar.swift */,
 				F593C1112F33C234007F8DEB /* AdaptiveTabBar.swift */,
 				F593C1122F33C234007F8DEB /* GlassBackground.swift */,
+				F5D65F472F42130D004F7A39 /* SplashView.swift */,
 				F593C1132F33C234007F8DEB /* GlassButton.swift */,
 				F556A0352F33CD160071D8B8 /* NotFoundView.swift */,
 				F554EFFF2F34F99C008B6601 /* TopBarView.swift */,
@@ -601,6 +625,7 @@
 		F593C14E2F33C31D007F8DEB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F5D65F572F421409004F7A39 /* XCTest.framework */,
 				F593C14F2F33C31D007F8DEB /* WidgetKit.framework */,
 				F593C1512F33C31D007F8DEB /* SwiftUI.framework */,
 			);
@@ -699,6 +724,26 @@
 			name = Debug;
 			path = Calendar/Debug;
 			sourceTree = SOURCE_ROOT;
+		};
+		F5D65F4C2F4213D0004F7A39 /* CalendarTests */ = {
+			isa = PBXGroup;
+			children = (
+				F5D65F492F4213D0004F7A39 /* CalendarTests.swift */,
+				F5D65F4A2F4213D0004F7A39 /* StartupManagerTests.swift */,
+				F5D65F4B2F4213D0004F7A39 /* TodoCategoryTests.swift */,
+			);
+			path = CalendarTests;
+			sourceTree = "<group>";
+		};
+		F5D65F502F4213D0004F7A39 /* CalendarUITests */ = {
+			isa = PBXGroup;
+			children = (
+				F5D65F4D2F4213D0004F7A39 /* CalendarUITests.swift */,
+				F5D65F4E2F4213D0004F7A39 /* CalendarUITestsLaunchTests.swift */,
+				F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */,
+			);
+			path = CalendarUITests;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -892,7 +937,6 @@
 				F5BCFC9A2F34C45D0025B2E6 /* DebugSettings.swift in Sources */,
 				F593C1282F33C234007F8DEB /* EventIndicator.swift in Sources */,
 				F593C1292F33C234007F8DEB /* AppDelegate.swift in Sources */,
-		
 				F593C12B2F33C234007F8DEB /* MonthView.swift in Sources */,
 				F554F0022F34F9AE008B6601 /* SideSheetModifier.swift in Sources */,
 				F5968AA92F3CED2800F50183 /* WeatherModel.swift in Sources */,
@@ -901,6 +945,7 @@
 				F51A59242F34AFB20006E307 /* MonthYearPicker.swift in Sources */,
 				F593C12C2F33C234007F8DEB /* GlassBackground.swift in Sources */,
 				F593C12D2F33C234007F8DEB /* AddEventView.swift in Sources */,
+				F5D65F462F4212F6004F7A39 /* StartupManager.swift in Sources */,
 				F593C12E2F33C234007F8DEB /* Color+Theme.swift in Sources */,
 				F554EFF62F34F4DF008B6601 /* AddCategorySheet.swift in Sources */,
 				F554EFF72F34F4DF008B6601 /* AddTodoSheet.swift in Sources */,
@@ -908,6 +953,7 @@
 				F554EFF92F34F4DF008B6601 /* PriorityBadge.swift in Sources */,
 				F5A362D22F40875300030163 /* CSVImportSession.swift in Sources */,
 				F5A362D32F40875300030163 /* RecurringExpenseTemplate.swift in Sources */,
+				F5D65F482F42130D004F7A39 /* SplashView.swift in Sources */,
 				F554EFFA2F34F4DF008B6601 /* TodoCheckbox.swift in Sources */,
 				F5A362D72F40876200030163 /* CSVImportService.swift in Sources */,
 				F5A362D82F40876200030163 /* PatternDetectionService.swift in Sources */,
@@ -974,6 +1020,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5D65F5C2F42147B004F7A39 /* StartupManagerTests.swift in Sources */,
+				F5D65F5E2F421484004F7A39 /* CalendarTests.swift in Sources */,
+				F5D65F5D2F421480004F7A39 /* TodoCategoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -981,6 +1030,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5D65F602F42148C004F7A39 /* CalendarUITestsLaunchTests.swift in Sources */,
+				F5D65F5F2F421488004F7A39 /* CalendarUITests.swift in Sources */,
+				F5D65F612F421490004F7A39 /* StartupUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

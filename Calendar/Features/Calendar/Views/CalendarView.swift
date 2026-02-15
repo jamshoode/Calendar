@@ -1,6 +1,6 @@
+import Foundation
 import SwiftData
 import SwiftUI
-import Foundation
 
 // MARK: - View Mode
 
@@ -59,125 +59,128 @@ struct CalendarView: View {
 
         // View Mode Content
         VStack(spacing: 0) {
-            switch viewMode {
-            case .grid:
-              VStack(spacing: 4) {
-                  WeekdayHeaderView()
-                      .padding(.top, 16)
-                  
-                  MonthView(
-                    currentMonth: viewModel.currentMonth,
-                    selectedDate: viewModel.selectedDate,
-                    events: eventsForMonth,
-                    todos: todosForMonth,
-                    expenses: expensesForMonth,
-                    onSelectDate: { date in
-                      let selectedMonth = Calendar.current.component(.month, from: date)
-                      let currentMonth = Calendar.current.component(.month, from: viewModel.currentMonth)
-                      if selectedMonth != currentMonth {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                          viewModel.currentMonth = date
-                        }
-                      }
-                      viewModel.selectDate(date)
-                      if showingDatePicker {
-                        withAnimation { showingDatePicker = false }
-                      }
-                    }
-                  )
-                  .frame(height: 310) // 6 rows with tighter spacing
-                  
-                  Spacer(minLength: 0)
-                  
-                  EventListView(
-                    date: viewModel.selectedDate ?? Date(),
-                    events: eventsForSelectedDate,
-                    todos: todosForSelectedDate,
-                    expenses: expensesForSelectedDate,
-                    onEdit: { event in detailEvent = event },
-                    onDelete: { event in
-                      guard !event.isHoliday else { return }
-                      deleteEvent(event)
-                    },
-                    onAdd: { showingAddEvent = true },
-                    onTodoToggle: { todo in
-                      todoViewModel.toggleCompletion(todo, context: modelContext)
-                    },
-                    onTodoTap: { todo in editingTodo = todo },
-                    onExpenseTap: { expense in editingExpense = expense },
-                    showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
-                      || !Calendar.current.isDate(viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
-                    onJumpToToday: {
-                      withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        let today = Date()
-                        viewModel.selectDate(today)
-                        viewModel.currentMonth = today
-                      }
-                    }
-                  )
-                  .padding(.bottom, 100) // Space from floating tab bar
-              }
-              .gesture(
-                DragGesture(minimumDistance: 50, coordinateSpace: .local)
-                  .onEnded { value in
-                    let horizontal = value.translation.width
-                    let vertical = value.translation.height
-                    // Only trigger if horizontal swipe is dominant
-                    guard abs(horizontal) > abs(vertical) else { return }
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                      if horizontal < 0 {
-                        viewModel.moveToNextMonth()
-                      } else {
-                        viewModel.moveToPreviousMonth()
-                      }
-                    }
-                  }
-              )
-              
-            case .list:
-              CalendarListView(
+          switch viewMode {
+          case .grid:
+            VStack(spacing: 4) {
+              WeekdayHeaderView()
+                .padding(.top, 16)
+
+              MonthView(
                 currentMonth: viewModel.currentMonth,
+                selectedDate: viewModel.selectedDate,
                 events: eventsForMonth,
                 todos: todosForMonth,
                 expenses: expensesForMonth,
-                onEventTap: { event in detailEvent = event },
-                onDateSelect: { date in viewModel.selectDate(date) }
+                onSelectDate: { date in
+                  let selectedMonth = Calendar.current.component(.month, from: date)
+                  let currentMonth = Calendar.current.component(
+                    .month, from: viewModel.currentMonth)
+                  if selectedMonth != currentMonth {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                      viewModel.currentMonth = date
+                    }
+                  }
+                  viewModel.selectDate(date)
+                  if showingDatePicker {
+                    withAnimation { showingDatePicker = false }
+                  }
+                }
               )
-              
-            case .timeline:
-              CalendarTimelineView(
-                selectedDate: Binding(
-                  get: { viewModel.selectedDate ?? Date() },
-                  set: { viewModel.selectedDate = $0 }
-                ),
+              .frame(height: 310)  // 6 rows with tighter spacing
+
+              Spacer(minLength: 0)
+
+              EventListView(
+                date: viewModel.selectedDate ?? Date(),
                 events: eventsForSelectedDate,
+                todos: todosForSelectedDate,
                 expenses: expensesForSelectedDate,
-                onEventTap: { event in detailEvent = event },
-                onDateSelect: { date in viewModel.selectDate(date) },
-                currentMonth: viewModel.currentMonth
+                onEdit: { event in detailEvent = event },
+                onDelete: { event in
+                  guard !event.isHoliday else { return }
+                  deleteEvent(event)
+                },
+                onAdd: { showingAddEvent = true },
+                onTodoToggle: { todo in
+                  todoViewModel.toggleCompletion(todo, context: modelContext)
+                },
+                onTodoTap: { todo in editingTodo = todo },
+                onExpenseTap: { expense in editingExpense = expense },
+                showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
+                  || !Calendar.current.isDate(
+                    viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
+                onJumpToToday: {
+                  withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    let today = Date()
+                    viewModel.selectDate(today)
+                    viewModel.currentMonth = today
+                  }
+                }
               )
+              .padding(.bottom, 100)  // Space from floating tab bar
             }
+            .gesture(
+              DragGesture(minimumDistance: 50, coordinateSpace: .local)
+                .onEnded { value in
+                  let horizontal = value.translation.width
+                  let vertical = value.translation.height
+                  // Only trigger if horizontal swipe is dominant
+                  guard abs(horizontal) > abs(vertical) else { return }
+                  withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    if horizontal < 0 {
+                      viewModel.moveToNextMonth()
+                    } else {
+                      viewModel.moveToPreviousMonth()
+                    }
+                  }
+                }
+            )
+
+          case .list:
+            CalendarListView(
+              currentMonth: viewModel.currentMonth,
+              events: eventsForMonth,
+              todos: todosForMonth,
+              expenses: expensesForMonth,
+              onEventTap: { event in detailEvent = event },
+              onDateSelect: { date in viewModel.selectDate(date) }
+            )
+
+          case .timeline:
+            CalendarTimelineView(
+              selectedDate: Binding(
+                get: { viewModel.selectedDate ?? Date() },
+                set: { viewModel.selectedDate = $0 }
+              ),
+              events: eventsForSelectedDate,
+              expenses: expensesForSelectedDate,
+              onEventTap: { event in detailEvent = event },
+              onDateSelect: { date in viewModel.selectDate(date) },
+              currentMonth: viewModel.currentMonth
+            )
+          }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
       .blur(radius: showingDatePicker ? 4 : 0)
-      
+
       // Overlays (DatePicker, Popover etc)
       if showingDatePicker {
-          Color.black.opacity(0.1)
-              .ignoresSafeArea()
-              .onTapGesture { showingDatePicker = false }
-          
-          MonthYearPicker(currentMonth: $viewModel.currentMonth, isPresented: $showingDatePicker)
-              .transition(.scale.combined(with: .opacity))
-              .zIndex(1)
+        Color.black.opacity(0.1)
+          .ignoresSafeArea()
+          .onTapGesture { showingDatePicker = false }
+
+        MonthYearPicker(currentMonth: $viewModel.currentMonth, isPresented: $showingDatePicker)
+          .transition(.scale.combined(with: .opacity))
+          .zIndex(1)
       }
     }
-    .navigationBarHidden(true) // We use custom header
+    .navigationBarHidden(true)  // We use custom header
     .sheet(isPresented: $showingAddEvent) {
       AddEventView(date: viewModel.selectedDate ?? Date()) {
         title, notes, color, date, reminderInterval in
-        addEvent(title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
+        addEvent(
+          title: title, notes: notes, color: color, date: date, reminderInterval: reminderInterval)
       }
     }
     .sheet(isPresented: $showingSettings) {
@@ -210,7 +213,7 @@ struct CalendarView: View {
             .onTapGesture {
               detailEvent = nil
             }
-          
+
           EventDetailPopover(
             event: event,
             onDismiss: { detailEvent = nil },
@@ -259,26 +262,32 @@ struct CalendarView: View {
   private var expensesForMonth: [Expense] {
     let startOfMonth = viewModel.currentMonth.startOfMonth
     let endOfMonth = viewModel.currentMonth.endOfMonth
-    let monthlyTemplateIds = Set(expenseTemplates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
-    
+    let monthlyTemplateIds = Set(
+      expenseTemplates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
+
     return expenses.filter {
-        $0.date >= startOfMonth && $0.date <= endOfMonth &&
-        ($0.templateId != nil && monthlyTemplateIds.contains($0.templateId!))
+      $0.date >= startOfMonth && $0.date <= endOfMonth
+        && ($0.templateId != nil && monthlyTemplateIds.contains($0.templateId!))
     }
   }
 
   private var expensesForSelectedDate: [Expense] {
     let dateToCheck = viewModel.selectedDate ?? Date()
-    let monthlyTemplateIds = Set(expenseTemplates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
-    
+    let monthlyTemplateIds = Set(
+      expenseTemplates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
+
     return expenses.filter {
-        $0.date.isSameDay(as: dateToCheck) &&
-        ($0.templateId != nil && monthlyTemplateIds.contains($0.templateId!))
+      $0.date.isSameDay(as: dateToCheck)
+        && ($0.templateId != nil && monthlyTemplateIds.contains($0.templateId!))
     }
   }
 
-  private func addEvent(title: String, notes: String?, color: String, date: Date, reminderInterval: TimeInterval?) {
-    eventViewModel.addEvent(date: date, title: title, notes: notes, color: color, reminderInterval: reminderInterval, context: modelContext)
+  private func addEvent(
+    title: String, notes: String?, color: String, date: Date, reminderInterval: TimeInterval?
+  ) {
+    eventViewModel.addEvent(
+      date: date, title: title, notes: notes, color: color, reminderInterval: reminderInterval,
+      context: modelContext)
   }
 
   private func deleteEvent(_ event: Event) {
@@ -289,25 +298,28 @@ struct CalendarView: View {
 }
 
 struct WeekdayHeaderView: View {
-    private var adjustedWeekdays: [String] {
-        let symbols = Calendar.current.veryShortWeekdaySymbols // [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
-        var week = symbols
-        let first = week.removeFirst()
-        week.append(first) // [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
-        return week
+  private var adjustedWeekdays: [String] {
+    let symbols = Calendar.current.veryShortWeekdaySymbols  // [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+    var week = symbols
+    let first = week.removeFirst()
+    week.append(first)  // [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+    return week
+  }
+
+  var body: some View {
+    HStack(spacing: 0) {
+      // Use indices as the id because `veryShortWeekdaySymbols` contains duplicate short labels
+      // (e.g. "S" appears twice). Relying on index ensures stable/unique identity for SwiftUI.
+      ForEach(adjustedWeekdays.indices, id: \.self) { idx in
+        let day = adjustedWeekdays[idx]
+        Text(day)
+          .font(.system(size: 11, weight: .bold))
+          .foregroundColor(Color.textTertiary)
+          .frame(maxWidth: .infinity)
+      }
     }
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach(adjustedWeekdays, id: \.self) { day in
-                Text(day)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(Color.textTertiary)
-                    .frame(maxWidth: .infinity)
-            }
-        }
-        .padding(.horizontal, 16)
-    }
+    .padding(.horizontal, 16)
+  }
 }
 
 struct MonthHeaderView: View {
@@ -323,13 +335,13 @@ struct MonthHeaderView: View {
     VStack(spacing: 8) {
       HStack(alignment: .center) {
         Button(action: onSettings) {
-            Image(systemName: "gearshape.fill")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.textSecondary)
-                .frame(width: 36, height: 36)
-                .background(.ultraThinMaterial)
-                .clipShape(Circle())
-                .glassHalo(cornerRadius: 100)
+          Image(systemName: "gearshape.fill")
+            .font(.system(size: 14, weight: .bold))
+            .foregroundColor(.textSecondary)
+            .frame(width: 36, height: 36)
+            .background(.ultraThinMaterial)
+            .clipShape(Circle())
+            .glassHalo(cornerRadius: 100)
         }
         .buttonStyle(.plain)
 
@@ -340,7 +352,7 @@ struct MonthHeaderView: View {
             Text(currentMonth.formattedMonthYear.localizedCapitalized)
               .font(.system(size: 20, weight: .black, design: .rounded))
               .foregroundColor(Color.textPrimary)
-            
+
             Image(systemName: "chevron.down")
               .font(.system(size: 12, weight: .bold))
               .foregroundColor(Color.accentColor)
@@ -349,11 +361,11 @@ struct MonthHeaderView: View {
         .buttonStyle(.plain)
 
         Spacer()
-        
+
         Button(action: onAdd) {
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: 24))
-                .foregroundColor(.accentColor)
+          Image(systemName: "plus.circle.fill")
+            .font(.system(size: 24))
+            .foregroundColor(.accentColor)
         }
         .buttonStyle(.plain)
       }
@@ -369,7 +381,7 @@ struct MonthHeaderView: View {
               .clipShape(Circle())
           }
           .buttonStyle(.plain)
-          
+
           Button(action: onNext) {
             Image(systemName: "chevron.right")
               .font(.system(size: 12, weight: .bold))
@@ -379,9 +391,9 @@ struct MonthHeaderView: View {
           }
           .buttonStyle(.plain)
         }
-        
+
         Spacer()
-        
+
         HStack(spacing: 4) {
           ForEach(CalendarViewMode.allCases, id: \.self) { mode in
             Button {
@@ -393,7 +405,10 @@ struct MonthHeaderView: View {
                 .font(.system(size: 12, weight: .bold))
                 .foregroundColor(viewMode == mode ? .white : Color.textSecondary)
                 .frame(width: 32, height: 28)
-                .background(viewMode == mode ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.ultraThinMaterial))
+                .background(
+                  viewMode == mode
+                    ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.ultraThinMaterial)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)

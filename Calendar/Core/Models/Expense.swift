@@ -13,36 +13,36 @@ class Expense {
   var merchant: String?
   var notes: String?
   var createdAt: Date
-  
+
   // Recurring expense tracking
-  var templateId: UUID?        // Links to RecurringTemplate (nil = one-time)
-  var isGenerated: Bool        // true = auto-created from template
-  var isIncome: Bool = false   // true = income, false = expense
-  
+  var templateId: UUID?  // Links to RecurringTemplate (nil = one-time)
+  var isGenerated: Bool  // true = auto-created from template
+  var isIncome: Bool = false  // true = income, false = expense
+
   // Protect user edits made directly to generated expenses
   var isManuallyEdited: Bool = false
-  
+
   // Snapshot/version marker copied from the template when the expense was generated
   var templateSnapshotHash: String?
-  
+
   var primaryCategory: ExpenseCategory {
     ExpenseCategory(rawValue: categories.first ?? "other") ?? .other
   }
-  
+
   var allCategories: [ExpenseCategory] {
     categories.compactMap { ExpenseCategory(rawValue: $0) }
   }
-  
+
   var paymentMethodEnum: PaymentMethod {
     get { PaymentMethod(rawValue: paymentMethod) ?? .card }
     set { paymentMethod = newValue.rawValue }
   }
-  
+
   var currencyEnum: Currency {
     get { Currency(rawValue: currency) ?? .uah }
     set { currency = newValue.rawValue }
   }
-  
+
   /// Add a category (returns false if max 3 reached)
   func addCategory(_ category: ExpenseCategory) -> Bool {
     guard categories.count < 3 else { return false }
@@ -51,12 +51,12 @@ class Expense {
     }
     return true
   }
-  
+
   /// Remove a category
   func removeCategory(_ category: ExpenseCategory) {
     categories.removeAll { $0 == category.rawValue }
   }
-  
+
   init(
     title: String,
     amount: Double,
@@ -151,7 +151,7 @@ enum ExpenseFrequency: String, Codable, CaseIterable {
   case weekly = "weekly"
   case monthly = "monthly"
   case yearly = "yearly"
-  
+
   var displayName: String {
     switch self {
     case .oneTime: return Localization.string(.none)
@@ -160,7 +160,7 @@ enum ExpenseFrequency: String, Codable, CaseIterable {
     case .yearly: return Localization.string(.expenseYearly)
     }
   }
-  
+
   /// Approximate days between occurrences
   var daysInterval: Int {
     switch self {
@@ -170,7 +170,7 @@ enum ExpenseFrequency: String, Codable, CaseIterable {
     case .yearly: return 365
     }
   }
-  
+
   /// Get next occurrence date from a given date
   func nextDate(from date: Date) -> Date {
     let calendar = Calendar.current

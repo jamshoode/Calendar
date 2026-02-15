@@ -199,14 +199,18 @@ struct EditTemplateSheet: View {
       }
       .onAppear {
         // Compute how many future generated items would be affected (preview)
-        affectedCount = RecurringExpenseService.shared.countFutureGeneratedExpenses(for: template, from: Date(), context: modelContext)
+        affectedCount = RecurringExpenseService.shared.countFutureGeneratedExpenses(
+          for: template, from: Date(), context: modelContext)
       }
       .alert(isPresented: $showUpdateResult) {
         Alert(
           title: Text("Applied changes"),
-          message: Text("Updated \(lastUpdatedCount) item\(lastUpdatedCount == 1 ? "" : "s") — skipped \(lastSkippedCount) manual edit\(lastSkippedCount == 1 ? "" : "s")."),
+          message: Text(
+            "Updated \(lastUpdatedCount) item\(lastUpdatedCount == 1 ? "" : "s") — skipped \(lastSkippedCount) manual edit\(lastSkippedCount == 1 ? "" : "s")."
+          ),
           primaryButton: .default(Text("Undo")) {
-            _ = RecurringExpenseService.shared.undoLastTemplateUpdate(templateId: template.id, context: modelContext)
+            _ = RecurringExpenseService.shared.undoLastTemplateUpdate(
+              templateId: template.id, context: modelContext)
           },
           secondaryButton: .cancel(Text("OK"))
         )
@@ -254,14 +258,19 @@ struct EditTemplateSheet: View {
     template.isActive = isActive
     template.updatedAt = Date()
 
-    try? modelContext.save()
-    
+    do {
+      try modelContext.save()
+    } catch {
+      ErrorPresenter.presentOnMain(error)
+    }
+
     // Regenerate missing occurrences first
     RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
 
     // If user asked — update future generated expenses created from this template
     if applyToFutureGenerated {
-      let result = RecurringExpenseService.shared.updateGeneratedExpenses(for: template, applyFrom: Date(), context: modelContext)
+      let result = RecurringExpenseService.shared.updateGeneratedExpenses(
+        for: template, applyFrom: Date(), context: modelContext)
       lastUpdatedCount = result.updatedCount
       lastSkippedCount = result.skippedManualCount
       showUpdateResult = true

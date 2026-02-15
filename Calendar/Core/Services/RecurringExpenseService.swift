@@ -89,7 +89,8 @@ class RecurringExpenseService {
       scheduleUpcomingNotifications(context: context)
 
     } catch {
-      print("Error generating recurring expenses: \(error)")
+      Logging.log.error(
+        "Error generating recurring expenses: \(String(describing: error), privacy: .public)")
     }
   }
 
@@ -147,6 +148,8 @@ class RecurringExpenseService {
   /// Schedule notifications for upcoming recurring expenses
   func scheduleUpcomingNotifications(context: ModelContext) {
     // Only cancel existing EXPENSE notifications (not alarm/event/todo ones)
+    // Capture the ModelContainer so we can create a main-thread ModelContext for scheduling
+    let modelContainer = context.modelContainer
     UNUserNotificationCenter.current().getPendingNotificationRequests { [weak self] requests in
       let expenseIds =
         requests
@@ -155,8 +158,16 @@ class RecurringExpenseService {
       UNUserNotificationCenter.current().removePendingNotificationRequests(
         withIdentifiers: expenseIds)
 
-      // Now schedule new ones
-      self?.scheduleNewExpenseNotifications(context: context)
+      // Run scheduling on the main actor using a main-thread ModelContext
+      DispatchQueue.main.async {
+        if let container = modelContainer {
+          let mainContext = ModelContext(container)
+          self?.scheduleNewExpenseNotifications(context: mainContext)
+        } else {
+          // Fallback to the provided context if container isn't available
+          self?.scheduleNewExpenseNotifications(context: context)
+        }
+      }
     }
   }
 
@@ -181,7 +192,8 @@ class RecurringExpenseService {
       }
 
     } catch {
-      print("Error scheduling notifications: \(error)")
+      Logging.log.error(
+        "Error scheduling notifications: \(String(describing: error), privacy: .public)")
     }
   }
 
@@ -258,7 +270,8 @@ class RecurringExpenseService {
 
     UNUserNotificationCenter.current().add(request) { error in
       if let error = error {
-        print("Error scheduling notification: \(error)")
+        Logging.log.error(
+          "Error scheduling notification: \(String(describing: error), privacy: .public)")
       }
     }
   }
@@ -274,6 +287,8 @@ class RecurringExpenseService {
     let paymentMethod: String
     let currency: String
     let isIncome: Bool
+    // Optional categories: added to support undoing category changes (backwards-compatible)
+    let categories: [String]?
     let templateSnapshotHash: String?
   }
 
@@ -323,6 +338,7 @@ class RecurringExpenseService {
           paymentMethod: expense.paymentMethod,
           currency: expense.currency,
           isIncome: expense.isIncome,
+          categories: expense.categories,
           templateSnapshotHash: expense.templateSnapshotHash
         )
         undoSnapshots.append(snap)
@@ -355,7 +371,8 @@ class RecurringExpenseService {
       scheduleUpcomingNotifications(context: context)
 
     } catch {
-      print("Error updating generated expenses: \(error)")
+      Logging.log.error(
+        "Error updating generated expenses: \(String(describing: error), privacy: .public)")
     }
 
     return (updated, skipped)
@@ -381,6 +398,10 @@ class RecurringExpenseService {
           expense.amount = snap.amount
           expense.merchant = snap.merchant
           expense.notes = snap.notes
+          // Restore categories if present in snapshot (backwards-compatible)
+          if let cats = snap.categories {
+            expense.categories = cats
+          }
           expense.paymentMethod = snap.paymentMethod
           expense.currency = snap.currency
           expense.isIncome = snap.isIncome
@@ -395,7 +416,9 @@ class RecurringExpenseService {
         UserDefaults.standard.removeObject(forKey: key)
       }
     } catch {
-      print("Failed to undo template update: \(error)")
+      ErrorPresenter.presentOnMain(error)
+      Logging.log.error(
+        "Failed to undo template update: \(String(describing: error), privacy: .public)")
       return false
     }
 

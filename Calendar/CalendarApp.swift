@@ -1,48 +1,62 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct CalendarApp: App {
-    #if os(iOS)
+  #if os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    #endif
-    @StateObject private var appState = AppState()
-    #if DEBUG
+  #endif
+  @StateObject private var appState = AppState()
+  #if DEBUG
     @StateObject private var debugSettings = DebugSettings()
-    #endif
-    
-    var body: some Scene {
-        WindowGroup {
-            #if DEBUG
-            ContentView()
-                .environmentObject(appState)
-                .environmentObject(debugSettings)
-                .preferredColorScheme(debugSettings.themeOverride.colorScheme)
-                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self, Alarm.self, TimerPreset.self, TimerSession.self])
-            #else
-            ContentView()
-                .environmentObject(appState)
-                .modelContainer(for: [Event.self, TodoItem.self, TodoCategory.self, Expense.self, RecurringExpenseTemplate.self, CSVImportSession.self, Alarm.self, TimerPreset.self, TimerSession.self])
-            #endif
-        }
+  #endif
+
+  var body: some Scene {
+    WindowGroup {
+      #if DEBUG
+        ContentView()
+          .environmentObject(appState)
+          .environmentObject(debugSettings)
+          .preferredColorScheme(debugSettings.themeOverride.colorScheme)
+          .modelContainer(for: [
+            Event.self, TodoItem.self, TodoCategory.self, Expense.self,
+            RecurringExpenseTemplate.self, CSVImportSession.self, Alarm.self, TimerPreset.self,
+            TimerSession.self,
+          ])
+      #else
+        ContentView()
+          .environmentObject(appState)
+          .modelContainer(for: [
+            Event.self, TodoItem.self, TodoCategory.self, Expense.self,
+            RecurringExpenseTemplate.self, CSVImportSession.self, Alarm.self, TimerPreset.self,
+            TimerSession.self,
+          ])
+      #endif
     }
+  }
 }
 
 struct ContentView: View {
   @EnvironmentObject var appState: AppState
   @Environment(\.modelContext) private var modelContext
   @State private var showingSettings = false
-  
+  @StateObject private var startupManager = StartupManager()
+  @State private var showSplash = true
+
   var body: some View {
     ZStack {
-      // Atmospheric Background
-      MeshGradientView()
-        .ignoresSafeArea()
-        .animation(nil, value: appState.selectedTab)
-      
-      // Main Content Area
+      let splashVisible = showSplash || startupManager.isRunning
+
+      // Main content container — disabled while startup runs or while showing initial splash
       Group {
-        if let selectedTab = appState.selectedTab {
+        // Atmospheric Background
+        MeshGradientView()
+          .ignoresSafeArea()
+          .animation(nil, value: appState.selectedTab)
+
+        // Main Content Area
+        Group {
+          if let selectedTab = appState.selectedTab {
             switch selectedTab {
             case .calendar:
               NavigationStack { CalendarView() }
@@ -55,38 +69,50 @@ struct ContentView: View {
             case .weather:
               NavigationStack { WeatherView() }
             }
-        } else {
+          } else {
             Text(Localization.string(.selectTabPrompt))
+          }
         }
-      }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .opacity(1)
-      .animation(.easeOut(duration: 0.15), value: appState.selectedTab)
-      
-      // Floating Tab Bar
-      VStack {
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .opacity(1)
+        .animation(.easeOut(duration: 0.15), value: appState.selectedTab)
+
+        // Floating Tab Bar
+        VStack {
           Spacer()
           FloatingTabBar(selectedTab: $appState.selectedTab)
+        }
+        .ignoresSafeArea(.keyboard)
+
+        // Floating error banner
+        FloatingErrorView()
+          .zIndex(10)
       }
-      .ignoresSafeArea(.keyboard)
-      
-      // Floating error banner
-      FloatingErrorView()
-        .zIndex(10)
+      .disabled(splashVisible)
+      .opacity(splashVisible ? 0.98 : 1)
+      .animation(.easeOut(duration: 0.25), value: splashVisible)
+
+      // Keep SplashView mounted and controlled by `splashVisible`
+      SplashView(manager: startupManager)
+        .opacity(splashVisible ? 1 : 0)
+        .animation(.easeOut(duration: 0.25), value: splashVisible)
+        .allowsHitTesting(splashVisible)
+        .accessibilityHidden(!splashVisible)
     }
     .sheet(isPresented: $showingSettings) {
-        SettingsSheet(isPresented: $showingSettings)
+      SettingsSheet(isPresented: $showingSettings)
     }
     .onAppear {
-      EventViewModel().syncEventsToWidget(context: modelContext)
-      RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
-      TodoViewModel().cleanupCompletedTodos(context: modelContext)
-      TodoViewModel().rescheduleAllNotifications(context: modelContext)
-      
-      // Check for missed recurring payments
-      let missed = RecurringExpenseService.shared.checkMissedPayments(context: modelContext)
-      if !missed.isEmpty {
-        print("⚠️ \(missed.count) missed recurring payment(s) detected")
+      showSplash = true
+      startupManager.start(using: modelContext)
+    }
+    .onChange(of: startupManager.isRunning) { running in
+      if running {
+        showSplash = true
+      } else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+          withAnimation { showSplash = false }
+        }
       }
     }
   }

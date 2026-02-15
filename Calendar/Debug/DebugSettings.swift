@@ -10,7 +10,6 @@ import WidgetKit
         UserDefaults.standard.set(themeOverride.rawValue, forKey: "debug_themeOverride")
         UserDefaults(suiteName: "group.com.shoode.calendar")?.set(
           themeOverride.rawValue, forKey: "debug_themeOverride")
-        UserDefaults(suiteName: "group.com.shoode.calendar")?.synchronize()
         WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
       }
     }

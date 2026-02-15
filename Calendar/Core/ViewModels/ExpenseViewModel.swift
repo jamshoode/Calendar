@@ -70,15 +70,22 @@ class ExpenseViewModel {
 
   // MARK: - Aggregation
 
-  func totalForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> Double {
+  func totalForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> Double
+  {
     expenses
-      .filter { $0.date >= start && $0.date <= end && (isIncome == nil || $0.isIncome == isIncome!) }
+      .filter {
+        $0.date >= start && $0.date <= end && (isIncome == nil || $0.isIncome == isIncome!)
+      }
       .reduce(0) { $0 + $1.amount }
   }
 
   /// Calculate total amount in UAH for a period (converts all currencies to UAH)
-  func totalInUAHForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> Double {
-    let filtered = expenses.filter { $0.date >= start && $0.date <= end && (isIncome == nil || $0.isIncome == isIncome!) }
+  func totalInUAHForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil)
+    -> Double
+  {
+    let filtered = expenses.filter {
+      $0.date >= start && $0.date <= end && (isIncome == nil || $0.isIncome == isIncome!)
+    }
     return filtered.reduce(0) { total, expense in
       total + expense.currencyEnum.convertToUAH(expense.amount)
     }
@@ -89,8 +96,11 @@ class ExpenseViewModel {
   /// - uah: Total in UAH (converted from all currencies)
   /// - usd: Total in USD (converted from UAH total)
   /// - eur: Total in EUR (converted from UAH total)
-  func multiCurrencyTotalsForPeriod(expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil) -> (uah: Double, usd: Double, eur: Double) {
-    let totalUAH = totalInUAHForPeriod(expenses: expenses, start: start, end: end, isIncome: isIncome)
+  func multiCurrencyTotalsForPeriod(
+    expenses: [Expense], start: Date, end: Date, isIncome: Bool? = nil
+  ) -> (uah: Double, usd: Double, eur: Double) {
+    let totalUAH = totalInUAHForPeriod(
+      expenses: expenses, start: start, end: end, isIncome: isIncome)
     let usd = Currency.usd.convertFromUAH(totalUAH)
     let eur = Currency.eur.convertFromUAH(totalUAH)
     return (uah: totalUAH, usd: usd, eur: eur)
@@ -119,30 +129,30 @@ class ExpenseViewModel {
     let grouped = Dictionary(grouping: expenses) { calendar.startOfDay(for: $0.date) }
     return grouped.sorted { $0.key > $1.key }.map { (date: $0.key, expenses: $0.value) }
   }
-  
+
   // MARK: - Widget Sync
-  
-  func syncExpensesToWidget(context: ModelContext) {
+
+  func syncExpensesToWidget(context: ModelContext, userDefaults: UserDefaults? = nil) {
     let calendar = Calendar.current
     let now = Date()
     let weekLater = calendar.date(byAdding: .day, value: 7, to: now)!
-    
+
     let descriptor = FetchDescriptor<Expense>(
       predicate: #Predicate { expense in
         expense.date >= now && expense.date <= weekLater
       },
       sortBy: [SortDescriptor(\.date)]
     )
-    
+
     do {
       let expenses = try context.fetch(descriptor)
-      
+
       // Filter for Monthly Recurring Expenses only
       // We need to fetch templates to check linkage
       let templateDescriptor = FetchDescriptor<RecurringExpenseTemplate>()
       let templates = try context.fetch(templateDescriptor)
       let monthlyTemplateIds = Set(templates.filter { $0.frequencyEnum == .monthly }.map { $0.id })
-      
+
       let widgetExpenses = expenses.filter { expense in
         guard let templateId = expense.templateId else { return false }
         return monthlyTemplateIds.contains(templateId)
@@ -157,11 +167,10 @@ class ExpenseViewModel {
           category: expense.primaryCategory.rawValue
         )
       }
-      
-      let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
+
+      let defaults = userDefaults ?? UserDefaults(suiteName: Constants.Storage.appGroupIdentifier)
       if let encoded = try? JSONEncoder().encode(Array(widgetExpenses)) {
         defaults?.set(encoded, forKey: "widgetUpcomingExpenses")
-        defaults?.synchronize()
       }
       WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
       WidgetCenter.shared.reloadTimelines(ofKind: "CombinedWidget")

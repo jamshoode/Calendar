@@ -38,7 +38,7 @@ struct FloatingTabBar: View {
     .glassHalo(cornerRadius: 100)
     .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
     .padding(.horizontal, 20)
-    .padding(.bottom, 20)
+    .padding(.bottom, 10)
   }
 
   private func tabIcon(for tab: AppState.Tab) -> String {

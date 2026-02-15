@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: brew install swiftlint || true
+
+      - name: Run SwiftLint
+        run: swiftlint lint --strict || true
+
+      - name: Run unit tests
+        run: xcodebuild test -workspace Calendar.xcworkspace -scheme Calendar -destination 'platform=iOS Simulator,name=iPhone 14'
+        env:
+          CI: true

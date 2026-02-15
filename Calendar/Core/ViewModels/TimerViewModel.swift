@@ -32,7 +32,6 @@ class TimerViewModel: ObservableObject {
     saveState()
 
     UserDefaults.shared.set(true, forKey: "hasActiveTimer")
-    UserDefaults.shared.synchronize()
 
     NotificationService.shared.scheduleTimerNotification(duration: duration, identifier: timerId)
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
@@ -50,7 +49,6 @@ class TimerViewModel: ObservableObject {
     saveState()
 
     UserDefaults.shared.set(true, forKey: "hasActiveTimer")
-    UserDefaults.shared.synchronize()
 
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
 
@@ -91,7 +89,6 @@ class TimerViewModel: ObservableObject {
     saveState()
 
     UserDefaults.shared.set(false, forKey: "hasActiveTimer")
-    UserDefaults.shared.synchronize()
 
     NotificationService.shared.cancelTimerNotifications(identifier: timerId)
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
@@ -117,7 +114,6 @@ class TimerViewModel: ObservableObject {
     saveState()
 
     UserDefaults.shared.set(false, forKey: "hasActiveTimer")
-    UserDefaults.shared.synchronize()
 
     NotificationService.shared.cancelTimerNotifications(identifier: timerId)
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
@@ -169,12 +165,9 @@ class TimerViewModel: ObservableObject {
     } else {
       defaults.removeObject(forKey: "\(timerId).startTime")
     }
-
-    defaults.synchronize()
-    WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
   }
 
-  private func restoreState() {
+  func restoreState() {
     let defaults = UserDefaults.shared
     remainingTime = defaults.double(forKey: "\(timerId).remainingTime")
     isRunning = defaults.bool(forKey: "\(timerId).isRunning")

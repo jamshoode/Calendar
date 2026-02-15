@@ -45,7 +45,7 @@ struct ExpensesView: View {
 
   private var filteredExpenses: [Expense] {
     var result: [Expense]
-    
+
     if selectedPeriod == .all {
       // For "All" filter, sort by date descending and limit to prevent crashes
       result = expenses.sorted { $0.date > $1.date }
@@ -58,7 +58,7 @@ struct ExpensesView: View {
     }
     return result
   }
-  
+
   // Calculate totals using ALL expenses (not just filtered)
   private var totalExpensesForPeriod: [Expense] {
     if selectedPeriod == .all {
@@ -71,14 +71,14 @@ struct ExpensesView: View {
   private func periodBounds(for period: ExpensePeriod) -> (start: Date, end: Date) {
     let calendar = Calendar.current
     let today = Date()
-    
+
     if period == .all {
       // Return a very wide date range for "All" filter
       let distantPast = calendar.date(byAdding: .year, value: -10, to: today)!
       let distantFuture = calendar.date(byAdding: .year, value: 10, to: today)!
       return (distantPast, distantFuture)
     }
-    
+
     let interval: DateInterval
     switch period {
     case .weekly:
@@ -239,7 +239,8 @@ struct ExpensesView: View {
     .sheet(isPresented: $showingAddExpense) {
       AddExpenseSheet(
         expense: editingExpense,
-        onSave: { title, amount, date, category, paymentMethod, currency, merchant, notes, isIncome in
+        onSave: {
+          title, amount, date, category, paymentMethod, currency, merchant, notes, isIncome in
           do {
             if let expense = editingExpense {
               try viewModel.updateExpense(
@@ -260,7 +261,11 @@ struct ExpensesView: View {
         },
         onDelete: {
           if let expense = editingExpense {
-            try? viewModel.deleteExpense(expense, context: modelContext)
+            do {
+              try viewModel.deleteExpense(expense, context: modelContext)
+            } catch {
+              ErrorPresenter.shared.present(error)
+            }
           }
         }
       )
@@ -296,14 +301,22 @@ struct ExpensesView: View {
     for expense in expenses {
       modelContext.delete(expense)
     }
-    try? modelContext.save()
+    do {
+      try modelContext.save()
+    } catch {
+      ErrorPresenter.presentOnMain(error)
+    }
   }
 
   private func clearAllTemplates() {
     for template in templates {
       modelContext.delete(template)
     }
-    try? modelContext.save()
+    do {
+      try modelContext.save()
+    } catch {
+      ErrorPresenter.presentOnMain(error)
+    }
   }
 }
 
@@ -461,13 +474,13 @@ struct HistoryView: View {
   private func periodBounds() -> (start: Date, end: Date) {
     let calendar = Calendar.current
     let today = Date()
-    
+
     if period == .all {
       let distantPast = calendar.date(byAdding: .year, value: -10, to: today)!
       let distantFuture = calendar.date(byAdding: .year, value: 10, to: today)!
       return (distantPast, distantFuture)
     }
-    
+
     let interval: DateInterval
     switch period {
     case .weekly:

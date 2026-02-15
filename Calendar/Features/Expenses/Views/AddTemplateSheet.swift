@@ -196,8 +196,12 @@ struct AddTemplateSheet: View {
     )
 
     modelContext.insert(template)
-    try? modelContext.save()
-    
+    do {
+      try modelContext.save()
+    } catch {
+      ErrorPresenter.presentOnMain(error)
+    }
+
     // Generate expenses immediately for the new template
     RecurringExpenseService.shared.generateRecurringExpenses(context: modelContext)
 

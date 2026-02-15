@@ -62,7 +62,7 @@ class EventViewModel {
     }
   }
 
-  func syncEventsToWidget(context: ModelContext) {
+  func syncEventsToWidget(context: ModelContext, userDefaults: UserDefaults? = nil) {
     let calendar = Calendar.current
     let today = Date()
 
@@ -122,9 +122,8 @@ class EventViewModel {
     do {
       let data = try JSONSerialization.data(withJSONObject: eventMap)
       if let jsonString = String(data: data, encoding: .utf8) {
-        let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
+        let defaults = userDefaults ?? UserDefaults(suiteName: Constants.Storage.appGroupIdentifier)
         defaults?.set(jsonString, forKey: "widgetEventData")
-        defaults?.synchronize()
       }
     } catch {
       ErrorPresenter.shared.present(error)
