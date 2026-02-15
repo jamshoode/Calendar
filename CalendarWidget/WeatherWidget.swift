@@ -114,6 +114,10 @@ struct WeatherProvider: TimelineProvider {
     }
 
     private func buildForecastDays(from weatherData: WeatherData?, events: [String: [String]]) -> [ForecastDayInfo] {
+        guard let weatherData = weatherData else {
+            return placeholderForecastDays()
+        }
+        
         let calendar = Calendar.current
         let today = Date()
         
@@ -141,7 +145,7 @@ struct WeatherProvider: TimelineProvider {
             let colors = events[key] ?? []
             
             // Find matching forecast data for this day
-            let (icon, minTemp, maxTemp) = findForecastForDate(dayDate, in: weatherData)
+            let (icon, minTemp, maxTemp) = findForecastForDate(dayDate, in: weatherData, calendar: calendar)
             
             let info = ForecastDayInfo(
                 name: orderedNames[i % 7].prefix(3).uppercased(),
@@ -160,27 +164,24 @@ struct WeatherProvider: TimelineProvider {
         return forecastDays
     }
     
-    private func findForecastForDate(_ date: Date, in weatherData: WeatherData?) -> (icon: String, minTemp: Double, maxTemp: Double) {
+    private func findForecastForDate(_ date: Date, in weatherData: WeatherData?, calendar: Calendar) -> (icon: String, minTemp: Double, maxTemp: Double) {
         guard let weatherData = weatherData else {
             return ("questionmark.circle", 0, 0)
         }
         
-        let calendar = Calendar.current
-        let normalizedDate = calendar.startOfDay(for: date)
+        // Normalize both dates to midnight for comparison
+        let normalizedTarget = calendar.startOfDay(for: date)
         
         // Search through daily forecast for matching date
         for dailyPoint in weatherData.dailyForecast {
-            let pointDate = calendar.startOfDay(for: dailyPoint.time)
-            if normalizedDate == pointDate {
+            let normalizedPoint = calendar.startOfDay(for: dailyPoint.time)
+            if normalizedTarget == normalizedPoint {
                 return (dailyPoint.code.icon(isDay: true), dailyPoint.minTemp, dailyPoint.maxTemp)
             }
         }
         
-        // Fallback to first forecast if no match
-        if let firstDaily = weatherData.dailyForecast.first {
-            return (firstDaily.code.icon(isDay: true), firstDaily.minTemp, firstDaily.maxTemp)
-        }
-        
+        // No matching forecast found (date is in the past or beyond forecast range)
+        // Return placeholder instead of fallback to first day
         return ("questionmark.circle", 0, 0)
     }
 
