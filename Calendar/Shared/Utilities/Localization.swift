@@ -23,12 +23,17 @@ public struct Localization {
     return currentLanguage == .ukrainian ? Locale(identifier: "uk_UA") : Locale(identifier: "en_US")
   }
 
-  enum Key {
+  public enum Key {
     // Common
     case save
     case cancel
     case update
     case delete
+    case clearAll
+    case clearAllExpenses
+    case clearAllTemplates
+    case clearEverything
+    case cannotBeUndone
 
     // Calendar / Event List
     case selectDate
@@ -219,6 +224,16 @@ public struct Localization {
     case expenseDining
     case expenseShopping
     case expenseOther
+    case templateDetails
+    case templateTitlePlaceholder
+    case merchantPlaceholder
+    case amountTolerance
+    case addRecurringExpense
+    case editRecurringExpense
+    case startDate
+    case amount
+    case merchant
+    case frequency
 
     // Weather
     case weather
@@ -238,9 +253,74 @@ public struct Localization {
     case weatherSnow
     case weatherThunderstorm
     case weatherCloudy
+    
+    // Expense View UI
+    case expenseHeader
+    case expenseHistory
+    case expenseBudget
+    case expenseInsights
+    case expensePeriodAll
+    case expensePeriodWeekly
+    case expensePeriodMonthly
+    case expensePeriodYearly
+    case expenseTotalCapitalized
+    
+    // Expense Dialogs
+    case clearAllDataPrompt
+    case clearAllExpensesConfirm
+    case clearAllTemplatesConfirm
+    case clearEverythingConfirm
+    
+    // CSV Import
+    case importFromBank
+    case transactions
+    case duplicates
+    case analyzingCSV
+    case cannotAccessFile
+    case noFileSelected
+    case selectPatternsPrompt
+    case createTemplatesX(Int)
+    
+    // Budget & Recurring
+    case activeRecurringX(Int)
+    case pausedX(Int)
+    case pause
+    case resume
+    case nextOccurrence(String)
+    
+    // Insights
+    case spendingTrends
+    case thisMonthSpending
+    case incomeThisMonth
+    case netIncome(String)
+    case wasAmount(String)
+    case detectedXTimes(Int)
+    case failedToReadFile(String)
+    
+    // Additional Expense Keys
+    case noExpenses
+    case activeRecurring
+    case paused
+    case expenseNoRecurringExpenses
+    case importBankStatement
+    case uploadCSV
+    case selectCSVFile
+    case recurringPatternsDetected
+    case patternsFound
+    case selectPatterns
+    case createTemplates
+    case importAllTransactions
+    case importAnotherFile
+    case noDataYet
+    case addExpensesForInsights
+    case detected
+    case categories
+    case lastOccurrences
+    case next
+    case yearlyProjection
   }
 
-  static func string(_ key: Key) -> String {
+  public static func string(_ key: Key) -> String {
     let lang = currentLanguage
 
     switch key {
@@ -253,6 +333,16 @@ public struct Localization {
       return lang == .ukrainian ? "Оновити" : "Update"
     case .delete:
       return lang == .ukrainian ? "Видалити" : "Delete"
+    case .clearAll:
+      return lang == .ukrainian ? "Очистити все" : "Clear All"
+    case .clearAllExpenses:
+      return lang == .ukrainian ? "Очистити всі витрати" : "Clear All Expenses"
+    case .clearAllTemplates:
+      return lang == .ukrainian ? "Очистити всі шаблони" : "Clear All Templates"
+    case .clearEverything:
+      return lang == .ukrainian ? "Очистити все" : "Clear Everything"
+    case .cannotBeUndone:
+      return lang == .ukrainian ? "Цю дію не можна скасувати. Всі ваші дані будуть видалені назавжди." : "This action cannot be undone. All your data will be permanently deleted."
 
     // Calendar
     case .selectDate:
@@ -586,6 +676,72 @@ public struct Localization {
       return lang == .ukrainian ? "Покупки" : "Shopping"
     case .expenseOther:
       return lang == .ukrainian ? "Інше" : "Other"
+    case .templateDetails:
+      return lang == .ukrainian ? "Деталі шаблону" : "Template Details"
+    case .templateTitlePlaceholder:
+      return lang == .ukrainian ? "Назва (наприклад, Netflix)" : "Title (e.g., Netflix)"
+    case .merchantPlaceholder:
+      return lang == .ukrainian ? "Назва продавця" : "Merchant name"
+    case .amountTolerance:
+      return lang == .ukrainian ? "Допустима різниця суми" : "Amount tolerance"
+    case .addRecurringExpense:
+      return lang == .ukrainian ? "Додати періодичну витрату" : "Add Recurring Expense"
+    case .editRecurringExpense:
+      return lang == .ukrainian ? "Редагувати періодичну витрату" : "Edit Recurring Expense"
+    case .startDate:
+      return lang == .ukrainian ? "Дата початку" : "Start date"
+    case .amount:
+      return lang == .ukrainian ? "Сума" : "Amount"
+    case .merchant:
+      return lang == .ukrainian ? "Продавець" : "Merchant"
+    case .frequency:
+      return lang == .ukrainian ? "Частота" : "Frequency"
+    case .noExpenses:
+      return lang == .ukrainian ? "Немає витрат" : "No expenses"
+    case .activeRecurring:
+      return lang == .ukrainian ? "Активні періодичні" : "Active Recurring"
+    case .paused:
+      return lang == .ukrainian ? "Призупинені" : "Paused"
+    case .expenseNoRecurringExpenses:
+      return lang == .ukrainian ? "Немає періодичних витрат" : "No Recurring Expenses"
+    case .importBankStatement:
+      return lang == .ukrainian ? "Імпорт виписки банку" : "Import Bank Statement"
+    case .uploadCSV:
+      return lang == .ukrainian ? "Завантажте CSV файл з Monobank або PUMB для автоматичного виявлення періодичних витрат." : "Upload a CSV file from Monobank or PUMB to automatically detect recurring expenses."
+    case .selectCSVFile:
+      return lang == .ukrainian ? "Обрати CSV файл" : "Select CSV File"
+    case .recurringPatternsDetected:
+      return lang == .ukrainian ? "Виявлено періодичні витрати" : "Recurring Expense Patterns Detected"
+    case .patternsFound:
+      return lang == .ukrainian ? "знайдено" : "found"
+    case .selectPatterns:
+      return lang == .ukrainian ? "Оберіть шаблони для автоматичного відстеження" : "Select patterns to create templates for automatic tracking"
+    case .createTemplates:
+      return lang == .ukrainian ? "Створити шаблони" : "Create Templates"
+    case .importAllTransactions:
+      return lang == .ukrainian ? "Імпортувати всі транзакції" : "Import All Transactions"
+    case .importAnotherFile:
+      return lang == .ukrainian ? "Імпортувати інший файл" : "Import Another File"
+    case .spendingTrends:
+      return lang == .ukrainian ? "Тренди витрат" : "Spending Trends"
+    case .thisMonthSpending:
+      return lang == .ukrainian ? "Витрати цього місяця" : "This Month's Spending"
+    case .incomeThisMonth:
+      return lang == .ukrainian ? "Дохід цього місяця" : "Income This Month"
+    case .noDataYet:
+      return lang == .ukrainian ? "Даних ще немає" : "No Data Yet"
+    case .addExpensesForInsights:
+      return lang == .ukrainian ? "Додайте витрати, щоб побачити аналітику та тренди" : "Add some expenses to see insights and trends"
+    case .detected:
+      return lang == .ukrainian ? "Виявлено" : "Detected"
+    case .categories:
+      return lang == .ukrainian ? "Категорії" : "Categories"
+    case .lastOccurrences:
+      return lang == .ukrainian ? "Останні:" : "Last occurrences:"
+    case .next:
+      return lang == .ukrainian ? "Далі:" : "Next:"
+    case .yearlyProjection:
+      return lang == .ukrainian ? "Річна прогнозна сума" : "Yearly Projection"
 
     // Weather
     case .weather:
@@ -636,6 +792,66 @@ public struct Localization {
       return lang == .ukrainian ? "Додати" : "Add"
     case .total:
       return lang == .ukrainian ? "Всього" : "Total"
+    case .expenseHeader:
+      return lang == .ukrainian ? "ВИТРАТИ" : "EXPENSES"
+    case .expenseHistory:
+      return lang == .ukrainian ? "Історія" : "History"
+    case .expenseBudget:
+      return lang == .ukrainian ? "Бюджет" : "Budget"
+    case .expenseInsights:
+      return lang == .ukrainian ? "Аналітика" : "Insights"
+    case .expensePeriodAll:
+      return lang == .ukrainian ? "Все" : "All"
+    case .expensePeriodWeekly:
+      return lang == .ukrainian ? "Тиждень" : "Weekly"
+    case .expensePeriodMonthly:
+      return lang == .ukrainian ? "Місяць" : "Monthly"
+    case .expensePeriodYearly:
+      return lang == .ukrainian ? "Рік" : "Yearly"
+    case .expenseTotalCapitalized:
+      return lang == .ukrainian ? "ЗАГАЛОМ" : "TOTAL"
+    case .clearAllDataPrompt:
+      return lang == .ukrainian ? "Очистити всі дані?" : "Clear All Data?"
+    case .clearAllExpensesConfirm:
+      return lang == .ukrainian ? "Очистити всі витрати" : "Clear All Expenses"
+    case .clearAllTemplatesConfirm:
+      return lang == .ukrainian ? "Очистити всі шаблони" : "Clear All Templates"
+    case .clearEverythingConfirm:
+      return lang == .ukrainian ? "Очистити все" : "Clear Everything"
+    case .importFromBank:
+      return lang == .ukrainian ? "Імпорт з банку" : "Import from Bank"
+    case .transactions:
+      return lang == .ukrainian ? "Транзакції" : "Transactions"
+    case .duplicates:
+      return lang == .ukrainian ? "Дублікати" : "Duplicates"
+    case .analyzingCSV:
+      return lang == .ukrainian ? "Аналіз CSV..." : "Analyzing CSV..."
+    case .cannotAccessFile:
+      return lang == .ukrainian ? "Не вдалося отримати доступ до файлу" : "Cannot access file"
+    case .noFileSelected:
+      return lang == .ukrainian ? "Файл не обрано" : "No file selected"
+    case .selectPatternsPrompt:
+      return lang == .ukrainian ? "Оберіть шаблони для автоматичного відстеження" : "Select patterns to create templates for automatic tracking"
+    case .createTemplatesX(let count):
+      return lang == .ukrainian ? "Створити \(count) шаблонів" : "Create \(count) Templates"
+    case .activeRecurringX(let count):
+      return lang == .ukrainian ? "Активні періодичні (\(count))" : "Active Recurring (\(count))"
+    case .pausedX(let count):
+      return lang == .ukrainian ? "Призупинені (\(count))" : "Paused (\(count))"
+    case .pause:
+      return lang == .ukrainian ? "Призупинити" : "Pause"
+    case .resume:
+      return lang == .ukrainian ? "Відновити" : "Resume"
+    case .nextOccurrence(let date):
+      return lang == .ukrainian ? "Наступна: \(date)" : "Next: \(date)"
+    case .netIncome(let amount):
+      return lang == .ukrainian ? "Чистий дохід: \(amount)" : "Net: \(amount)"
+    case .wasAmount(let amount):
+      return lang == .ukrainian ? "(було \(amount))" : "(was \(amount))"
+    case .detectedXTimes(let count):
+      return lang == .ukrainian ? "Виявлено \(count)р." : "Detected \(count)x"
+    case .failedToReadFile(let error):
+      return lang == .ukrainian ? "Не вдалося прочитати файл: \(error)" : "Failed to read file: \(error)"
     }
   }
 }

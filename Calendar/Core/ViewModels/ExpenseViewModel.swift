@@ -18,7 +18,7 @@ class ExpenseViewModel {
       title: title,
       amount: amount,
       date: date,
-      category: category,
+      categories: [category],
       paymentMethod: paymentMethod,
       currency: currency,
       merchant: merchant,
@@ -43,9 +43,9 @@ class ExpenseViewModel {
     expense.title = title
     expense.amount = amount
     expense.date = date
-    expense.categoryEnum = category
-    expense.paymentMethodEnum = paymentMethod
-    expense.currencyEnum = currency
+    expense.categories = [category.rawValue]
+    expense.paymentMethod = paymentMethod.rawValue
+    expense.currency = currency.rawValue
     expense.merchant = merchant
     expense.notes = notes
     try context.save()
@@ -64,10 +64,30 @@ class ExpenseViewModel {
       .reduce(0) { $0 + $1.amount }
   }
 
+  /// Calculate total amount in UAH for a period (converts all currencies to UAH)
+  func totalInUAHForPeriod(expenses: [Expense], start: Date, end: Date) -> Double {
+    let filtered = expenses.filter { $0.date >= start && $0.date <= end }
+    return filtered.reduce(0) { total, expense in
+      total + expense.currencyEnum.convertToUAH(expense.amount)
+    }
+  }
+
+  /// Get multi-currency totals for a period
+  /// Returns: (uah: Double, usd: Double, eur: Double)
+  /// - uah: Total in UAH (converted from all currencies)
+  /// - usd: Total in USD (converted from UAH total)
+  /// - eur: Total in EUR (converted from UAH total)
+  func multiCurrencyTotalsForPeriod(expenses: [Expense], start: Date, end: Date) -> (uah: Double, usd: Double, eur: Double) {
+    let totalUAH = totalInUAHForPeriod(expenses: expenses, start: start, end: end)
+    let usd = Currency.usd.convertFromUAH(totalUAH)
+    let eur = Currency.eur.convertFromUAH(totalUAH)
+    return (uah: totalUAH, usd: usd, eur: eur)
+  }
+
   func totalByCategory(expenses: [Expense]) -> [(category: ExpenseCategory, total: Double)] {
     var map: [ExpenseCategory: Double] = [:]
     for expense in expenses {
-      map[expense.categoryEnum, default: 0] += expense.amount
+      map[expense.primaryCategory, default: 0] += expense.amount
     }
     return map.sorted { $0.value > $1.value }.map { (category: $0.key, total: $0.value) }
   }

@@ -15,7 +15,7 @@ struct AddExpenseSheet: View {
   @State private var date: Date = Date()
   @State private var category: ExpenseCategory = .other
   @State private var paymentMethod: PaymentMethod = .card
-  @State private var currency: Currency = .usd
+  @State private var currency: Currency = .uah
   @State private var merchant: String = ""
   @State private var notes: String = ""
 
@@ -37,7 +37,7 @@ struct AddExpenseSheet: View {
       _title = State(initialValue: expense.title)
       _amountText = State(initialValue: String(format: "%.2f", expense.amount))
       _date = State(initialValue: expense.date)
-      _category = State(initialValue: expense.categoryEnum)
+      _category = State(initialValue: expense.primaryCategory)
       _paymentMethod = State(initialValue: expense.paymentMethodEnum)
       _currency = State(initialValue: expense.currencyEnum)
       _merchant = State(initialValue: expense.merchant ?? "")
@@ -80,19 +80,26 @@ struct AddExpenseSheet: View {
         }
 
         Section(Localization.string(.expenseCurrency)) {
-          HStack(spacing: 8) {
+          HStack(spacing: 12) {
             ForEach(Currency.allCases, id: \.self) { c in
               Button {
-                currency = c
-              } label: {
-                HStack(spacing: 8) {
-                  Text(c.symbol)
-                  Text(c.displayName)
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                  currency = c
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(currency == c ? Color.accentColor.opacity(0.14) : Color.surfaceCard)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+              } label: {
+                VStack(spacing: 4) {
+                  Text(c.symbol)
+                    .font(.system(size: 20, weight: .bold))
+                  Text(c.displayName)
+                    .font(.system(size: 12, weight: .medium))
+                }
+                .foregroundColor(currency == c ? .white : .textSecondary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                  RoundedRectangle(cornerRadius: 12)
+                    .fill(currency == c ? Color.accentColor : Color.surfaceCard)
+                )
               }
               .buttonStyle(.plain)
             }
@@ -100,20 +107,26 @@ struct AddExpenseSheet: View {
         }
 
         Section(Localization.string(.expensePaymentMethod)) {
-          HStack(spacing: 8) {
+          HStack(spacing: 12) {
             ForEach(PaymentMethod.allCases, id: \.self) { method in
               Button {
-                paymentMethod = method
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                  paymentMethod = method
+                }
               } label: {
                 HStack(spacing: 8) {
                   Image(systemName: method.icon)
+                    .font(.system(size: 18))
                   Text(method.displayName)
+                    .font(.system(size: 15, weight: .semibold))
                 }
-                .foregroundColor(paymentMethod == method ? .white : .textPrimary)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(paymentMethod == method ? Color.accentColor : Color.surfaceCard)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .foregroundColor(paymentMethod == method ? .white : .textSecondary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(
+                  RoundedRectangle(cornerRadius: 12)
+                    .fill(paymentMethod == method ? Color.accentColor : Color.surfaceCard)
+                )
               }
               .buttonStyle(.plain)
             }

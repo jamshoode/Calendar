@@ -68,6 +68,13 @@ struct CalendarView: View {
                     events: eventsForMonth,
                     todos: todosForMonth,
                     onSelectDate: { date in
+                      let selectedMonth = Calendar.current.component(.month, from: date)
+                      let currentMonth = Calendar.current.component(.month, from: viewModel.currentMonth)
+                      if selectedMonth != currentMonth {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                          viewModel.currentMonth = date
+                        }
+                      }
                       viewModel.selectDate(date)
                       if showingDatePicker {
                         withAnimation { showingDatePicker = false }
@@ -167,6 +174,49 @@ struct CalendarView: View {
     }
     .sheet(isPresented: $showingSettings) {
       SettingsSheet(isPresented: $showingSettings)
+    }
+    .sheet(item: $editingEvent) { event in
+      AddEventView(
+        date: event.date,
+        event: event,
+        onSave: { title, notes, color, date, reminderInterval in
+          eventViewModel.updateEvent(
+            event,
+            title: title,
+            notes: notes,
+            color: color,
+            reminderInterval: reminderInterval,
+            context: modelContext
+          )
+        },
+        onDelete: {
+          deleteEvent(event)
+        }
+      )
+    }
+    .overlay {
+      if let event = detailEvent {
+        ZStack {
+          Color.black.opacity(0.3)
+            .ignoresSafeArea()
+            .onTapGesture {
+              detailEvent = nil
+            }
+          
+          EventDetailPopover(
+            event: event,
+            onDismiss: { detailEvent = nil },
+            onEdit: {
+              detailEvent = nil
+              editingEvent = event
+            },
+            onDelete: {
+              detailEvent = nil
+              deleteEvent(event)
+            }
+          )
+        }
+      }
     }
   }
 

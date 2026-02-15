@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-public class Event {
+public class Event: Identifiable {
   public var id: UUID
   public var date: Date
   public var title: String

@@ -8,12 +8,12 @@ struct ExpenseRow: View {
       // Category icon
       ZStack {
           Circle()
-              .fill(expense.categoryEnum.color.opacity(0.15))
+              .fill(expense.primaryCategory.color.opacity(0.15))
               .frame(width: 44, height: 44)
           
-          Image(systemName: expense.categoryEnum.icon)
+          Image(systemName: expense.primaryCategory.icon)
             .font(.system(size: 18, weight: .bold))
-            .foregroundColor(expense.categoryEnum.color)
+            .foregroundColor(expense.primaryCategory.color)
       }
 
       // Title & merchant
