@@ -17,6 +17,6 @@ jobs:
         run: swiftlint lint --strict || true
 
       - name: Run unit tests
-        run: xcodebuild test -workspace Calendar.xcworkspace -scheme Calendar -destination 'platform=iOS Simulator,name=iPhone 14'
+        run: xcodebuild test -workspace Calendar.xcworkspace -scheme Debug -destination 'platform=iOS Simulator,name=iPhone 15'
         env:
           CI: true
