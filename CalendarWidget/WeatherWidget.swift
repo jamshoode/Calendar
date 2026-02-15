@@ -258,8 +258,8 @@ struct WeatherWidgetEntryView: View {
         return systemColorScheme
     }
 
-    var body: some View {
-        let scheme = WidgetColorScheme.from(entry: entry, environment: systemColorScheme)
+  var body: some View {
+    let scheme = WidgetColorScheme.from(forcedColorScheme: entry.forcedColorScheme, environment: systemColorScheme)
         Group {
             switch family {
             case .systemSmall:

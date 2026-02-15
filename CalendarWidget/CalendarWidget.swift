@@ -223,8 +223,8 @@ enum WidgetColorScheme {
     self == .dark ? Color.white.opacity(0.1) : Color(UIColor.separator)
   }
 
-  static func from(entry: CalendarEntry, environment: ColorScheme) -> WidgetColorScheme {
-    if let forced = entry.forcedColorScheme {
+  static func from(forcedColorScheme: String?, environment: ColorScheme) -> WidgetColorScheme {
+    if let forced = forcedColorScheme {
       switch forced {
       case "Light": return .light
       case "Dark": return .dark
@@ -315,7 +315,7 @@ struct CalendarWidgetEntryView: View {
   }
 
   var body: some View {
-    let scheme = WidgetColorScheme.from(entry: entry, environment: systemColorScheme)
+    let scheme = WidgetColorScheme.from(forcedColorScheme: entry.forcedColorScheme, environment: systemColorScheme)
     Group {
       switch family {
       case .systemMedium:
