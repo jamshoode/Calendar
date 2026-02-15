@@ -288,7 +288,7 @@ struct CombinedProvider: TimelineProvider {
     
     private func findForecastInHistory(_ date: Date, history: WeatherHistory?, currentData: WeatherData?, calendar: Calendar) -> (icon: String, minTemp: Double, maxTemp: Double) {
         let normalizedTarget = calendar.startOfDay(for: date)
-        let today = calendar.startOfDay(for: Date())
+        let _ = calendar.startOfDay(for: Date())
         
         // First check history (for past days)
         if let history = history, let entry = history.entry(for: normalizedTarget) {
@@ -513,23 +513,34 @@ struct CombinedWidgetEntryView: View {
                 .frame(height: 0.5)
                 .padding(.horizontal, 12)
 
-            // Upcoming Items Section (Todos/Expenses)
-            if !entry.upcomingItems.isEmpty {
-                HStack(spacing: 8) {
-                    ForEach(entry.upcomingItems.prefix(2), id: \.id) { item in
-                        UpcomingItemCell(item: item, scheme: scheme)
-                            .frame(maxWidth: .infinity)
-                    }
+            // Upcoming Items Section (Todos/Expenses) - Always show 2 cells
+            HStack(spacing: 8) {
+                // First cell - show item or placeholder
+                if entry.upcomingItems.count > 0 {
+                    UpcomingItemCell(item: entry.upcomingItems[0], scheme: scheme)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    UpcomingItemPlaceholderCell(scheme: scheme)
+                        .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-
-                // Divider
-                Rectangle()
-                    .fill(scheme.divider)
-                    .frame(height: 0.5)
-                    .padding(.horizontal, 12)
+                
+                // Second cell - show item or placeholder
+                if entry.upcomingItems.count > 1 {
+                    UpcomingItemCell(item: entry.upcomingItems[1], scheme: scheme)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    UpcomingItemPlaceholderCell(scheme: scheme)
+                        .frame(maxWidth: .infinity)
+                }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+
+            // Divider
+            Rectangle()
+                .fill(scheme.divider)
+                .frame(height: 0.5)
+                .padding(.horizontal, 12)
 
             Spacer(minLength: 6)
 
@@ -709,6 +720,36 @@ struct UpcomingItemCell: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(scheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+struct UpcomingItemPlaceholderCell: View {
+    let scheme: WidgetColorScheme
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "circle.dashed")
+                .font(.system(size: 20))
+                .foregroundColor(scheme.textSecondary.opacity(0.5))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text("No items")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundColor(scheme.textSecondary)
+                    .lineLimit(1)
+                
+                Text("Tap to add")
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundColor(scheme.textSecondary.opacity(0.7))
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(scheme.surface.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
