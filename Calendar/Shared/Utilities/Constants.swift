@@ -24,6 +24,14 @@ public struct Constants {
     static let appGroupIdentifier = "group.com.shoode.calendar"
   }
 
+  struct App {
+    static let appGroupIdentifier = "group.com.shoode.calendar"
+  }
+
+  struct Widget {
+    static let weatherDataKey = "widgetWeatherData"
+  }
+
   struct Holiday {
     static let apiBaseURL = "https://calendarific.com/api/v2"
     static let apiKeyKey = "holidayApiKey"

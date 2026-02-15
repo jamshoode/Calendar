@@ -2,6 +2,7 @@
   import UIKit
   import SwiftUI
   import UserNotifications
+  import WidgetKit
 
   class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -9,6 +10,10 @@
       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
       NotificationService.shared.requestAuthorization()
+      
+      // Reload weather widget on every app launch
+      WidgetCenter.shared.reloadTimelines(ofKind: "WeatherWidget")
+      
       return true
     }
 

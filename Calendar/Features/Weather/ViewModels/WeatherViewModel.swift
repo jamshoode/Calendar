@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import WidgetKit
 
 public class WeatherViewModel: ObservableObject {
     @Published public var weatherData: WeatherData?
@@ -12,11 +13,14 @@ public class WeatherViewModel: ObservableObject {
     @AppStorage("weatherLat") private var savedLat: Double = 0.0
     @AppStorage("weatherLong") private var savedLong: Double = 0.0
     @AppStorage("weatherDataCache") private var cachedWeatherData: Data = Data()
+    @AppStorage("weatherHistoryCache") private var cachedWeatherHistory: Data = Data()
     
     private let weatherService = WeatherService.shared
+    private var weatherHistory: WeatherHistory = WeatherHistory(city: "")
     
     public init() {
         loadCachedData()
+        loadHistory()
         Task {
             await refreshIfNeeded()
         }
@@ -35,10 +39,48 @@ public class WeatherViewModel: ObservableObject {
     
     private func saveToCache(_ data: WeatherData) {
         do {
+            // Save current weather data
             let encoded = try JSONEncoder().encode(data)
             self.cachedWeatherData = encoded
+            
+            // Update and save history
+            if weatherHistory.city != data.city {
+                weatherHistory = WeatherHistory(city: data.city)
+            }
+            
+            // Add each day's forecast to history
+            for dailyPoint in data.dailyForecast {
+                let entry = WeatherHistoryEntry(
+                    date: dailyPoint.time,
+                    minTemp: dailyPoint.minTemp,
+                    maxTemp: dailyPoint.maxTemp,
+                    code: dailyPoint.code
+                )
+                weatherHistory.addEntry(entry)
+            }
+            
+            let historyEncoded = try JSONEncoder().encode(weatherHistory)
+            self.cachedWeatherHistory = historyEncoded
+            
+            // Share with widget via shared UserDefaults
+            if let sharedDefaults = UserDefaults(suiteName: Constants.App.appGroupIdentifier) {
+                sharedDefaults.set(encoded, forKey: Constants.Widget.weatherDataKey)
+                sharedDefaults.set(historyEncoded, forKey: "widgetWeatherHistory")
+                sharedDefaults.synchronize()
+                WidgetCenter.shared.reloadTimelines(ofKind: "WeatherWidget")
+            }
         } catch {
             print("Failed to encode weather for cache: \(error)")
+        }
+    }
+    
+    private func loadHistory() {
+        guard !cachedWeatherHistory.isEmpty else { return }
+        do {
+            weatherHistory = try JSONDecoder().decode(WeatherHistory.self, from: cachedWeatherHistory)
+        } catch {
+            print("Failed to decode weather history: \(error)")
+            weatherHistory = WeatherHistory(city: savedCity)
         }
     }
     
