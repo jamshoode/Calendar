@@ -4,87 +4,90 @@ import UserNotifications
 
 /// Service for managing recurring expense generation and notifications
 class RecurringExpenseService {
-  
+
   static let shared = RecurringExpenseService()
-  
+
   private init() {}
-  
+
   // MARK: - Expense Generation
-  
+
   /// Generate recurring expenses from templates
   /// Call this on app launch and when viewing Budget tab
   func generateRecurringExpenses(context: ModelContext) {
     let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
-    
+
     do {
       let templates = try context.fetch(descriptor)
-      
+
       for template in templates {
         guard !template.isCurrentlyPaused else { continue }
         guard template.frequency != .oneTime else { continue }
-        
+
         // Generate up to 2 months ahead
         let twoMonthsFromNow = Date().addingTimeInterval(60 * 24 * 60 * 60)
         let calendar = Calendar.current
-        
+
         // Always step from startDate by adding N periods to preserve day-of-month
         // e.g., startDate = Nov 24 → Dec 24, Jan 24, Feb 24, etc.
         var multiplier = 0
         var lastGeneratedExpenseDate: Date? = nil
-        
+
         while true {
           let candidateDate: Date?
           switch template.frequency {
           case .weekly:
-            candidateDate = calendar.date(byAdding: .weekOfYear, value: multiplier, to: template.startDate)
+            candidateDate = calendar.date(
+              byAdding: .weekOfYear, value: multiplier, to: template.startDate)
           case .monthly:
-            candidateDate = calendar.date(byAdding: .month, value: multiplier, to: template.startDate)
+            candidateDate = calendar.date(
+              byAdding: .month, value: multiplier, to: template.startDate)
           case .yearly:
-            candidateDate = calendar.date(byAdding: .year, value: multiplier, to: template.startDate)
+            candidateDate = calendar.date(
+              byAdding: .year, value: multiplier, to: template.startDate)
           case .oneTime:
             candidateDate = nil
           }
-          
+
           guard let date = candidateDate else { break }
-          
+
           // Skip the startDate itself (occurrence 0) — only generate future ones
           // But include it if it's today or in the future
           if multiplier == 0 && date < calendar.startOfDay(for: Date()) {
             multiplier += 1
             continue
           }
-          
+
           // Stop if we've gone past our generation window
           if date > twoMonthsFromNow { break }
-          
+
           // Create expense if it doesn't exist
           if !expenseExists(for: template, on: date, context: context) {
             createExpense(from: template, on: date, context: context)
           }
-          
+
           lastGeneratedExpenseDate = date
           multiplier += 1
-          
+
           // Safety: prevent infinite loops
           if multiplier > 500 { break }
         }
-        
+
         // Update last generated date to the actual last expense date
         if let lastExpenseDate = lastGeneratedExpenseDate {
           template.lastGeneratedDate = lastExpenseDate
         }
       }
-      
+
       try context.save()
-      
+
       // Schedule notifications for upcoming expenses
       scheduleUpcomingNotifications(context: context)
-      
+
     } catch {
       print("Error generating recurring expenses: \(error)")
     }
   }
-  
+
   /// Check if an expense already exists for a template on a specific date
   private func expenseExists(
     for template: RecurringExpenseTemplate,
@@ -94,23 +97,21 @@ class RecurringExpenseService {
     let calendar = Calendar.current
     let startOfDay = calendar.startOfDay(for: date)
     let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-    
+
     // Fetch all expenses and filter in memory (workaround for predicate limitations)
     let descriptor = FetchDescriptor<Expense>()
-    
+
     do {
       let allExpenses = try context.fetch(descriptor)
       let existing = allExpenses.filter { expense in
-        expense.templateId == template.id &&
-        expense.date >= startOfDay &&
-        expense.date < endOfDay
+        expense.templateId == template.id && expense.date >= startOfDay && expense.date < endOfDay
       }
       return !existing.isEmpty
     } catch {
       return false
     }
   }
-  
+
   /// Create an expense from a template
   private func createExpense(
     from template: RecurringExpenseTemplate,
@@ -135,48 +136,50 @@ class RecurringExpenseService {
 
     context.insert(expense)
   }
-  
+
   // MARK: - Notifications
-  
+
   /// Schedule notifications for upcoming recurring expenses
   func scheduleUpcomingNotifications(context: ModelContext) {
     // Only cancel existing EXPENSE notifications (not alarm/event/todo ones)
     UNUserNotificationCenter.current().getPendingNotificationRequests { [weak self] requests in
-      let expenseIds = requests
+      let expenseIds =
+        requests
         .filter { $0.identifier.hasPrefix("recurring-expense-") }
         .map { $0.identifier }
-      UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: expenseIds)
-      
+      UNUserNotificationCenter.current().removePendingNotificationRequests(
+        withIdentifiers: expenseIds)
+
       // Now schedule new ones
       self?.scheduleNewExpenseNotifications(context: context)
     }
   }
-  
+
   private func scheduleNewExpenseNotifications(context: ModelContext) {
     let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
-    
+
     do {
       let allTemplates = try context.fetch(descriptor)
       let templates = allTemplates.filter { $0.isActive && !$0.isPaused }
       let upcomingExpenses = getUpcomingExpenses(from: templates, within: 7)
-      
+
       guard !upcomingExpenses.isEmpty else { return }
-      
+
       // Group by date
       let groupedByDate = Dictionary(grouping: upcomingExpenses) { expense in
         Calendar.current.startOfDay(for: expense.date)
       }
-      
+
       // Schedule notification for each date
       for (date, expenses) in groupedByDate.sorted(by: { $0.key < $1.key }) {
         scheduleNotification(for: expenses, on: date)
       }
-      
+
     } catch {
       print("Error scheduling notifications: \(error)")
     }
   }
-  
+
   /// Get upcoming expenses within specified days
   private func getUpcomingExpenses(
     from templates: [RecurringExpenseTemplate],
@@ -185,82 +188,84 @@ class RecurringExpenseService {
     let calendar = Calendar.current
     let now = Date()
     let cutoff = calendar.date(byAdding: .day, value: days, to: now)!
-    
+
     var upcoming: [(RecurringExpenseTemplate, Date)] = []
-    
+
     for template in templates {
       guard let nextDate = template.nextDueDate(), nextDate <= cutoff else { continue }
       upcoming.append((template, nextDate))
     }
-    
-    return upcoming.sorted { (item1: (RecurringExpenseTemplate, Date), item2: (RecurringExpenseTemplate, Date)) -> Bool in
+
+    return upcoming.sorted {
+      (item1: (RecurringExpenseTemplate, Date), item2: (RecurringExpenseTemplate, Date)) -> Bool in
       item1.1 < item2.1
     }
   }
-  
+
   /// Schedule a notification for expenses on a specific date
   private func scheduleNotification(
     for expenses: [(template: RecurringExpenseTemplate, date: Date)],
     on date: Date
   ) {
     let content = UNMutableNotificationContent()
-    
+
     if expenses.count == 1 {
       let expense = expenses[0]
       let symbol = expense.template.currencyEnum.symbol
       content.title = "💰 Upcoming Payment"
-      content.body = "\(expense.template.title) - \(symbol)\(String(format: "%.2f", expense.template.amount)) due tomorrow"
+      content.body =
+        "\(expense.template.title) - \(symbol)\(String(format: "%.2f", expense.template.amount)) due tomorrow"
     } else {
       let total = expenses.reduce(0) { $0 + $1.template.amount }
       let names = expenses.prefix(3).map { $0.template.title }.joined(separator: ", ")
       let more = expenses.count > 3 ? " and \(expenses.count - 3) more" : ""
       // Use the first expense's currency as the common symbol
       let symbol = expenses.first?.template.currencyEnum.symbol ?? "₴"
-      
+
       content.title = "💰 \(expenses.count) Payments Due Tomorrow"
       content.body = "Total: \(symbol)\(String(format: "%.2f", total)) - \(names)\(more)"
     }
-    
+
     content.sound = .default
     content.badge = 1
-    
+
     // Schedule for 9 AM the day before
     let calendar = Calendar.current
     var components = calendar.dateComponents([.year, .month, .day], from: date)
     components.day! -= 1
     components.hour = 9
     components.minute = 0
-    
+
     guard let triggerDate = calendar.date(from: components),
-          triggerDate > Date() else { return }
-    
+      triggerDate > Date()
+    else { return }
+
     let trigger = UNCalendarNotificationTrigger(
       dateMatching: components,
       repeats: false
     )
-    
+
     let request = UNNotificationRequest(
       identifier: "recurring-expense-\(date.timeIntervalSince1970)",
       content: content,
       trigger: trigger
     )
-    
+
     UNUserNotificationCenter.current().add(request) { error in
       if let error = error {
         print("Error scheduling notification: \(error)")
       }
     }
   }
-  
+
   // MARK: - Update Generated Expenses (apply template edits)
-  
+
   private struct _UndoSnapshot: Codable {
     let expenseId: UUID
     let title: String
     let amount: Double
     let merchant: String?
     let notes: String?
-    let categories: [String]
     let paymentMethod: String
     let currency: String
     let isIncome: Bool
@@ -268,11 +273,14 @@ class RecurringExpenseService {
   }
 
   /// Count matching future generated expenses for preview/UI
-  func countFutureGeneratedExpenses(for template: RecurringExpenseTemplate, from date: Date = Date(), context: ModelContext) -> Int {
+  func countFutureGeneratedExpenses(
+    for template: RecurringExpenseTemplate, from date: Date = Date(), context: ModelContext
+  ) -> Int {
     do {
       let all = try context.fetch(FetchDescriptor<Expense>())
       let startOfDay = Calendar.current.startOfDay(for: date)
-      return all.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= startOfDay }.count
+      return all.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= startOfDay }
+        .count
     } catch {
       return 0
     }
@@ -280,7 +288,9 @@ class RecurringExpenseService {
 
   /// Update future generated expenses using values from the template.
   /// Skips any expenses that were manually edited by the user.
-  func updateGeneratedExpenses(for template: RecurringExpenseTemplate, applyFrom date: Date = Date(), context: ModelContext) -> (updatedCount: Int, skippedManualCount: Int) {
+  func updateGeneratedExpenses(
+    for template: RecurringExpenseTemplate, applyFrom date: Date = Date(), context: ModelContext
+  ) -> (updatedCount: Int, skippedManualCount: Int) {
     let startOfDay = Calendar.current.startOfDay(for: date)
     var updated = 0
     var skipped = 0
@@ -288,7 +298,9 @@ class RecurringExpenseService {
 
     do {
       let allExpenses = try context.fetch(FetchDescriptor<Expense>())
-      let candidates = allExpenses.filter { $0.templateId == template.id && $0.isGenerated && $0.date >= startOfDay }
+      let candidates = allExpenses.filter {
+        $0.templateId == template.id && $0.isGenerated && $0.date >= startOfDay
+      }
 
       for expense in candidates {
         if expense.isManuallyEdited {
@@ -303,7 +315,6 @@ class RecurringExpenseService {
           amount: expense.amount,
           merchant: expense.merchant,
           notes: expense.notes,
-          categories: expense.categories,
           paymentMethod: expense.paymentMethod,
           currency: expense.currency,
           isIncome: expense.isIncome,
@@ -350,19 +361,21 @@ class RecurringExpenseService {
     // Load snapshot (best-effort simple implementation)
     let key = "lastTemplateUpdate.\(templateId.uuidString)"
     guard let data = UserDefaults.standard.data(forKey: key),
-          let snaps = try? JSONDecoder().decode([_UndoSnapshot].self, from: data) else {
+      let snaps = try? JSONDecoder().decode([_UndoSnapshot].self, from: data)
+    else {
       return false
     }
 
     var applied = false
     do {
       for snap in snaps {
-        if let expense = try context.fetch(FetchDescriptor<Expense>()).first(where: { $0.id == snap.expenseId }) {
+        if let expense = try context.fetch(FetchDescriptor<Expense>()).first(where: {
+          $0.id == snap.expenseId
+        }) {
           expense.title = snap.title
           expense.amount = snap.amount
           expense.merchant = snap.merchant
           expense.notes = snap.notes
-          expense.categories = snap.categories
           expense.paymentMethod = snap.paymentMethod
           expense.currency = snap.currency
           expense.isIncome = snap.isIncome
@@ -374,7 +387,7 @@ class RecurringExpenseService {
         try context.save()
         ExpenseViewModel().syncExpensesToWidget(context: context)
         scheduleUpcomingNotifications(context: context)
-        UserDefaults.standard.removeObject(forKey: "lastTemplateUpdate.")
+        UserDefaults.standard.removeObject(forKey: key)
       }
     } catch {
       print("Failed to undo template update: \(error)")
@@ -385,21 +398,22 @@ class RecurringExpenseService {
   }
 
   // MARK: - Missed Payment Detection
-  
+
   /// Check for missed recurring payments (3+ days overdue)
   func checkMissedPayments(context: ModelContext) -> [RecurringExpenseTemplate] {
     let descriptor = FetchDescriptor<RecurringExpenseTemplate>()
-    
+
     do {
       let allTemplates = try context.fetch(descriptor)
       let templates = allTemplates.filter { $0.isActive && !$0.isPaused }
       let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
-      
+
       return templates.filter { template in
         guard let nextDate = template.nextDueDate() else { return false }
-        return nextDate < threeDaysAgo && !expenseExists(for: template, on: nextDate, context: context)
+        return nextDate < threeDaysAgo
+          && !expenseExists(for: template, on: nextDate, context: context)
       }
-      
+
     } catch {
       return []
     }
