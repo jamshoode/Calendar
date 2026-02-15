@@ -310,10 +310,10 @@ struct MediumWeatherWidgetView: View {
         VStack(spacing: 0) {
             // Top section: Weather info
             HStack(alignment: .center) {
-                // Left: Weather icon + current temp (vertical)
-                VStack(spacing: 2) {
+                // Left: Weather icon + current temp (horizontal)
+                HStack(spacing: 8) {
                     Image(systemName: entry.weatherIcon)
-                        .font(.system(size: 36, weight: .medium))
+                        .font(.system(size: 32, weight: .medium))
                         .foregroundColor(scheme.accent)
                         .symbolRenderingMode(.multicolor)
 
@@ -324,7 +324,7 @@ struct MediumWeatherWidgetView: View {
 
                 Spacer()
 
-                // Right: Min/Max temps (moved down with padding)
+                // Right: Min/Max temps (vertically centered)
                 VStack(alignment: .trailing, spacing: 4) {
                     Spacer()
                     
