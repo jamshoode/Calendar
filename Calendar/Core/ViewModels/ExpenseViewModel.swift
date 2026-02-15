@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 class ExpenseViewModel {
 
@@ -107,4 +108,53 @@ class ExpenseViewModel {
     let grouped = Dictionary(grouping: expenses) { calendar.startOfDay(for: $0.date) }
     return grouped.sorted { $0.key > $1.key }.map { (date: $0.key, expenses: $0.value) }
   }
+  
+  // MARK: - Widget Sync
+  
+  func syncExpensesToWidget(context: ModelContext) {
+    let calendar = Calendar.current
+    let now = Date()
+    let weekLater = calendar.date(byAdding: .day, value: 7, to: now)!
+    
+    let descriptor = FetchDescriptor<Expense>(
+      predicate: #Predicate { expense in
+        expense.date >= now && expense.date <= weekLater
+      },
+      sortBy: [SortDescriptor(\.date)]
+    )
+    
+    do {
+      let expenses = try context.fetch(descriptor)
+      let widgetExpenses = expenses.prefix(2).map { expense -> WidgetExpenseItem in
+        WidgetExpenseItem(
+          id: expense.id.uuidString,
+          title: expense.title,
+          amount: expense.amount,
+          date: expense.date,
+          currency: expense.currency,
+          category: expense.primaryCategory.rawValue
+        )
+      }
+      
+      let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
+      if let encoded = try? JSONEncoder().encode(Array(widgetExpenses)) {
+        defaults?.set(encoded, forKey: "widgetUpcomingExpenses")
+        defaults?.synchronize()
+      }
+      WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
+    } catch {
+      // Silently fail for widget sync
+    }
+  }
+}
+
+// MARK: - Widget Data Models
+
+struct WidgetExpenseItem: Codable {
+  let id: String
+  let title: String
+  let amount: Double
+  let date: Date
+  let currency: String
+  let category: String
 }

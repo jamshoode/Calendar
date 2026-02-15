@@ -402,15 +402,56 @@ class TodoViewModel: ObservableObject {
       }
     )
     var count = 0
+    var todos: [TodoItem] = []
     do {
       count = try context.fetchCount(descriptor)
+      todos = try context.fetch(descriptor)
     } catch {
       ErrorPresenter.shared.present(error)
       count = 0
     }
+    
+    // Share upcoming todos (next 7 days) for widget
+    let calendar = Calendar.current
+    let now = Date()
+    let weekLater = calendar.date(byAdding: .day, value: 7, to: now)!
+    
+    let upcomingTodos = todos
+      .filter { todo in
+        guard let dueDate = todo.dueDate else { return false }
+        return dueDate >= now && dueDate <= weekLater
+      }
+      .sorted { ($0.dueDate ?? now) < ($1.dueDate ?? now) }
+      .prefix(2)
+      .map { todo -> WidgetTodoItem in
+        WidgetTodoItem(
+          id: todo.id.uuidString,
+          title: todo.title,
+          dueDate: todo.dueDate ?? now,
+          priority: todo.priorityEnum.rawValue,
+          categoryColor: todo.category?.color ?? "gray"
+        )
+      }
+    
     let defaults = UserDefaults(suiteName: "group.com.shoode.calendar")
     defaults?.set(count, forKey: "incompleteTodoCount")
+    
+    // Share upcoming todos
+    if let encoded = try? JSONEncoder().encode(Array(upcomingTodos)) {
+      defaults?.set(encoded, forKey: "widgetUpcomingTodos")
+    }
+    
     defaults?.synchronize()
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
   }
+}
+
+// MARK: - Widget Data Models
+
+struct WidgetTodoItem: Codable {
+  let id: String
+  let title: String
+  let dueDate: Date
+  let priority: String
+  let categoryColor: String
 }

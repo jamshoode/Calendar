@@ -23,7 +23,45 @@ struct CombinedEntry: TimelineEntry {
     let isStopwatch: Bool
     let stopwatchStartTime: Date?
     let todoCount: Int
+    // Todo/Expense data for widget cells
+    let upcomingItems: [UpcomingItem]
     let forcedColorScheme: String?
+}
+
+struct UpcomingItem: Codable {
+    let id: String
+    let title: String
+    let date: Date
+    let type: UpcomingItemType
+    let priority: String?  // For todos
+    let categoryColor: String?  // For todos
+    let amount: Double?  // For expenses
+    let currency: String?  // For expenses
+    let expenseCategory: String?  // For expenses
+}
+
+enum UpcomingItemType: String, Codable {
+    case todo
+    case expense
+}
+
+// MARK: - Widget Data Models (for decoding shared data)
+
+struct WidgetTodoItem: Codable {
+    let id: String
+    let title: String
+    let dueDate: Date
+    let priority: String
+    let categoryColor: String
+}
+
+struct WidgetExpenseItem: Codable {
+    let id: String
+    let title: String
+    let amount: Double
+    let date: Date
+    let currency: String
+    let category: String
 }
 
 // MARK: - Combined Provider
@@ -49,6 +87,7 @@ struct CombinedProvider: TimelineProvider {
             isStopwatch: false,
             stopwatchStartTime: nil,
             todoCount: 0,
+            upcomingItems: [],
             forcedColorScheme: nil
         )
     }
@@ -111,6 +150,9 @@ struct CombinedProvider: TimelineProvider {
         let hasAlarm = defaults.bool(forKey: "widget_hasAlarm")
         let todoCount = defaults.integer(forKey: "incompleteTodoCount")
         
+        // Load and merge upcoming todos and expenses
+        let upcomingItems = loadUpcomingItems(from: defaults)
+        
         return CombinedEntry(
             date: date,
             weatherIcon: currentWeather.icon,
@@ -129,8 +171,52 @@ struct CombinedProvider: TimelineProvider {
             isStopwatch: isStopwatch,
             stopwatchStartTime: stopwatchStartTime,
             todoCount: todoCount,
+            upcomingItems: upcomingItems,
             forcedColorScheme: forcedScheme
         )
+    }
+    
+    private func loadUpcomingItems(from defaults: UserDefaults) -> [UpcomingItem] {
+        var items: [UpcomingItem] = []
+        
+        // Load todos
+        if let todoData = defaults.data(forKey: "widgetUpcomingTodos"),
+           let todos = try? JSONDecoder().decode([WidgetTodoItem].self, from: todoData) {
+            items.append(contentsOf: todos.map { todo in
+                UpcomingItem(
+                    id: todo.id,
+                    title: todo.title,
+                    date: todo.dueDate,
+                    type: .todo,
+                    priority: todo.priority,
+                    categoryColor: todo.categoryColor,
+                    amount: nil,
+                    currency: nil,
+                    expenseCategory: nil
+                )
+            })
+        }
+        
+        // Load expenses
+        if let expenseData = defaults.data(forKey: "widgetUpcomingExpenses"),
+           let expenses = try? JSONDecoder().decode([WidgetExpenseItem].self, from: expenseData) {
+            items.append(contentsOf: expenses.map { expense in
+                UpcomingItem(
+                    id: expense.id,
+                    title: expense.title,
+                    date: expense.date,
+                    type: .expense,
+                    priority: nil,
+                    categoryColor: nil,
+                    amount: expense.amount,
+                    currency: expense.currency,
+                    expenseCategory: expense.category
+                )
+            })
+        }
+        
+        // Sort by date and take top 2
+        return items.sorted { $0.date < $1.date }.prefix(2).map { $0 }
     }
 
     // MARK: - Helper Methods
@@ -427,11 +513,23 @@ struct CombinedWidgetEntryView: View {
                 .frame(height: 0.5)
                 .padding(.horizontal, 12)
 
-            // Divider
-            Rectangle()
-                .fill(scheme.divider)
-                .frame(height: 0.5)
+            // Upcoming Items Section (Todos/Expenses)
+            if !entry.upcomingItems.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(entry.upcomingItems.prefix(2), id: \.id) { item in
+                        UpcomingItemCell(item: item, scheme: scheme)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
                 .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+
+                // Divider
+                Rectangle()
+                    .fill(scheme.divider)
+                    .frame(height: 0.5)
+                    .padding(.horizontal, 12)
+            }
 
             Spacer(minLength: 6)
 
@@ -537,6 +635,81 @@ struct CombinedWeatherDayCell: View {
             .frame(width: 22, height: 22)
         }
         .padding(.vertical, 2)
+    }
+}
+
+struct UpcomingItemCell: View {
+    let item: UpcomingItem
+    let scheme: WidgetColorScheme
+    
+    private var iconName: String {
+        switch item.type {
+        case .todo:
+            return "checkmark.circle.fill"
+        case .expense:
+            return "creditcard.fill"
+        }
+    }
+    
+    private var iconColor: Color {
+        switch item.type {
+        case .todo:
+            return widgetEventColor(item.categoryColor ?? "blue")
+        case .expense:
+            return .orange
+        }
+    }
+    
+    private var subtitle: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E, MMM d"
+        let dateString = formatter.string(from: item.date)
+        
+        switch item.type {
+        case .todo:
+            return dateString
+        case .expense:
+            if let amount = item.amount, let currency = item.currency {
+                let symbol = currencySymbol(currency)
+                return "\(symbol)\(Int(amount)) • \(dateString)"
+            }
+            return dateString
+        }
+    }
+    
+    private func currencySymbol(_ currency: String) -> String {
+        switch currency.lowercased() {
+        case "usd": return "$"
+        case "eur": return "€"
+        case "uah": return "₴"
+        default: return "$"
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: iconName)
+                .font(.system(size: 20))
+                .foregroundColor(iconColor)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundColor(scheme.textPrimary)
+                    .lineLimit(1)
+                
+                Text(subtitle)
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundColor(scheme.textSecondary)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(scheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
