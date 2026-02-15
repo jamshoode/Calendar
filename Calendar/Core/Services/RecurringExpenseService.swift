@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import UserNotifications
+import os
 
 /// Service for managing recurring expense generation and notifications
 class RecurringExpenseService {
@@ -149,7 +150,7 @@ class RecurringExpenseService {
   func scheduleUpcomingNotifications(context: ModelContext) {
     // Only cancel existing EXPENSE notifications (not alarm/event/todo ones)
     // Capture the ModelContainer so we can create a main-thread ModelContext for scheduling
-    let modelContainer = context.modelContainer
+    let modelContainer = context.container
     UNUserNotificationCenter.current().getPendingNotificationRequests { [weak self] requests in
       let expenseIds =
         requests
@@ -160,13 +161,9 @@ class RecurringExpenseService {
 
       // Run scheduling on the main actor using a main-thread ModelContext
       DispatchQueue.main.async {
-        if let container = modelContainer {
-          let mainContext = ModelContext(container)
-          self?.scheduleNewExpenseNotifications(context: mainContext)
-        } else {
-          // Fallback to the provided context if container isn't available
-          self?.scheduleNewExpenseNotifications(context: context)
-        }
+        // modelContainer is non-optional; create a main-thread ModelContext directly
+        let mainContext = ModelContext(modelContainer)
+        self?.scheduleNewExpenseNotifications(context: mainContext)
       }
     }
   }

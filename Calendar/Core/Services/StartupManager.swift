@@ -3,6 +3,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 import WidgetKit
+import os
 
 @MainActor
 final class StartupManager: ObservableObject {
@@ -45,7 +46,7 @@ final class StartupManager: ObservableObject {
 
     // Run startup steps using a background ModelContext for SwiftData-heavy work.
     // UI updates remain on MainActor; data work uses a separate ModelContext from the same ModelContainer.
-    let container = context.modelContainer
+    let container = context.container
     let backgroundContext = ModelContext(container)
 
     Task.detached(priority: .background) { [weak self] in

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 /// Service for importing CSV files and managing import sessions
 class CSVImportService {

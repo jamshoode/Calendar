@@ -2,6 +2,7 @@ import Combine
 import Foundation
 import SwiftUI
 import WidgetKit
+import os
 
 public class WeatherViewModel: ObservableObject {
   @Published public var weatherData: WeatherData?

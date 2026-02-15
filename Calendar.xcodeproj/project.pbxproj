@@ -116,6 +116,7 @@
 		F5D65F602F42148C004F7A39 /* CalendarUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4E2F4213D0004F7A39 /* CalendarUITestsLaunchTests.swift */; };
 		F5D65F612F421490004F7A39 /* StartupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */; };
 		F5D65F622F421498004F7A39 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D65F572F421409004F7A39 /* XCTest.framework */; platformFilter = ios; };
+		F5D65F662F42236D004F7A39 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F652F42236D004F7A39 /* Logging.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -271,6 +272,7 @@
 		F5D65F4E2F4213D0004F7A39 /* CalendarUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupUITests.swift; sourceTree = "<group>"; };
 		F5D65F572F421409004F7A39 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		F5D65F652F42236D004F7A39 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -605,6 +607,7 @@
 				F593C11B2F33C234007F8DEB /* Formatters.swift */,
 				F5A362DA2F40877700030163 /* CSVParser.swift */,
 				F556A0532F33F0BD0071D8B8 /* Localization.swift */,
+				F5D65F652F42236D004F7A39 /* Logging.swift */,
 				F5A1B0062F4E0004007F8DEB /* Typography.swift */,
 				F5A1B0082F4E0005007F8DEB /* Spacing.swift */,
 			);
@@ -989,6 +992,7 @@
 				F5A1B0052F4E0003007F8DEB /* EventDetailPopover.swift in Sources */,
 				F5A1B0072F4E0004007F8DEB /* Typography.swift in Sources */,
 				F5A1B0092F4E0005007F8DEB /* Spacing.swift in Sources */,
+				F5D65F662F42236D004F7A39 /* Logging.swift in Sources */,
 				F5A1B00B2F4E0006007F8DEB /* StatusBadge.swift in Sources */,
 				F593C1402F33C234007F8DEB /* TimerControls.swift in Sources */,
 				F593C1412F33C234007F8DEB /* AlarmToggle.swift in Sources */,
