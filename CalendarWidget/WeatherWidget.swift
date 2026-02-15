@@ -12,7 +12,21 @@ struct WeatherEntry: TimelineEntry {
     let isDay: Bool
     let city: String?
     let weekDays: [DayWeatherInfo]
+    let forecastDays: [ForecastDayInfo] // New field for actual forecast data
     let forcedColorScheme: String?
+}
+
+struct ForecastDayInfo: Identifiable {
+    let id = UUID()
+    let name: String
+    let date: Int
+    let fullDate: Date
+    let weatherIcon: String
+    let minTemp: Double
+    let maxTemp: Double
+    let isToday: Bool
+    let isWeekend: Bool
+    let eventColors: [String]
 }
 
 struct DayWeatherInfo: Identifiable {
@@ -41,6 +55,7 @@ struct WeatherProvider: TimelineProvider {
             isDay: true,
             city: "Kyiv",
             weekDays: placeholderWeekDays(),
+            forecastDays: placeholderForecastDays(),
             forcedColorScheme: nil
         )
     }
@@ -78,6 +93,9 @@ struct WeatherProvider: TimelineProvider {
         // Build week days with weather and events
         let weekDays = buildWeekDays(for: date, weatherData: weatherData, events: events)
         
+        // Build forecast days from actual weather data
+        let forecastDays = buildForecastDays(from: weatherData, events: events)
+        
         // Get current weather
         let currentWeather = getCurrentWeather(from: weatherData, for: date)
         
@@ -90,8 +108,50 @@ struct WeatherProvider: TimelineProvider {
             isDay: currentWeather.isDay,
             city: weatherData?.city,
             weekDays: weekDays,
+            forecastDays: forecastDays,
             forcedColorScheme: forcedScheme
         )
+    }
+
+    private func buildForecastDays(from weatherData: WeatherData?, events: [String: [String]]) -> [ForecastDayInfo] {
+        guard let weatherData = weatherData else {
+            return placeholderForecastDays()
+        }
+        
+        let calendar = Calendar.current
+        let formatter = DateFormatter()
+        formatter.locale = WidgetLocalization.locale
+        let dayNames = formatter.shortStandaloneWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        
+        let dateKeyFormatter = DateFormatter()
+        dateKeyFormatter.dateFormat = "yyyy-MM-dd"
+        
+        var forecastDays: [ForecastDayInfo] = []
+        
+        // Use the actual daily forecast from the API
+        for dailyPoint in weatherData.dailyForecast {
+            let dayDate = dailyPoint.time
+            let dayOfMonth = calendar.component(.day, from: dayDate)
+            let isToday = calendar.isDate(dayDate, inSameDayAs: Date())
+            let weekdayIndex = calendar.component(.weekday, from: dayDate) - 1
+            let key = dateKeyFormatter.string(from: dayDate)
+            let colors = events[key] ?? []
+            
+            let info = ForecastDayInfo(
+                name: dayNames[weekdayIndex].prefix(3).uppercased(),
+                date: dayOfMonth,
+                fullDate: dayDate,
+                weatherIcon: dailyPoint.code.icon(isDay: true),
+                minTemp: dailyPoint.minTemp,
+                maxTemp: dailyPoint.maxTemp,
+                isToday: isToday,
+                isWeekend: (weekdayIndex == 0 || weekdayIndex == 6),
+                eventColors: colors
+            )
+            forecastDays.append(info)
+        }
+        
+        return forecastDays
     }
 
     private func loadWeatherData(from defaults: UserDefaults) -> WeatherData? {
@@ -231,6 +291,29 @@ struct WeatherProvider: TimelineProvider {
                 maxTemp: 25,
                 isToday: i == 0,
                 isWeekend: i >= 5,
+                eventColors: []
+            )
+        }
+    }
+
+    private func placeholderForecastDays() -> [ForecastDayInfo] {
+        let calendar = Calendar.current
+        let formatter = DateFormatter()
+        formatter.locale = WidgetLocalization.locale
+        let dayNames = formatter.shortStandaloneWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+        return (0..<7).map { i in
+            let date = calendar.date(byAdding: .day, value: i, to: Date())!
+            let weekdayIndex = calendar.component(.weekday, from: date) - 1
+            return ForecastDayInfo(
+                name: dayNames[weekdayIndex],
+                date: calendar.component(.day, from: date),
+                fullDate: date,
+                weatherIcon: "sun.max.fill",
+                minTemp: 15 + Double(i),
+                maxTemp: 25 + Double(i),
+                isToday: i == 0,
+                isWeekend: (weekdayIndex == 0 || weekdayIndex == 6),
                 eventColors: []
             )
         }
@@ -432,10 +515,10 @@ struct LargeWeatherWidgetView: View {
 
             Spacer(minLength: 12)
 
-            // Large week strip with full weather info
+            // Large week strip with full weather info - use forecastDays
             HStack(spacing: 8) {
-                ForEach(entry.weekDays) { day in
-                    DayWeatherLargeColumn(day: day, scheme: scheme)
+                ForEach(entry.forecastDays) { day in
+                    ForecastDayLargeColumn(day: day, scheme: scheme)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -545,6 +628,69 @@ struct DayWeatherColumn: View {
 
 struct DayWeatherLargeColumn: View {
     let day: DayWeatherInfo
+    let scheme: WidgetColorScheme
+
+    var body: some View {
+        VStack(spacing: 6) {
+            // Day name
+            Text(day.name.prefix(3).uppercased())
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundColor(
+                    day.isToday
+                        ? scheme.accent
+                        : day.isWeekend
+                            ? scheme.textSecondary
+                            : scheme.textPrimary
+                )
+
+            // Weather icon
+            Image(systemName: day.weatherIcon)
+                .font(.system(size: 22, weight: .medium))
+                .foregroundColor(scheme.accent)
+                .symbolRenderingMode(.multicolor)
+
+            // Min temp
+            Text("\(Int(day.minTemp))°")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundColor(scheme.textSecondary)
+
+            // Max temp
+            Text("\(Int(day.maxTemp))°")
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundColor(scheme.textPrimary)
+
+            // Day number with today highlight and event ring
+            ZStack {
+                // Today highlight
+                if day.isToday {
+                    Circle()
+                        .fill(scheme.todayHighlight)
+                        .frame(width: 26, height: 26)
+                }
+
+                // Event ring if events exist
+                if !day.eventColors.isEmpty {
+                    DayEventRing(eventColors: day.eventColors, scheme: scheme, size: 30)
+                }
+
+                Text("\(day.date)")
+                    .font(.system(size: 14, weight: day.isToday ? .bold : .semibold, design: .rounded))
+                    .foregroundColor(day.isToday ? .white : scheme.textPrimary)
+            }
+            .frame(width: 32, height: 32)
+        }
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(day.isToday ? scheme.todayHighlight.opacity(0.1) : Color.clear)
+        )
+    }
+}
+
+// MARK: - Forecast Day Large Column
+
+struct ForecastDayLargeColumn: View {
+    let day: ForecastDayInfo
     let scheme: WidgetColorScheme
 
     var body: some View {
