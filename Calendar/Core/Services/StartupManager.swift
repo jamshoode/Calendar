@@ -87,6 +87,10 @@ final class StartupManager: ObservableObject {
       await MainActor.run { self.progressMessage = Localization.string(.splashSyncingMonobank) }
       await MonobankSyncService.shared.syncIfNeededOnStartup(context: backgroundContext)
 
+      // Google Calendar sync (non-blocking best effort)
+      await MainActor.run { self.progressMessage = "Syncing Google Calendar…" }
+      await GoogleCalendarSyncService.shared.syncIfNeededOnStartup(context: backgroundContext)
+
       // Finalize on main actor
       await MainActor.run {
         self.progressMessage = Localization.string(.splashFinalizing)

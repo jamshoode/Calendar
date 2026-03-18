@@ -34,6 +34,27 @@ final class GoogleCalendarSyncService {
     let deleted: Int
   }
 
+  func syncIfNeededOnStartup(context: ModelContext) async {
+    do {
+      let connection = try upsertConnection(context: context)
+      guard connection.hasConsent, connection.isConnected else { return }
+      if let lastSyncAt = connection.lastSyncAt,
+        Date().timeIntervalSince(lastSyncAt) < Constants.GoogleCalendar.syncThrottleSeconds
+      {
+        return
+      }
+
+      _ = try await incrementalSyncSelectedCalendars(context: context)
+    } catch {
+      let connection = (try? upsertConnection(context: context))
+      connection?.lastSyncStatus = "error"
+      connection?.lastSyncErrorMessage = error.localizedDescription
+      connection?.lastSyncErrorAt = Date()
+      connection?.updatedAt = Date()
+      try? context.save()
+    }
+  }
+
   func fullSyncSelectedCalendars(context: ModelContext) async throws -> FullSyncSummary {
     let connection = try upsertConnection(context: context)
     let selectedCalendarIds = connection.selectedCalendarIds

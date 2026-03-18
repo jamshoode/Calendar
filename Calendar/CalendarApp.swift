@@ -419,6 +419,7 @@ private extension String {
 struct ContentView: View {
   @EnvironmentObject var appState: AppState
   @Environment(\.modelContext) private var modelContext
+  @Environment(\.scenePhase) private var scenePhase
   @Query(sort: \OnboardingState.lastUpdatedAt, order: .reverse) private var onboardingStates:
     [OnboardingState]
   @StateObject private var navigationCoordinator = NavigationCoordinator()
@@ -545,6 +546,12 @@ struct ContentView: View {
     }
     .onChange(of: onboardingStates.count) { _, _ in
       evaluateOnboardingVisibility()
+    }
+    .onChange(of: scenePhase) { _, newPhase in
+      guard newPhase == .active else { return }
+      Task { @MainActor in
+        await GoogleCalendarSyncService.shared.syncIfNeededOnStartup(context: modelContext)
+      }
     }
   }
 
