@@ -129,6 +129,7 @@
 		F5D65F612F421490004F7A39 /* StartupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */; };
 		F5D65F622F421498004F7A39 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D65F572F421409004F7A39 /* XCTest.framework */; platformFilter = ios; };
 		F5D65F662F42236D004F7A39 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F652F42236D004F7A39 /* Logging.swift */; };
+		A1B2C3D42F60000100A0B001 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D52F60000100A0B001 /* GoogleSignIn */; };
 		F5E000102F50000100AA0001 /* BudgetLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000012F50000100AA0001 /* BudgetLimit.swift */; };
 		F5E000112F50000100AA0001 /* CashflowForecastCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000022F50000100AA0001 /* CashflowForecastCache.swift */; };
 		F5E000122F50000100AA0001 /* DuplicateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000032F50000100AA0001 /* DuplicateSuggestion.swift */; };
@@ -273,7 +274,7 @@
 		F5A1B00C2F4E0007007F8DEB /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseCategory.swift; sourceTree = "<group>"; };
 		F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseViewModel.swift; sourceTree = "<group>"; };
-		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
+		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; tabWidth = 2; };
 		F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseSheet.swift; sourceTree = "<group>"; };
 		F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRow.swift; sourceTree = "<group>"; };
 		F5A1B0182F4E000D007F8DEB /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
@@ -353,6 +354,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D42F60000100A0B001 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -845,6 +847,7 @@
 			);
 			name = Calendar;
 			packageProductDependencies = (
+				A1B2C3D52F60000100A0B001 /* GoogleSignIn */,
 			);
 			productName = Calendar;
 			productReference = F593C1472F33C290007F8DEB /* Calendar.app */;
@@ -948,6 +951,9 @@
 			mainGroup = F593BFD32F33B928007F8DEB;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				A1B2C3D62F60000100A0B001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			productRefGroup = F593BFD32F33B928007F8DEB;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1170,6 +1176,25 @@
 			targetProxy = F593C1612F33C31F007F8DEB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1B2C3D62F60000100A0B001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D52F60000100A0B001 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D62F60000100A0B001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F593BFFB2F33B92A007F8DEB /* Debug */ = {
