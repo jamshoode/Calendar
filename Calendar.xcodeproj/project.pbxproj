@@ -131,6 +131,7 @@
 		F5D65F662F42236D004F7A39 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F652F42236D004F7A39 /* Logging.swift */; };
 		A1B2C3D42F60000100A0B001 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D52F60000100A0B001 /* GoogleSignIn */; };
 		A1B2C3E22F60000200A0B001 /* GoogleCalendarConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F60000200A0B001 /* GoogleCalendarConnection.swift */; };
+		A1B2C3F22F60000300A0B001 /* GoogleCalendarSyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3F12F60000300A0B001 /* GoogleCalendarSyncState.swift */; };
 		F5E000102F50000100AA0001 /* BudgetLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000012F50000100AA0001 /* BudgetLimit.swift */; };
 		F5E000112F50000100AA0001 /* CashflowForecastCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000022F50000100AA0001 /* CashflowForecastCache.swift */; };
 		F5E000122F50000100AA0001 /* DuplicateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000032F50000100AA0001 /* DuplicateSuggestion.swift */; };
@@ -213,6 +214,7 @@
 		F556A0352F33CD160071D8B8 /* NotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotFoundView.swift; path = Calendar/Shared/Components/NotFoundView.swift; sourceTree = SOURCE_ROOT; };
 		F556A0532F33F0BD0071D8B8 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		A1B2C3E12F60000200A0B001 /* GoogleCalendarConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarConnection.swift; sourceTree = "<group>"; };
+		A1B2C3F12F60000300A0B001 /* GoogleCalendarSyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarSyncState.swift; sourceTree = "<group>"; };
 		F57A615D2F55A9090073E676 /* MonobankModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankModels.swift; sourceTree = "<group>"; };
 		F57A615F2F55A9140073E676 /* MonobankKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankKeychainStore.swift; sourceTree = "<group>"; };
 		F57A61602F55A9140073E676 /* MonobankSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankSyncService.swift; sourceTree = "<group>"; };
@@ -472,6 +474,7 @@
 				F5E000022F50000100AA0001 /* CashflowForecastCache.swift */,
 				F593C0E92F33C234007F8DEB /* Event.swift */,
 				A1B2C3E12F60000200A0B001 /* GoogleCalendarConnection.swift */,
+				A1B2C3F12F60000300A0B001 /* GoogleCalendarSyncState.swift */,
 				F593C0EA2F33C234007F8DEB /* TimerPreset.swift */,
 				F5A362D02F40875300030163 /* CSVImportSession.swift */,
 				F5E000032F50000100AA0001 /* DuplicateSuggestion.swift */,
@@ -1060,6 +1063,7 @@
 				F51F1B462F3BD2FA007A3F3E /* FloatingErrorView.swift in Sources */,
 				F57A615E2F55A9090073E676 /* MonobankModels.swift in Sources */,
 				A1B2C3E22F60000200A0B001 /* GoogleCalendarConnection.swift in Sources */,
+				A1B2C3F22F60000300A0B001 /* GoogleCalendarSyncState.swift in Sources */,
 				F5E000132F50000100AA0001 /* FXRate.swift in Sources */,
 				F5E000162F50000100AA0001 /* FXRateService.swift in Sources */,
 				F5B897C22F54A76D0027C977 /* EventRecurrenceService.swift in Sources */,
