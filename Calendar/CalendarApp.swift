@@ -522,6 +522,9 @@ struct ContentView: View {
       }
     }
     .onOpenURL { url in
+      if GoogleAuthCoordinator.shared.handle(url: url) {
+        return
+      }
       handleWidgetActionURL(url)
     }
     .onAppear {
