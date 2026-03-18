@@ -73,6 +73,7 @@ struct CalendarApp: App {
             DuplicateSuggestion.self, FXRate.self, CSVImportMapping.self,
             SavingsContribution.self, NetWorthSnapshot.self,
             NotificationPreferences.self, OnboardingState.self,
+            GoogleCalendarConnection.self, GoogleCalendarSyncState.self,
             MonobankConnection.self, MonobankAccount.self, MonobankStatementItem.self,
             MonobankSyncState.self, MonobankConflict.self,
           ])
@@ -90,6 +91,7 @@ struct CalendarApp: App {
             DuplicateSuggestion.self, FXRate.self, CSVImportMapping.self,
             SavingsContribution.self, NetWorthSnapshot.self,
             NotificationPreferences.self, OnboardingState.self,
+            GoogleCalendarConnection.self, GoogleCalendarSyncState.self,
             MonobankConnection.self, MonobankAccount.self, MonobankStatementItem.self,
             MonobankSyncState.self, MonobankConflict.self,
           ])
