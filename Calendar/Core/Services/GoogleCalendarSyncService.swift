@@ -171,30 +171,41 @@ final class GoogleCalendarSyncService {
     var deleted = 0
     var nextSyncToken: String?
 
-    repeat {
-      let response = try await apiClient.listEvents(
-        calendarId: calendarId,
-        syncToken: syncToken,
-        pageToken: pageToken
-      )
+    do {
+      repeat {
+        let response = try await apiClient.listEvents(
+          calendarId: calendarId,
+          syncToken: syncToken,
+          pageToken: pageToken
+        )
 
-      for dto in response.items {
-        let outcome = try applyRemoteEvent(dto, calendarId: calendarId, context: context)
-        switch outcome {
-        case .imported:
-          imported += 1
-        case .updated:
-          updated += 1
-        case .deleted:
-          deleted += 1
-        case .ignored:
-          break
+        for dto in response.items {
+          let outcome = try applyRemoteEvent(dto, calendarId: calendarId, context: context)
+          switch outcome {
+          case .imported:
+            imported += 1
+          case .updated:
+            updated += 1
+          case .deleted:
+            deleted += 1
+          case .ignored:
+            break
+          }
         }
-      }
 
-      pageToken = response.nextPageToken
-      nextSyncToken = response.nextSyncToken ?? nextSyncToken
-    } while pageToken != nil
+        pageToken = response.nextPageToken
+        nextSyncToken = response.nextSyncToken ?? nextSyncToken
+      } while pageToken != nil
+    } catch GoogleCalendarAPIError.httpError(let statusCode, _) where statusCode == 410 {
+      // Sync token invalidation requires local shadow reset and a new full sync.
+      try resetCalendarSyncState(calendarId: calendarId, context: context)
+      let full = try await fullSyncCalendar(calendarId: calendarId, context: context)
+      return CalendarIncrementalSyncSummary(
+        imported: full.imported,
+        updated: full.updated,
+        deleted: full.deleted
+      )
+    }
 
     state.nextSyncToken = nextSyncToken ?? state.nextSyncToken
     state.nextPageToken = nil
@@ -292,6 +303,26 @@ final class GoogleCalendarSyncService {
     let state = GoogleCalendarSyncState(calendarId: calendarId)
     context.insert(state)
     return state
+  }
+
+  private func resetCalendarSyncState(calendarId: String, context: ModelContext) throws {
+    let events = try context.fetch(
+      FetchDescriptor<Event>(
+        predicate: #Predicate { event in
+          event.externalCalendarId == calendarId
+        }
+      ))
+
+    for event in events {
+      context.delete(event)
+    }
+
+    let state = try upsertSyncState(calendarId: calendarId, context: context)
+    state.nextSyncToken = nil
+    state.nextPageToken = nil
+    state.lastIncrementalSyncAt = nil
+    state.updatedAt = Date()
+    try context.save()
   }
 
   private static func parseEventStart(_ start: GoogleEventDateTimeDTO?) -> Date? {
