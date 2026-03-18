@@ -1,6 +1,7 @@
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
+
 #if os(iOS)
   import UIKit
 #endif
@@ -51,6 +52,11 @@ struct SettingsSheet: View {
     Constants.Holiday.languageNameKey,
     store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var holidayLanguageName: String = ""
+
+  @AppStorage(
+    Constants.Holiday.sourceKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  private var holidaySource: String = Constants.Holiday.sourceCalendarific
 
   @AppStorage(
     Constants.Weather.cityKey,
@@ -283,7 +289,8 @@ struct SettingsSheet: View {
       isPresented: $showBackupExporter,
       document: backupDocument,
       contentType: .data,
-      defaultFilename: "\(Constants.Backup.defaultFilenamePrefix)-\(Date().formatted(date: .numeric, time: .omitted))"
+      defaultFilename:
+        "\(Constants.Backup.defaultFilenamePrefix)-\(Date().formatted(date: .numeric, time: .omitted))"
     ) { result in
       switch result {
       case .success:
@@ -373,17 +380,23 @@ struct SettingsSheet: View {
         Toggle("Events", isOn: $notificationEvent).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationEvent) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Budget alerts", isOn: $notificationBudget).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: notificationBudget) { _, _ in saveNotificationPreferences() }
+        Toggle("Budget alerts", isOn: $notificationBudget).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: notificationBudget) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Subscriptions", isOn: $notificationSubscription).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: notificationSubscription) { _, _ in saveNotificationPreferences() }
+        Toggle("Subscriptions", isOn: $notificationSubscription).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: notificationSubscription) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
         Toggle("Bills", isOn: $notificationBill).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationBill) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Cashflow", isOn: $notificationCashflow).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: notificationCashflow) { _, _ in saveNotificationPreferences() }
+        Toggle("Cashflow", isOn: $notificationCashflow).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: notificationCashflow) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
         Toggle("Timer", isOn: $notificationTimer).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationTimer) { _, _ in saveNotificationPreferences() }
@@ -391,8 +404,10 @@ struct SettingsSheet: View {
         Toggle("Alarm", isOn: $notificationAlarm).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationAlarm) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Quiet hours", isOn: $quietHoursEnabled).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: quietHoursEnabled) { _, _ in saveNotificationPreferences() }
+        Toggle("Quiet hours", isOn: $quietHoursEnabled).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: quietHoursEnabled) { _, _ in saveNotificationPreferences() }
 
         if quietHoursEnabled {
           Divider().padding(.leading, 16)
@@ -522,7 +537,8 @@ struct SettingsSheet: View {
         Divider().padding(.leading, 16)
         SettingsRow(title: "Last sync", value: googleLastSyncFormatted)
         Divider().padding(.leading, 16)
-        SettingsRow(title: "Selected calendars", value: "\(googleConnection?.selectedCalendarIds.count ?? 0)")
+        SettingsRow(
+          title: "Selected calendars", value: "\(googleConnection?.selectedCalendarIds.count ?? 0)")
 
         if !googleCalendars.isEmpty {
           Divider().padding(.leading, 16)
@@ -772,7 +788,8 @@ struct SettingsSheet: View {
     }
 
     do {
-      let result = try await GoogleCalendarDiscoveryService.shared.refreshCalendars(context: modelContext)
+      let result = try await GoogleCalendarDiscoveryService.shared.refreshCalendars(
+        context: modelContext)
       googleCalendars = result.calendars
     } catch {
       googleMessage = error.localizedDescription
@@ -789,7 +806,8 @@ struct SettingsSheet: View {
     }
 
     do {
-      try GoogleCalendarDiscoveryService.shared.updateSelectedCalendars(Array(ids), context: modelContext)
+      try GoogleCalendarDiscoveryService.shared.updateSelectedCalendars(
+        Array(ids), context: modelContext)
     } catch {
       googleMessage = error.localizedDescription
     }
@@ -1330,6 +1348,44 @@ struct SettingsSheet: View {
         .foregroundColor(.secondary)
 
       VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 8) {
+          Text("Holiday source")
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+
+          Picker("Holiday source", selection: $holidaySource) {
+            Text("Calendarific API").tag(Constants.Holiday.sourceCalendarific)
+            Text("Google Calendar").tag(Constants.Holiday.sourceGoogle)
+          }
+          .pickerStyle(.segmented)
+          .padding(.horizontal, 16)
+          .padding(.bottom, 12)
+          .onChange(of: holidaySource) { _, newValue in
+            Task {
+              await HolidayService.shared.updateHolidaySource(newValue, context: modelContext)
+            }
+          }
+        }
+
+        Divider().padding(.leading, 16)
+
+        if holidaySource == Constants.Holiday.sourceGoogle {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Google holiday calendars are enabled.")
+              .font(.system(size: 13, weight: .semibold))
+              .foregroundColor(.primary)
+            Text("Calendarific holiday events are disabled and removed during migration.")
+              .font(.system(size: 12))
+              .foregroundColor(.secondary)
+          }
+          .padding(.horizontal, 16)
+          .padding(.vertical, 12)
+
+          Divider().padding(.leading, 16)
+        }
+
         // API Key
         VStack(alignment: .leading, spacing: 6) {
           Text(Localization.string(.holidayApiKey))
@@ -1343,6 +1399,8 @@ struct SettingsSheet: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
+        .disabled(holidaySource == Constants.Holiday.sourceGoogle)
+        .opacity(holidaySource == Constants.Holiday.sourceGoogle ? 0.5 : 1)
 
         Divider().padding(.leading, 16)
 
@@ -1367,6 +1425,8 @@ struct SettingsSheet: View {
           .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(holidaySource == Constants.Holiday.sourceGoogle)
+        .opacity(holidaySource == Constants.Holiday.sourceGoogle ? 0.5 : 1)
 
         Divider().padding(.leading, 16)
 
@@ -1411,6 +1471,8 @@ struct SettingsSheet: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .disabled(holidaySource == Constants.Holiday.sourceGoogle)
+        .opacity(holidaySource == Constants.Holiday.sourceGoogle ? 0.5 : 1)
 
         Divider().padding(.leading, 16)
 

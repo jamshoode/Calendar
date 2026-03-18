@@ -125,6 +125,11 @@ final class HolidayService {
 
   /// Sync holidays: delete existing holiday events, fetch fresh ones, insert into SwiftData.
   func syncHolidays(context: ModelContext) async throws {
+    if defaults.string(forKey: Constants.Holiday.sourceKey) == Constants.Holiday.sourceGoogle {
+      await migrateCalendarificHolidaysToGoogleSource(context: context)
+      return
+    }
+
     guard let apiKey = defaults.string(forKey: Constants.Holiday.apiKeyKey),
       !apiKey.isEmpty
     else {
@@ -201,6 +206,29 @@ final class HolidayService {
     }
   }
 
+  func updateHolidaySource(_ source: String, context: ModelContext) async {
+    defaults.set(source, forKey: Constants.Holiday.sourceKey)
+    if source == Constants.Holiday.sourceGoogle {
+      await migrateCalendarificHolidaysToGoogleSource(context: context)
+    }
+  }
+
+  func migrateCalendarificHolidaysToGoogleSource(context: ModelContext) async {
+    await MainActor.run {
+      let descriptor = FetchDescriptor<Event>(
+        predicate: #Predicate { $0.isHoliday == true }
+      )
+      do {
+        let existing = try context.fetch(descriptor)
+        for event in existing { context.delete(event) }
+        try context.save()
+        EventViewModel().syncEventsToWidget(context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
+  }
+
   /// Remove all holiday events (when user selects "None" country).
   func removeAllHolidays(context: ModelContext) async {
     await MainActor.run {
@@ -235,7 +263,8 @@ final class HolidayService {
     let currentYear = calendar.component(.year, from: Date())
 
     // Sync if we're in a new month compared to the last sync
-    return currentYear > lastSyncYear || (currentYear == lastSyncYear && currentMonth > lastSyncMonth)
+    return currentYear > lastSyncYear
+      || (currentYear == lastSyncYear && currentMonth > lastSyncMonth)
   }
 
   /// Look up language for a country code from the static map.
