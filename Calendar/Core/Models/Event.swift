@@ -19,6 +19,12 @@ class Event: Identifiable {
   var isHoliday: Bool = false
   var holidayId: String?
 
+  // Google Calendar sync metadata
+  var externalId: String?
+  var externalCalendarId: String?
+  var externalUpdatedAt: Date?
+  var syncOrigin: String?
+
   var recurrenceTypeEnum: RecurrenceType? {
     get { recurrenceType.flatMap { RecurrenceType(rawValue: $0) } }
     set { recurrenceType = newValue?.rawValue }
@@ -49,5 +55,9 @@ class Event: Identifiable {
     self.createdAt = Date()
     self.isHoliday = isHoliday
     self.holidayId = holidayId
+    self.externalId = nil
+    self.externalCalendarId = nil
+    self.externalUpdatedAt = nil
+    self.syncOrigin = nil
   }
 }
