@@ -1,6 +1,9 @@
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
+#if os(iOS)
+  import UIKit
+#endif
 
 struct SettingsSheet: View {
   @Binding var isPresented: Bool
@@ -8,6 +11,8 @@ struct SettingsSheet: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \MonobankConnection.updatedAt, order: .reverse) private var monobankConnections:
     [MonobankConnection]
+  @Query(sort: \GoogleCalendarConnection.updatedAt, order: .reverse)
+  private var googleConnections: [GoogleCalendarConnection]
   @Query(sort: \MonobankAccount.updatedAt, order: .reverse) private var monobankAccounts:
     [MonobankAccount]
   @Query(
@@ -86,9 +91,16 @@ struct SettingsSheet: View {
   @State private var backupDocument: BackupFileDocument?
   @State private var calendarExportDocument: CalendarExportDocument?
   @State private var showCalendarExporter = false
+  @State private var googleIsSyncing = false
+  @State private var googleMessage: String?
+  @State private var googleCalendars: [GoogleCalendarListEntryDTO] = []
 
   private var monobankConnection: MonobankConnection? {
     monobankConnections.first
+  }
+
+  private var googleConnection: GoogleCalendarConnection? {
+    googleConnections.first
   }
 
   private var sanitizedMonobankToken: String {
@@ -151,6 +163,21 @@ struct SettingsSheet: View {
     return message
   }
 
+  private var googleLastSyncFormatted: String {
+    guard let date = googleConnection?.lastSyncAt else { return "Never" }
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter.string(from: date)
+  }
+
+  private var googleStatusText: String {
+    if googleConnection?.lastSyncStatus == "error" {
+      return "Error"
+    }
+    return (googleConnection?.isConnected ?? false) ? "Connected" : "Disconnected"
+  }
+
   private var appVersion: String {
     Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
   }
@@ -196,6 +223,10 @@ struct SettingsSheet: View {
 
         Section {
           shortcutsSection
+        }
+
+        Section {
+          googleCalendarSection
         }
 
         Section {
@@ -293,6 +324,7 @@ struct SettingsSheet: View {
       normalizeMonobankConnections()
       syncMonobankSettingsStateFromModel()
       loadNotificationPreferences()
+      await loadGoogleCalendarsIfConnected()
     }
     .onChange(of: monobankConnections.count) { _, _ in
       syncMonobankSettingsStateFromModel()
@@ -458,6 +490,91 @@ struct SettingsSheet: View {
     }
   }
 
+  private var googleCalendarSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text("Google Calendar")
+        .font(.system(size: 14, weight: .semibold))
+        .foregroundColor(.secondary)
+
+      VStack(spacing: 0) {
+        HStack {
+          Button((googleConnection?.isConnected ?? false) ? "Reconnect" : "Connect") {
+            connectGoogleCalendar()
+          }
+          .buttonStyle(.plain)
+
+          Spacer()
+
+          Button(googleIsSyncing ? "Syncing..." : "Sync now") {
+            syncGoogleCalendarNow()
+          }
+          .buttonStyle(.plain)
+          .disabled(!(googleConnection?.isConnected ?? false) || googleIsSyncing)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+
+        Divider().padding(.leading, 16)
+
+        SettingsRow(title: "Status", value: googleStatusText)
+        Divider().padding(.leading, 16)
+        SettingsRow(title: "Account", value: googleConnection?.accountEmail ?? "—")
+        Divider().padding(.leading, 16)
+        SettingsRow(title: "Last sync", value: googleLastSyncFormatted)
+        Divider().padding(.leading, 16)
+        SettingsRow(title: "Selected calendars", value: "\(googleConnection?.selectedCalendarIds.count ?? 0)")
+
+        if !googleCalendars.isEmpty {
+          Divider().padding(.leading, 16)
+
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Calendars")
+              .font(.system(size: 12, weight: .semibold))
+              .foregroundColor(.secondary)
+              .padding(.horizontal, 16)
+              .padding(.top, 10)
+
+            ForEach(googleCalendars, id: \.id) { calendar in
+              Toggle(
+                isOn: Binding(
+                  get: { googleConnection?.selectedCalendarIds.contains(calendar.id) ?? false },
+                  set: { isSelected in
+                    updateGoogleCalendarSelection(id: calendar.id, isSelected: isSelected)
+                  }
+                )
+              ) {
+                Text(calendar.summary ?? calendar.id)
+              }
+              .padding(.horizontal, 16)
+              .padding(.vertical, 4)
+            }
+          }
+          .padding(.bottom, 8)
+        }
+
+        if let googleMessage {
+          Divider().padding(.leading, 16)
+          Text(googleMessage)
+            .font(.system(size: 12))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+        }
+
+        if googleConnection?.isConnected == true {
+          Divider().padding(.leading, 16)
+          Button("Disconnect", role: .destructive) {
+            disconnectGoogleCalendar()
+          }
+          .padding(.horizontal, 16)
+          .padding(.vertical, 12)
+        }
+      }
+      .background(Color.secondaryFill)
+      .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+  }
+
   private var backupAndExportSection: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Backup & Export")
@@ -560,6 +677,151 @@ struct SettingsSheet: View {
       ErrorPresenter.shared.present(error)
     }
   }
+
+  private func connectGoogleCalendar() {
+    googleIsSyncing = true
+    googleMessage = nil
+
+    Task { @MainActor in
+      do {
+        #if os(iOS)
+          guard let presentingViewController = topViewController() else {
+            googleIsSyncing = false
+            googleMessage = "Unable to start Google sign-in."
+            return
+          }
+
+          let profile = try await GoogleAuthCoordinator.shared.signIn(
+            with: presentingViewController)
+          let connection = getOrCreateGoogleConnectionForWrite()
+          connection.hasConsent = true
+          connection.isConnected = true
+          connection.accountEmail = profile.email
+          connection.accountDisplayName = profile.displayName
+          connection.lastSyncStatus = "connected"
+          connection.lastSyncErrorMessage = nil
+          connection.lastSyncErrorAt = nil
+          connection.updatedAt = Date()
+          try modelContext.save()
+
+          googleMessage = "Connected"
+          await loadGoogleCalendarsIfConnected()
+        #else
+          googleMessage = "Google sign-in is supported on iOS only in V1."
+        #endif
+      } catch {
+        googleMessage = error.localizedDescription
+      }
+
+      googleIsSyncing = false
+    }
+  }
+
+  private func syncGoogleCalendarNow() {
+    googleIsSyncing = true
+    googleMessage = nil
+
+    Task { @MainActor in
+      do {
+        let summary = try await GoogleCalendarSyncService.shared.incrementalSyncSelectedCalendars(
+          context: modelContext)
+        googleMessage = "Synced \(summary.calendarsSynced) calendars"
+      } catch {
+        let connection = getOrCreateGoogleConnectionForWrite()
+        connection.lastSyncStatus = "error"
+        connection.lastSyncErrorMessage = error.localizedDescription
+        connection.lastSyncErrorAt = Date()
+        connection.updatedAt = Date()
+        try? modelContext.save()
+        googleMessage = error.localizedDescription
+      }
+
+      googleIsSyncing = false
+    }
+  }
+
+  private func disconnectGoogleCalendar() {
+    #if os(iOS)
+      GoogleAuthCoordinator.shared.disconnect()
+    #endif
+
+    let connection = getOrCreateGoogleConnectionForWrite()
+    connection.isConnected = false
+    connection.hasConsent = false
+    connection.accountEmail = nil
+    connection.accountDisplayName = nil
+    connection.selectedCalendarIds = []
+    connection.lastSyncStatus = "disconnected"
+    connection.lastSyncErrorMessage = nil
+    connection.lastSyncErrorAt = nil
+    connection.updatedAt = Date()
+
+    do {
+      try modelContext.save()
+      googleCalendars = []
+      googleMessage = "Disconnected"
+    } catch {
+      googleMessage = error.localizedDescription
+    }
+  }
+
+  private func loadGoogleCalendarsIfConnected() async {
+    guard googleConnection?.isConnected == true else {
+      googleCalendars = []
+      return
+    }
+
+    do {
+      let result = try await GoogleCalendarDiscoveryService.shared.refreshCalendars(context: modelContext)
+      googleCalendars = result.calendars
+    } catch {
+      googleMessage = error.localizedDescription
+    }
+  }
+
+  private func updateGoogleCalendarSelection(id: String, isSelected: Bool) {
+    let connection = getOrCreateGoogleConnectionForWrite()
+    var ids = Set(connection.selectedCalendarIds)
+    if isSelected {
+      ids.insert(id)
+    } else {
+      ids.remove(id)
+    }
+
+    do {
+      try GoogleCalendarDiscoveryService.shared.updateSelectedCalendars(Array(ids), context: modelContext)
+    } catch {
+      googleMessage = error.localizedDescription
+    }
+  }
+
+  private func getOrCreateGoogleConnectionForWrite() -> GoogleCalendarConnection {
+    let descriptor = FetchDescriptor<GoogleCalendarConnection>(
+      sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+    )
+    if let existing = try? modelContext.fetch(descriptor).first {
+      return existing
+    }
+
+    let connection = GoogleCalendarConnection()
+    modelContext.insert(connection)
+    return connection
+  }
+
+  #if os(iOS)
+    private func topViewController() -> UIViewController? {
+      guard
+        let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+        let root = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+      else { return nil }
+
+      var top = root
+      while let presented = top.presentedViewController {
+        top = presented
+      }
+      return top
+    }
+  #endif
 
   private func exportEncryptedBackup() {
     do {
