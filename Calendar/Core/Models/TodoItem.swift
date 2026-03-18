@@ -68,6 +68,12 @@ class TodoItem {
   var linkedBillId: UUID?
   var smartPriorityOverride: Double?
 
+  // Google Calendar sync metadata (mapped as all-day event in V1)
+  var externalId: String?
+  var externalCalendarId: String?
+  var externalUpdatedAt: Date?
+  var syncOrigin: String?
+
   var priorityEnum: Priority {
     get { Priority(rawValue: priority) ?? .medium }
     set { priority = newValue.rawValue }
@@ -139,6 +145,10 @@ class TodoItem {
     self.linkedExpenseId = nil
     self.linkedBillId = nil
     self.smartPriorityOverride = nil
+    self.externalId = nil
+    self.externalCalendarId = nil
+    self.externalUpdatedAt = nil
+    self.syncOrigin = nil
   }
 
   func nextDueDate() -> Date? {
