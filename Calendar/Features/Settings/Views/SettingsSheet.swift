@@ -773,7 +773,7 @@ struct SettingsSheet: View {
     connection.updatedAt = Date()
 
     do {
-      try modelContext.save()
+      try GoogleCalendarSyncService.shared.clearLocalImportedGoogleData(context: modelContext)
       googleCalendars = []
       googleMessage = "Disconnected"
     } catch {

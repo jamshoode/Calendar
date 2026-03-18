@@ -425,6 +425,39 @@ final class GoogleCalendarSyncService {
     try await deleteRemoteEvent(externalId: externalId, externalCalendarId: externalCalendarId)
   }
 
+  func clearLocalImportedGoogleData(context: ModelContext) throws {
+    let importedEvents = try context.fetch(
+      FetchDescriptor<Event>(
+        predicate: #Predicate { event in
+          event.syncOrigin == "google"
+        }
+      )
+    )
+
+    for event in importedEvents {
+      context.delete(event)
+    }
+
+    let importedTodos = try context.fetch(
+      FetchDescriptor<TodoItem>(
+        predicate: #Predicate { todo in
+          todo.syncOrigin == "google"
+        }
+      )
+    )
+
+    for todo in importedTodos {
+      context.delete(todo)
+    }
+
+    let syncStates = try context.fetch(FetchDescriptor<GoogleCalendarSyncState>())
+    for state in syncStates {
+      context.delete(state)
+    }
+
+    try context.save()
+  }
+
   private func upsertConnection(context: ModelContext) throws -> GoogleCalendarConnection {
     let descriptor = FetchDescriptor<GoogleCalendarConnection>(
       sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]

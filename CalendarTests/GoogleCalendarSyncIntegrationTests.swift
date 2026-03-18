@@ -402,6 +402,37 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     XCTAssertEqual(remainingStates.first?.calendarId, "cal_1")
   }
 
+  func testClearLocalImportedGoogleDataRemovesImportedRows() throws {
+    try configureConnection(selectedCalendarIds: ["cal_1"])
+
+    let importedEvent = Event(date: Date(), title: "Imported", notes: nil, color: "blue")
+    importedEvent.externalId = "evt_google"
+    importedEvent.externalCalendarId = "cal_1"
+    importedEvent.syncOrigin = "google"
+    context.insert(importedEvent)
+
+    let localEvent = Event(date: Date(), title: "Local", notes: nil, color: "red")
+    localEvent.externalId = "evt_local"
+    localEvent.externalCalendarId = "cal_1"
+    localEvent.syncOrigin = "local"
+    context.insert(localEvent)
+
+    let state = GoogleCalendarSyncState(calendarId: "cal_1")
+    state.nextSyncToken = "token_1"
+    context.insert(state)
+    try context.save()
+
+    let service = makeService()
+    try service.clearLocalImportedGoogleData(context: context)
+
+    let remainingEvents = try context.fetch(FetchDescriptor<Event>())
+    XCTAssertEqual(remainingEvents.count, 1)
+    XCTAssertEqual(remainingEvents.first?.externalId, "evt_local")
+
+    let remainingStates = try context.fetch(FetchDescriptor<GoogleCalendarSyncState>())
+    XCTAssertTrue(remainingStates.isEmpty)
+  }
+
   private func makeService() -> GoogleCalendarSyncService {
     GoogleCalendarSyncService(
       apiClient: GoogleCalendarAPIClient(session: session, tokenStore: tokenStore)
