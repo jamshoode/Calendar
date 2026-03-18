@@ -13,10 +13,10 @@ final class GoogleCalendarSyncService {
   }
 
   init(
-    apiClient: GoogleCalendarAPIClient = GoogleCalendarAPIClient(),
+    apiClient: GoogleCalendarAPIClient? = nil,
     conflictPolicy: GoogleConflictPolicy = .googleWins
   ) {
-    self.apiClient = apiClient
+    self.apiClient = apiClient ?? GoogleCalendarAPIClient()
     self.conflictPolicy = conflictPolicy
   }
 
@@ -268,7 +268,8 @@ final class GoogleCalendarSyncService {
 
     if dto.isDeleted {
       if let existing {
-        if shouldApplyRemoteChange(localUpdatedAt: existing.externalUpdatedAt, remoteUpdatedAt: nil) {
+        if shouldApplyRemoteChange(localUpdatedAt: existing.externalUpdatedAt, remoteUpdatedAt: nil)
+        {
           context.delete(existing)
           return .deleted
         }
@@ -284,7 +285,8 @@ final class GoogleCalendarSyncService {
     let updatedAt = Self.parseUpdatedAt(dto.updated)
 
     if let existing {
-      if shouldApplyRemoteChange(localUpdatedAt: existing.externalUpdatedAt, remoteUpdatedAt: updatedAt)
+      if shouldApplyRemoteChange(
+        localUpdatedAt: existing.externalUpdatedAt, remoteUpdatedAt: updatedAt)
       {
         existing.title = title
         existing.notes = dto.description
@@ -324,8 +326,12 @@ final class GoogleCalendarSyncService {
       return
     }
 
-    guard let calendarId = event.externalCalendarId ?? try defaultCalendarId(context: context)
-    else {
+    let calendarId: String
+    if let externalCalendarId = event.externalCalendarId {
+      calendarId = externalCalendarId
+    } else if let fallbackCalendarId = try defaultCalendarId(context: context) {
+      calendarId = fallbackCalendarId
+    } else {
       return
     }
 
@@ -383,7 +389,12 @@ final class GoogleCalendarSyncService {
       return
     }
 
-    guard let calendarId = todo.externalCalendarId ?? try defaultCalendarId(context: context) else {
+    let calendarId: String
+    if let externalCalendarId = todo.externalCalendarId {
+      calendarId = externalCalendarId
+    } else if let fallbackCalendarId = try defaultCalendarId(context: context) {
+      calendarId = fallbackCalendarId
+    } else {
       return
     }
 

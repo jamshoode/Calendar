@@ -36,7 +36,11 @@ import SwiftData
 
     private let tokenStore: GoogleTokenStore
 
-    private init(tokenStore: GoogleTokenStore = GoogleKeychainStore.shared) {
+    private init() {
+      self.tokenStore = GoogleKeychainStore.shared
+    }
+
+    init(tokenStore: GoogleTokenStore) {
       self.tokenStore = tokenStore
     }
 
@@ -70,7 +74,9 @@ import SwiftData
       }
     }
 
-    func signIn(with presentingViewController: UIViewController) async throws -> GoogleAccountProfile {
+    func signIn(with presentingViewController: UIViewController) async throws
+      -> GoogleAccountProfile
+    {
       try configure()
 
       let result = try await GIDSignIn.sharedInstance.signIn(
@@ -93,15 +99,19 @@ import SwiftData
 
     @discardableResult
     private func persistSession(user: GIDGoogleUser) throws -> GoogleAccountProfile {
-      guard let accessToken = user.accessToken.tokenString else {
+      let accessToken = user.accessToken.tokenString
+      guard !accessToken.isEmpty else {
         throw GoogleAuthError.missingAccessToken
       }
 
-      guard let refreshToken = user.refreshToken.tokenString else {
+      let refreshToken = user.refreshToken.tokenString
+      guard !refreshToken.isEmpty else {
         throw GoogleAuthError.missingRefreshToken
       }
 
-      let expirationDate = user.accessToken.expirationDate
+      guard let expirationDate = user.accessToken.expirationDate else {
+        throw GoogleAuthError.signInFailed
+      }
       let tokens = GoogleOAuthTokens(
         accessToken: accessToken,
         refreshToken: refreshToken,

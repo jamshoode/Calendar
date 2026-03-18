@@ -58,7 +58,8 @@ final class GoogleCalendarAPIClient {
   }
 
   func listCalendars(pageToken: String? = nil) async throws -> GoogleCalendarListResponse {
-    var components = URLComponents(string: "https://www.googleapis.com/calendar/v3/users/me/calendarList")
+    var components = URLComponents(
+      string: "https://www.googleapis.com/calendar/v3/users/me/calendarList")
     components?.queryItems = [
       URLQueryItem(name: "showHidden", value: "false"),
       URLQueryItem(name: "minAccessRole", value: "reader"),
@@ -112,13 +113,16 @@ final class GoogleCalendarAPIClient {
     )
   }
 
-  func createEvent(calendarId: String, request: GoogleEventUpsertRequest) async throws -> GoogleEventDTO {
+  func createEvent(calendarId: String, request: GoogleEventUpsertRequest) async throws
+    -> GoogleEventDTO
+  {
     let escapedCalendarId = calendarId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
     guard let escapedCalendarId else {
       throw GoogleCalendarAPIError.invalidURL
     }
 
-    let url = URL(string: "https://www.googleapis.com/calendar/v3/calendars/\(escapedCalendarId)/events")
+    let url = URL(
+      string: "https://www.googleapis.com/calendar/v3/calendars/\(escapedCalendarId)/events")
     let body = try jsonEncoder.encode(request)
 
     return try await send(method: "POST", url: url, body: body, responseType: GoogleEventDTO.self)
@@ -136,7 +140,9 @@ final class GoogleCalendarAPIClient {
     }
 
     let url = URL(
-      string: "https://www.googleapis.com/calendar/v3/calendars/\(escapedCalendarId)/events/\(escapedEventId)")
+      string:
+        "https://www.googleapis.com/calendar/v3/calendars/\(escapedCalendarId)/events/\(escapedEventId)"
+    )
     let body = try jsonEncoder.encode(request)
 
     return try await send(method: "PATCH", url: url, body: body, responseType: GoogleEventDTO.self)
@@ -150,13 +156,15 @@ final class GoogleCalendarAPIClient {
     }
 
     let url = URL(
-      string: "https://www.googleapis.com/calendar/v3/calendars/\(escapedCalendarId)/events/\(escapedEventId)")
+      string:
+        "https://www.googleapis.com/calendar/v3/calendars/\(escapedCalendarId)/events/\(escapedEventId)"
+    )
 
     _ = try await send(method: "DELETE", url: url, responseType: EmptyGoogleResponse.self)
   }
 
   private func authorizedRequest(method: String, url: URL, body: Data? = nil) throws -> URLRequest {
-    guard var tokens = try tokenStore.loadTokens() else {
+    guard let tokens = try tokenStore.loadTokens() else {
       throw GoogleCalendarAPIError.missingTokens
     }
 
@@ -174,8 +182,6 @@ final class GoogleCalendarAPIClient {
       request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     }
 
-    // Keep mutable local to make it obvious where refresh logic will be inserted in a later step.
-    _ = tokens
     return request
   }
 
@@ -218,11 +224,13 @@ final class GoogleCalendarAPIClient {
       case 500...599:
         if attempt + 1 >= maxAttempts {
           let message = String(data: data, encoding: .utf8)
-          throw GoogleCalendarAPIError.httpError(statusCode: httpResponse.statusCode, message: message)
+          throw GoogleCalendarAPIError.httpError(
+            statusCode: httpResponse.statusCode, message: message)
         }
       default:
         let message = String(data: data, encoding: .utf8)
-        throw GoogleCalendarAPIError.httpError(statusCode: httpResponse.statusCode, message: message)
+        throw GoogleCalendarAPIError.httpError(
+          statusCode: httpResponse.statusCode, message: message)
       }
 
       attempt += 1

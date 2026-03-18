@@ -7,8 +7,8 @@ final class GoogleCalendarDiscoveryService {
 
   private let apiClient: GoogleCalendarAPIClient
 
-  init(apiClient: GoogleCalendarAPIClient = GoogleCalendarAPIClient()) {
-    self.apiClient = apiClient
+  init(apiClient: GoogleCalendarAPIClient? = nil) {
+    self.apiClient = apiClient ?? GoogleCalendarAPIClient()
   }
 
   struct DiscoveryResult {
@@ -30,10 +30,13 @@ final class GoogleCalendarDiscoveryService {
 
     if connection.selectedCalendarIds.isEmpty {
       let defaults = allCalendars.filter { $0.selected == true || $0.primary == true }.map(\.id)
-      connection.selectedCalendarIds = defaults.isEmpty ? allCalendars.prefix(1).map(\.id) : defaults
+      connection.selectedCalendarIds =
+        defaults.isEmpty ? allCalendars.prefix(1).map(\.id) : defaults
     } else {
       let validIds = Set(allCalendars.map(\.id))
-      connection.selectedCalendarIds = connection.selectedCalendarIds.filter { validIds.contains($0) }
+      connection.selectedCalendarIds = connection.selectedCalendarIds.filter {
+        validIds.contains($0)
+      }
     }
 
     connection.updatedAt = Date()
