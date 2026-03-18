@@ -12,6 +12,7 @@ import SwiftData
 
   enum GoogleAuthError: LocalizedError {
     case missingClientId
+    case invalidClientId
     case signInFailed
     case missingRefreshToken
     case missingAccessToken
@@ -19,7 +20,11 @@ import SwiftData
     var errorDescription: String? {
       switch self {
       case .missingClientId:
-        return "Missing GIDClientID in Info.plist."
+        return
+          "Missing Google client ID. Set GIDClientID in Info.plist or add GoogleService-Info.plist with CLIENT_ID."
+      case .invalidClientId:
+        return
+          "Google client ID is invalid. Expected value ending with .apps.googleusercontent.com."
       case .signInFailed:
         return "Google sign-in failed."
       case .missingRefreshToken:
@@ -45,14 +50,42 @@ import SwiftData
     }
 
     func configure() throws {
-      guard
-        let clientId = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String,
-        !clientId.isEmpty
-      else {
+      guard let clientId = resolveClientID() else {
         throw GoogleAuthError.missingClientId
       }
 
+      guard Self.isValidClientID(clientId) else {
+        throw GoogleAuthError.invalidClientId
+      }
+
       GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientId)
+    }
+
+    private func resolveClientID() -> String? {
+      if let configured = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String,
+        !configured.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      {
+        return configured
+      }
+
+      guard
+        let url = Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist"),
+        let data = try? Data(contentsOf: url),
+        let plist = try? PropertyListSerialization.propertyList(from: data, format: nil)
+          as? [String: Any],
+        let clientID = plist["CLIENT_ID"] as? String,
+        !clientID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      else {
+        return nil
+      }
+
+      return clientID
+    }
+
+    private static func isValidClientID(_ value: String) -> Bool {
+      let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+      return trimmed.contains(".apps.googleusercontent.com")
+        && !trimmed.contains("$(")
     }
 
     func handle(url: URL) -> Bool {

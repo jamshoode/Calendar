@@ -7,8 +7,14 @@ final class GoogleCalendarDiscoveryService {
 
   private let apiClient: GoogleCalendarAPIClient
 
-  init(apiClient: GoogleCalendarAPIClient? = nil) {
-    self.apiClient = apiClient ?? GoogleCalendarAPIClient()
+  @MainActor
+  private init() {
+    self.apiClient = GoogleCalendarAPIClient()
+  }
+
+  @MainActor
+  init(apiClient: GoogleCalendarAPIClient) {
+    self.apiClient = apiClient
   }
 
   struct DiscoveryResult {
@@ -50,8 +56,44 @@ final class GoogleCalendarDiscoveryService {
 
   func updateSelectedCalendars(_ ids: [String], context: ModelContext) throws {
     let connection = try upsertConnection(context: context)
-    connection.selectedCalendarIds = Array(Set(ids)).sorted()
+    let previousSelection = Set(connection.selectedCalendarIds)
+    let nextSelection = Set(ids)
+    let removedCalendarIds = previousSelection.subtracting(nextSelection)
+
+    connection.selectedCalendarIds = Array(nextSelection).sorted()
     connection.updatedAt = Date()
+    try context.save()
+
+    try removeDeselectedCalendarData(
+      removedCalendarIds: removedCalendarIds,
+      context: context
+    )
+  }
+
+  private func removeDeselectedCalendarData(
+    removedCalendarIds: Set<String>,
+    context: ModelContext
+  ) throws {
+    guard !removedCalendarIds.isEmpty else { return }
+
+    let events = try context.fetch(FetchDescriptor<Event>())
+    for event in events {
+      guard
+        event.syncOrigin == "google",
+        let calendarId = event.externalCalendarId,
+        removedCalendarIds.contains(calendarId)
+      else {
+        continue
+      }
+
+      context.delete(event)
+    }
+
+    let syncStates = try context.fetch(FetchDescriptor<GoogleCalendarSyncState>())
+    for syncState in syncStates where removedCalendarIds.contains(syncState.calendarId) {
+      context.delete(syncState)
+    }
+
     try context.save()
   }
 

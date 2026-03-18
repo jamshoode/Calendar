@@ -178,7 +178,8 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     XCTAssertTrue(events.contains { $0.externalId == "evt_2" && $0.title == "Imported" })
     XCTAssertFalse(events.contains { $0.externalId == "evt_3" })
 
-    let syncedState = try XCTUnwrap(try context.fetch(FetchDescriptor<GoogleCalendarSyncState>()).first)
+    let syncedState = try XCTUnwrap(
+      try context.fetch(FetchDescriptor<GoogleCalendarSyncState>()).first)
     XCTAssertEqual(syncedState.nextSyncToken, "sync_new")
     XCTAssertNotNil(syncedState.lastIncrementalSyncAt)
   }
@@ -232,7 +233,8 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     XCTAssertEqual(events.count, 1)
     XCTAssertEqual(events.first?.externalId, "evt_fresh")
 
-    let syncedState = try XCTUnwrap(try context.fetch(FetchDescriptor<GoogleCalendarSyncState>()).first)
+    let syncedState = try XCTUnwrap(
+      try context.fetch(FetchDescriptor<GoogleCalendarSyncState>()).first)
     XCTAssertEqual(syncedState.nextSyncToken, "fresh_sync")
     XCTAssertNotNil(syncedState.lastFullSyncAt)
   }
@@ -276,7 +278,9 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     let updated = try XCTUnwrap(
       try context.fetch(
         FetchDescriptor<Event>(
-          predicate: #Predicate { $0.externalId == "evt_conflict" && $0.externalCalendarId == "cal_1" }
+          predicate: #Predicate {
+            $0.externalId == "evt_conflict" && $0.externalCalendarId == "cal_1"
+          }
         )
       ).first
     )
@@ -289,7 +293,8 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
   func testTodoRoundTripCreatesAllDayRemoteThenDeletesWhenDueDateCleared() async throws {
     try configureConnection(selectedCalendarIds: ["cal_1"])
 
-    let localNoon = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()
+    let localNoon =
+      Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()
     let todo = TodoItem(title: "Pay bill", dueDate: localNoon)
     context.insert(todo)
     try context.save()
@@ -350,6 +355,51 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     let deleteRequest = try XCTUnwrap(IntegrationURLProtocolStub.requests.last)
     XCTAssertEqual(deleteRequest.httpMethod, "DELETE")
     XCTAssertTrue(deleteRequest.url?.absoluteString.contains("/events/todo_evt_1") == true)
+  }
+
+  func testDeselectingCalendarRemovesImportedEventsAndSyncState() throws {
+    try configureConnection(selectedCalendarIds: ["cal_1", "cal_2"])
+
+    let keptImportedEvent = Event(date: Date(), title: "Keep", notes: nil, color: "blue")
+    keptImportedEvent.externalId = "evt_keep"
+    keptImportedEvent.externalCalendarId = "cal_1"
+    keptImportedEvent.syncOrigin = "google"
+    context.insert(keptImportedEvent)
+
+    let removedImportedEvent = Event(date: Date(), title: "Remove", notes: nil, color: "red")
+    removedImportedEvent.externalId = "evt_remove"
+    removedImportedEvent.externalCalendarId = "cal_2"
+    removedImportedEvent.syncOrigin = "google"
+    context.insert(removedImportedEvent)
+
+    // Local-origin items should remain untouched by deselection cleanup.
+    let localEvent = Event(date: Date(), title: "Local", notes: nil, color: "green")
+    localEvent.externalId = "evt_local"
+    localEvent.externalCalendarId = "cal_2"
+    localEvent.syncOrigin = "local"
+    context.insert(localEvent)
+
+    let state1 = GoogleCalendarSyncState(calendarId: "cal_1")
+    state1.nextSyncToken = "token_1"
+    context.insert(state1)
+
+    let state2 = GoogleCalendarSyncState(calendarId: "cal_2")
+    state2.nextSyncToken = "token_2"
+    context.insert(state2)
+
+    try context.save()
+
+    try GoogleCalendarDiscoveryService.shared.updateSelectedCalendars(["cal_1"], context: context)
+
+    let remainingEvents = try context.fetch(FetchDescriptor<Event>())
+    XCTAssertEqual(remainingEvents.count, 2)
+    XCTAssertTrue(remainingEvents.contains { $0.externalId == "evt_keep" })
+    XCTAssertFalse(remainingEvents.contains { $0.externalId == "evt_remove" })
+    XCTAssertTrue(remainingEvents.contains { $0.externalId == "evt_local" })
+
+    let remainingStates = try context.fetch(FetchDescriptor<GoogleCalendarSyncState>())
+    XCTAssertEqual(remainingStates.count, 1)
+    XCTAssertEqual(remainingStates.first?.calendarId, "cal_1")
   }
 
   private func makeService() -> GoogleCalendarSyncService {
