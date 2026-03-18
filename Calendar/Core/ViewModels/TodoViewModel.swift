@@ -186,6 +186,10 @@ class TodoViewModel: ObservableObject {
       return
     }
 
+    if !todo.isSubtask {
+      scheduleGoogleTodoUpsert(todo, context: context)
+    }
+
     if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
@@ -234,6 +238,10 @@ class TodoViewModel: ObservableObject {
       return
     }
 
+    if !todo.isSubtask {
+      scheduleGoogleTodoUpsert(todo, context: context)
+    }
+
     NotificationService.shared.cancelTodoNotification(id: todo.id)
     if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
@@ -245,6 +253,8 @@ class TodoViewModel: ObservableObject {
 
   func deleteTodo(_ todo: TodoItem, context: ModelContext) {
     let parent = todo.parentTodo
+    let externalId = todo.externalId
+    let externalCalendarId = todo.externalCalendarId
     NotificationService.shared.cancelTodoNotification(id: todo.id)
     context.delete(todo)
     if let parent = parent {
@@ -255,6 +265,9 @@ class TodoViewModel: ObservableObject {
     } catch {
       ErrorPresenter.shared.present(error)
       return
+    }
+    if !todo.isSubtask {
+      scheduleGoogleTodoDelete(externalId: externalId, externalCalendarId: externalCalendarId)
     }
     syncTodoCountToWidget(context: context)
     EventViewModel().syncEventsToWidget(context: context)
@@ -629,6 +642,29 @@ class TodoViewModel: ObservableObject {
 
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     WidgetCenter.shared.reloadTimelines(ofKind: "CombinedWidget")
+  }
+
+  private func scheduleGoogleTodoUpsert(_ todo: TodoItem, context: ModelContext) {
+    Task { @MainActor in
+      do {
+        try await GoogleCalendarSyncService.shared.pushLocalTodoAsAllDayEvent(todo, context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
+  }
+
+  private func scheduleGoogleTodoDelete(externalId: String?, externalCalendarId: String?) {
+    Task { @MainActor in
+      do {
+        try await GoogleCalendarSyncService.shared.deleteRemoteTodoEvent(
+          externalId: externalId,
+          externalCalendarId: externalCalendarId
+        )
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
   }
 }
 

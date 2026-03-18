@@ -280,7 +280,8 @@ final class GoogleCalendarSyncService {
       return
     }
 
-    guard let calendarId = event.externalCalendarId ?? try defaultCalendarId(context: context) else {
+    guard let calendarId = event.externalCalendarId ?? try defaultCalendarId(context: context)
+    else {
       return
     }
 
@@ -321,6 +322,52 @@ final class GoogleCalendarSyncService {
     }
 
     try await apiClient.deleteEvent(calendarId: externalCalendarId, eventId: externalId)
+  }
+
+  func pushLocalTodoAsAllDayEvent(_ todo: TodoItem, context: ModelContext) async throws {
+    if todo.syncOrigin == "google" {
+      todo.syncOrigin = nil
+      try context.save()
+      return
+    }
+
+    guard let dueDate = todo.dueDate else {
+      try await deleteRemoteEvent(
+        externalId: todo.externalId, externalCalendarId: todo.externalCalendarId)
+      clearTodoExternalMapping(todo)
+      try context.save()
+      return
+    }
+
+    guard let calendarId = todo.externalCalendarId ?? try defaultCalendarId(context: context) else {
+      return
+    }
+
+    let request = makeAllDayTodoRequest(from: todo, dueDate: dueDate)
+    let remote: GoogleEventDTO
+
+    if let externalId = todo.externalId, !externalId.isEmpty {
+      remote = try await apiClient.patchEvent(
+        calendarId: calendarId,
+        eventId: externalId,
+        request: request
+      )
+    } else {
+      remote = try await apiClient.createEvent(
+        calendarId: calendarId,
+        request: request
+      )
+    }
+
+    todo.externalId = remote.id
+    todo.externalCalendarId = calendarId
+    todo.externalUpdatedAt = Self.parseUpdatedAt(remote.updated)
+    todo.syncOrigin = "local"
+    try context.save()
+  }
+
+  func deleteRemoteTodoEvent(externalId: String?, externalCalendarId: String?) async throws {
+    try await deleteRemoteEvent(externalId: externalId, externalCalendarId: externalCalendarId)
   }
 
   private func upsertConnection(context: ModelContext) throws -> GoogleCalendarConnection {
@@ -365,6 +412,40 @@ final class GoogleCalendarSyncService {
         timeZone: timeZone
       )
     )
+  }
+
+  private func makeAllDayTodoRequest(from todo: TodoItem, dueDate: Date) -> GoogleEventUpsertRequest
+  {
+    let calendar = Calendar(identifier: .gregorian)
+    let startOfDay = calendar.startOfDay(for: dueDate)
+    let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+
+    let formatter = DateFormatter()
+    formatter.calendar = calendar
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    formatter.dateFormat = "yyyy-MM-dd"
+
+    return GoogleEventUpsertRequest(
+      summary: todo.title,
+      description: todo.notes,
+      start: .init(
+        date: formatter.string(from: startOfDay),
+        dateTime: nil,
+        timeZone: nil
+      ),
+      end: .init(
+        date: formatter.string(from: nextDay),
+        dateTime: nil,
+        timeZone: nil
+      )
+    )
+  }
+
+  private func clearTodoExternalMapping(_ todo: TodoItem) {
+    todo.externalId = nil
+    todo.externalCalendarId = nil
+    todo.externalUpdatedAt = nil
   }
 
   private func upsertSyncState(calendarId: String, context: ModelContext) throws
