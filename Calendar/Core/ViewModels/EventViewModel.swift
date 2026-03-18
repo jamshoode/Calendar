@@ -25,6 +25,7 @@ class EventViewModel {
     context.insert(event)
     do {
       try context.save()
+      scheduleGoogleUpsert(for: event, context: context)
       rescheduleAllNotifications(context: context)
       syncEventsToWidget(context: context)
     } catch {
@@ -48,6 +49,7 @@ class EventViewModel {
     event.recurrenceEndDate = recurrenceEndDate
     do {
       try context.save()
+      scheduleGoogleUpsert(for: event, context: context)
       rescheduleAllNotifications(context: context)
       syncEventsToWidget(context: context)
     } catch {
@@ -92,6 +94,7 @@ class EventViewModel {
 
       do {
         try context.save()
+        scheduleGoogleUpsert(for: newSeries, context: context)
         rescheduleAllNotifications(context: context)
         syncEventsToWidget(context: context)
       } catch {
@@ -115,9 +118,12 @@ class EventViewModel {
   }
 
   func deleteEvent(_ event: Event, context: ModelContext) {
+    let externalId = event.externalId
+    let externalCalendarId = event.externalCalendarId
     context.delete(event)
     do {
       try context.save()
+      scheduleGoogleDelete(externalId: externalId, externalCalendarId: externalCalendarId)
       rescheduleAllNotifications(context: context)
       syncEventsToWidget(context: context)
     } catch {
@@ -142,6 +148,7 @@ class EventViewModel {
       source.recurrenceEndDate = occurrence.occurrenceDate.startOfDay.addingTimeInterval(-1)
       do {
         try context.save()
+        scheduleGoogleUpsert(for: source, context: context)
         rescheduleAllNotifications(context: context)
         syncEventsToWidget(context: context)
       } catch {
@@ -240,5 +247,28 @@ class EventViewModel {
 
     WidgetCenter.shared.reloadTimelines(ofKind: "CalendarWidget")
     WidgetCenter.shared.reloadTimelines(ofKind: "CombinedWidget")
+  }
+
+  private func scheduleGoogleUpsert(for event: Event, context: ModelContext) {
+    Task { @MainActor in
+      do {
+        try await GoogleCalendarSyncService.shared.pushLocalEvent(event, context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
+  }
+
+  private func scheduleGoogleDelete(externalId: String?, externalCalendarId: String?) {
+    Task { @MainActor in
+      do {
+        try await GoogleCalendarSyncService.shared.deleteRemoteEvent(
+          externalId: externalId,
+          externalCalendarId: externalCalendarId
+        )
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
   }
 }

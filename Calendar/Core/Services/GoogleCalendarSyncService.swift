@@ -273,6 +273,56 @@ final class GoogleCalendarSyncService {
     return .imported
   }
 
+  func pushLocalEvent(_ event: Event, context: ModelContext) async throws {
+    if event.syncOrigin == "google" {
+      event.syncOrigin = nil
+      try context.save()
+      return
+    }
+
+    guard let calendarId = event.externalCalendarId ?? try defaultCalendarId(context: context) else {
+      return
+    }
+
+    let request = makeUpsertRequest(from: event)
+    let remote: GoogleEventDTO
+
+    if let externalId = event.externalId, !externalId.isEmpty {
+      remote = try await apiClient.patchEvent(
+        calendarId: calendarId,
+        eventId: externalId,
+        request: request
+      )
+    } else {
+      remote = try await apiClient.createEvent(
+        calendarId: calendarId,
+        request: request
+      )
+    }
+
+    event.externalId = remote.id
+    event.externalCalendarId = calendarId
+    event.externalUpdatedAt = Self.parseUpdatedAt(remote.updated)
+    event.syncOrigin = "local"
+    try context.save()
+  }
+
+  func deleteRemoteEvent(
+    externalId: String?,
+    externalCalendarId: String?
+  ) async throws {
+    guard
+      let externalId,
+      !externalId.isEmpty,
+      let externalCalendarId,
+      !externalCalendarId.isEmpty
+    else {
+      return
+    }
+
+    try await apiClient.deleteEvent(calendarId: externalCalendarId, eventId: externalId)
+  }
+
   private func upsertConnection(context: ModelContext) throws -> GoogleCalendarConnection {
     let descriptor = FetchDescriptor<GoogleCalendarConnection>(
       sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
@@ -285,6 +335,36 @@ final class GoogleCalendarSyncService {
     let connection = GoogleCalendarConnection()
     context.insert(connection)
     return connection
+  }
+
+  private func defaultCalendarId(context: ModelContext) throws -> String? {
+    let connection = try upsertConnection(context: context)
+    return connection.selectedCalendarIds.first
+  }
+
+  private func makeUpsertRequest(from event: Event) -> GoogleEventUpsertRequest {
+    let startDate = event.date
+    let endDate = Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate
+
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+    let timeZone = TimeZone.current.identifier
+
+    return GoogleEventUpsertRequest(
+      summary: event.title,
+      description: event.notes,
+      start: .init(
+        date: nil,
+        dateTime: formatter.string(from: startDate),
+        timeZone: timeZone
+      ),
+      end: .init(
+        date: nil,
+        dateTime: formatter.string(from: endDate),
+        timeZone: timeZone
+      )
+    )
   }
 
   private func upsertSyncState(calendarId: String, context: ModelContext) throws
