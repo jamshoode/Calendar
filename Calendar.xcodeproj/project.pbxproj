@@ -153,6 +153,7 @@
 		F5E0001C2F50000100AA0001 /* FXRateServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000D2F50000100AA0001 /* FXRateServiceTests.swift */; };
 		F5E0001D2F50000100AA0001 /* ForecastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000E2F50000100AA0001 /* ForecastServiceTests.swift */; };
 		F5E0001E2F50000100AA0001 /* GoogleCalendarCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000F2F50000100AA0001 /* GoogleCalendarCoreTests.swift */; };
+		F5E000212F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000202F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -344,6 +345,7 @@
 		F5E0000D2F50000100AA0001 /* FXRateServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FXRateServiceTests.swift; sourceTree = "<group>"; };
 		F5E0000E2F50000100AA0001 /* ForecastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastServiceTests.swift; sourceTree = "<group>"; };
 		F5E0000F2F50000100AA0001 /* GoogleCalendarCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarCoreTests.swift; sourceTree = "<group>"; };
+		F5E000202F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarSyncIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -839,6 +841,7 @@
 				F5B897C72F54A7820027C977 /* WidgetSyncTests.swift */,
 				F5E0000E2F50000100AA0001 /* ForecastServiceTests.swift */,
 				F5E0000F2F50000100AA0001 /* GoogleCalendarCoreTests.swift */,
+				F5E000202F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift */,
 				F5D65F4A2F4213D0004F7A39 /* StartupManagerTests.swift */,
 				F5D65F4B2F4213D0004F7A39 /* TodoCategoryTests.swift */,
 			);
@@ -1172,6 +1175,7 @@
 				F5B897CB2F54A7820027C977 /* ForbiddenPatternsTests.swift in Sources */,
 				F5B897CC2F54A7820027C977 /* RecurringExpenseTests.swift in Sources */,
 				F5E0001E2F50000100AA0001 /* GoogleCalendarCoreTests.swift in Sources */,
+				F5E000212F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift in Sources */,
 				F5D65F5D2F421480004F7A39 /* TodoCategoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
