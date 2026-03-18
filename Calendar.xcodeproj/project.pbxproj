@@ -37,6 +37,7 @@
 		A1B2C4022F60000400A0B001 /* GoogleTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4012F60000400A0B001 /* GoogleTokenStore.swift */; };
 		A1B2C4122F60000500A0B001 /* GoogleAuthCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4112F60000500A0B001 /* GoogleAuthCoordinator.swift */; };
 		A1B2C4222F60000600A0B001 /* GoogleCalendarDTOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4212F60000600A0B001 /* GoogleCalendarDTOs.swift */; };
+		A1B2C4322F60000700A0B001 /* GoogleCalendarAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4312F60000700A0B001 /* GoogleCalendarAPIClient.swift */; };
 		F57A61652F55A9230073E676 /* MonobankProjectionMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A61632F55A9230073E676 /* MonobankProjectionMapperTests.swift */; };
 		F57A61662F55A9230073E676 /* MonobankWidgetBalanceSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A61642F55A9230073E676 /* MonobankWidgetBalanceSyncTests.swift */; };
 		F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F593C0E62F33C234007F8DEB /* Assets.xcassets */; };
@@ -224,6 +225,7 @@
 		A1B2C4012F60000400A0B001 /* GoogleTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTokenStore.swift; sourceTree = "<group>"; };
 		A1B2C4112F60000500A0B001 /* GoogleAuthCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAuthCoordinator.swift; sourceTree = "<group>"; };
 		A1B2C4212F60000600A0B001 /* GoogleCalendarDTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarDTOs.swift; sourceTree = "<group>"; };
+		A1B2C4312F60000700A0B001 /* GoogleCalendarAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarAPIClient.swift; sourceTree = "<group>"; };
 		F57A61632F55A9230073E676 /* MonobankProjectionMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankProjectionMapperTests.swift; sourceTree = "<group>"; };
 		F57A61642F55A9230073E676 /* MonobankWidgetBalanceSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankWidgetBalanceSyncTests.swift; sourceTree = "<group>"; };
 		F593C0E42F33C234007F8DEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Calendar/AppDelegate.swift; sourceTree = "<group>"; };
@@ -504,6 +506,7 @@
 				F593C0ED2F33C234007F8DEB /* AudioService.swift */,
 				F5E000052F50000100AA0001 /* BudgetService.swift */,
 				A1B2C4112F60000500A0B001 /* GoogleAuthCoordinator.swift */,
+				A1B2C4312F60000700A0B001 /* GoogleCalendarAPIClient.swift */,
 				A1B2C4212F60000600A0B001 /* GoogleCalendarDTOs.swift */,
 				A1B2C4012F60000400A0B001 /* GoogleTokenStore.swift */,
 				F5A1B0002F4E0001007F8DEB /* HolidayService.swift */,
@@ -1084,6 +1087,7 @@
 				A1B2C4022F60000400A0B001 /* GoogleTokenStore.swift in Sources */,
 				A1B2C4122F60000500A0B001 /* GoogleAuthCoordinator.swift in Sources */,
 				A1B2C4222F60000600A0B001 /* GoogleCalendarDTOs.swift in Sources */,
+				A1B2C4322F60000700A0B001 /* GoogleCalendarAPIClient.swift in Sources */,
 				F593C12F2F33C234007F8DEB /* Event.swift in Sources */,
 				F593C1302F33C234007F8DEB /* Date+Extensions.swift in Sources */,
 				F554F0002F34F99C008B6601 /* TopBarView.swift in Sources */,
