@@ -18,6 +18,13 @@ final class GoogleCalendarSyncService {
     let deleted: Int
   }
 
+  struct IncrementalSyncSummary {
+    let calendarsSynced: Int
+    let imported: Int
+    let updated: Int
+    let deleted: Int
+  }
+
   func fullSyncSelectedCalendars(context: ModelContext) async throws -> FullSyncSummary {
     let connection = try upsertConnection(context: context)
     let selectedCalendarIds = connection.selectedCalendarIds
@@ -50,7 +57,48 @@ final class GoogleCalendarSyncService {
     )
   }
 
+  func incrementalSyncSelectedCalendars(context: ModelContext) async throws
+    -> IncrementalSyncSummary
+  {
+    let connection = try upsertConnection(context: context)
+    let selectedCalendarIds = connection.selectedCalendarIds
+
+    var calendarsSynced = 0
+    var imported = 0
+    var updated = 0
+    var deleted = 0
+
+    for calendarId in selectedCalendarIds {
+      let calendarSummary = try await incrementalSyncCalendar(
+        calendarId: calendarId, context: context)
+      calendarsSynced += 1
+      imported += calendarSummary.imported
+      updated += calendarSummary.updated
+      deleted += calendarSummary.deleted
+    }
+
+    connection.lastSyncAt = Date()
+    connection.lastSyncStatus = "ok"
+    connection.lastSyncErrorMessage = nil
+    connection.lastSyncErrorAt = nil
+    connection.updatedAt = Date()
+    try context.save()
+
+    return IncrementalSyncSummary(
+      calendarsSynced: calendarsSynced,
+      imported: imported,
+      updated: updated,
+      deleted: deleted
+    )
+  }
+
   struct CalendarFullSyncSummary {
+    let imported: Int
+    let updated: Int
+    let deleted: Int
+  }
+
+  struct CalendarIncrementalSyncSummary {
     let imported: Int
     let updated: Int
     let deleted: Int
@@ -103,6 +151,60 @@ final class GoogleCalendarSyncService {
     return CalendarFullSyncSummary(imported: imported, updated: updated, deleted: deleted)
   }
 
+  private func incrementalSyncCalendar(calendarId: String, context: ModelContext) async throws
+    -> CalendarIncrementalSyncSummary
+  {
+    let state = try upsertSyncState(calendarId: calendarId, context: context)
+
+    guard let syncToken = state.nextSyncToken, !syncToken.isEmpty else {
+      let full = try await fullSyncCalendar(calendarId: calendarId, context: context)
+      return CalendarIncrementalSyncSummary(
+        imported: full.imported,
+        updated: full.updated,
+        deleted: full.deleted
+      )
+    }
+
+    var pageToken: String?
+    var imported = 0
+    var updated = 0
+    var deleted = 0
+    var nextSyncToken: String?
+
+    repeat {
+      let response = try await apiClient.listEvents(
+        calendarId: calendarId,
+        syncToken: syncToken,
+        pageToken: pageToken
+      )
+
+      for dto in response.items {
+        let outcome = try applyRemoteEvent(dto, calendarId: calendarId, context: context)
+        switch outcome {
+        case .imported:
+          imported += 1
+        case .updated:
+          updated += 1
+        case .deleted:
+          deleted += 1
+        case .ignored:
+          break
+        }
+      }
+
+      pageToken = response.nextPageToken
+      nextSyncToken = response.nextSyncToken ?? nextSyncToken
+    } while pageToken != nil
+
+    state.nextSyncToken = nextSyncToken ?? state.nextSyncToken
+    state.nextPageToken = nil
+    state.lastIncrementalSyncAt = Date()
+    state.updatedAt = Date()
+    try context.save()
+
+    return CalendarIncrementalSyncSummary(imported: imported, updated: updated, deleted: deleted)
+  }
+
   private enum ApplyOutcome {
     case imported
     case updated
@@ -110,7 +212,8 @@ final class GoogleCalendarSyncService {
     case ignored
   }
 
-  private func applyRemoteEvent(_ dto: GoogleEventDTO, calendarId: String, context: ModelContext) throws
+  private func applyRemoteEvent(_ dto: GoogleEventDTO, calendarId: String, context: ModelContext)
+    throws
     -> ApplyOutcome
   {
     let eventId = dto.id
@@ -173,7 +276,9 @@ final class GoogleCalendarSyncService {
     return connection
   }
 
-  private func upsertSyncState(calendarId: String, context: ModelContext) throws -> GoogleCalendarSyncState {
+  private func upsertSyncState(calendarId: String, context: ModelContext) throws
+    -> GoogleCalendarSyncState
+  {
     let descriptor = FetchDescriptor<GoogleCalendarSyncState>(
       predicate: #Predicate { state in
         state.calendarId == calendarId
