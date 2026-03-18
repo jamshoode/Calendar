@@ -6,9 +6,18 @@ final class GoogleCalendarSyncService {
   static let shared = GoogleCalendarSyncService()
 
   private let apiClient: GoogleCalendarAPIClient
+  private let conflictPolicy: GoogleConflictPolicy
 
-  init(apiClient: GoogleCalendarAPIClient = GoogleCalendarAPIClient()) {
+  enum GoogleConflictPolicy {
+    case googleWins
+  }
+
+  init(
+    apiClient: GoogleCalendarAPIClient = GoogleCalendarAPIClient(),
+    conflictPolicy: GoogleConflictPolicy = .googleWins
+  ) {
     self.apiClient = apiClient
+    self.conflictPolicy = conflictPolicy
   }
 
   struct FullSyncSummary {
@@ -238,8 +247,11 @@ final class GoogleCalendarSyncService {
 
     if dto.isDeleted {
       if let existing {
-        context.delete(existing)
-        return .deleted
+        if shouldApplyRemoteChange(localUpdatedAt: existing.externalUpdatedAt, remoteUpdatedAt: nil) {
+          context.delete(existing)
+          return .deleted
+        }
+        return .ignored
       }
       return .ignored
     }
@@ -251,12 +263,16 @@ final class GoogleCalendarSyncService {
     let updatedAt = Self.parseUpdatedAt(dto.updated)
 
     if let existing {
-      existing.title = title
-      existing.notes = dto.description
-      existing.date = date
-      existing.externalUpdatedAt = updatedAt
-      existing.syncOrigin = "google"
-      return .updated
+      if shouldApplyRemoteChange(localUpdatedAt: existing.externalUpdatedAt, remoteUpdatedAt: updatedAt)
+      {
+        existing.title = title
+        existing.notes = dto.description
+        existing.date = date
+        existing.externalUpdatedAt = updatedAt
+        existing.syncOrigin = "google"
+        return .updated
+      }
+      return .ignored
     }
 
     let event = Event(
@@ -271,6 +287,13 @@ final class GoogleCalendarSyncService {
     event.syncOrigin = "google"
     context.insert(event)
     return .imported
+  }
+
+  private func shouldApplyRemoteChange(localUpdatedAt: Date?, remoteUpdatedAt: Date?) -> Bool {
+    switch conflictPolicy {
+    case .googleWins:
+      return true
+    }
   }
 
   func pushLocalEvent(_ event: Event, context: ModelContext) async throws {
