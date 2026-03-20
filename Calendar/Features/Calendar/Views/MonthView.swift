@@ -12,6 +12,7 @@ struct MonthView: View {
   private let calendar = Calendar.current
   private let daysInWeek = 7
   private let totalRows = 6  // Always 6 rows for consistent layout
+  private let rowHeight: CGFloat = 62
 
   private var days: [Date] {
     let startOfMonth = currentMonth.startOfMonth
@@ -53,29 +54,51 @@ struct MonthView: View {
   }
 
   var body: some View {
-    LazyVGrid(
-      columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: daysInWeek), spacing: 2
-    ) {
-      ForEach(Array(days.enumerated()), id: \.offset) { _, date in
-        let isCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
-        let isSelected = selectedDate != nil && date.isSameDay(as: selectedDate!)
-        let isToday = date.isToday
+    VStack(spacing: 0) {
+      HStack {
+        Text(currentMonth.formattedMonthShort.localizedCapitalized)
+          .font(.system(size: 18, weight: .bold))
+          .foregroundColor(Color.textPrimary)
+        Spacer()
+      }
+      .padding(.horizontal, 16)
+      .padding(.bottom, 6)
 
-        DayCell(
-          date: date,
-          isCurrentMonth: isCurrentMonth,
-          isSelected: isSelected,
-          isToday: isToday,
-          events: isCurrentMonth ? eventsForDate(date) : [],
-          todos: isCurrentMonth ? todosForDate(date) : [],
-          expenses: isCurrentMonth ? expensesForDate(date) : []
-        )
-        .onTapGesture {
-          onSelectDate(date)
+      LazyVGrid(
+        columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: daysInWeek), spacing: 0
+      ) {
+        ForEach(Array(days.enumerated()), id: \.offset) { _, date in
+          let isCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
+          let isSelected = selectedDate != nil && date.isSameDay(as: selectedDate!)
+          let isToday = date.isToday
+
+          DayCell(
+            date: date,
+            isCurrentMonth: isCurrentMonth,
+            isSelected: isSelected,
+            isToday: isToday,
+            events: isCurrentMonth ? eventsForDate(date) : [],
+            todos: isCurrentMonth ? todosForDate(date) : [],
+            expenses: isCurrentMonth ? expensesForDate(date) : []
+          )
+          .frame(height: rowHeight)
+          .onTapGesture {
+            onSelectDate(date)
+          }
+        }
+      }
+      .overlay {
+        VStack(spacing: 0) {
+          ForEach(0..<5, id: \.self) { _ in
+            Spacer()
+            Divider().opacity(0.22)
+          }
+          Spacer()
         }
       }
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, 8)
+    .padding(.vertical, 6)
   }
 
   private func eventsForDate(_ date: Date) -> [EventOccurrence] {

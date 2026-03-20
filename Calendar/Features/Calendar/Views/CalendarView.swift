@@ -43,13 +43,14 @@ struct CalendarView: View {
   @State private var detailOccurrence: EventOccurrence?
   @State private var referenceDate: Date = Date()
   @State private var midnightRefreshTask: Task<Void, Never>?
+  @State private var gridReloadVersion = 0
 
   private var monthCardHeight: CGFloat {
     max(UIScreen.main.bounds.height * 0.56, 360)
   }
 
   private var gridContentID: Int {
-    (events.count * 1_000_000) + (rootTodos.count * 1_000) + expenses.count
+    (events.count * 1_000_000) + (rootTodos.count * 1_000) + expenses.count + gridReloadVersion
   }
 
   var body: some View {
@@ -112,8 +113,7 @@ struct CalendarView: View {
                         }
                       )
                       .frame(height: monthCardHeight)
-                      .softCard(cornerRadius: 16, padding: 10, shadow: false)
-                      .padding(.horizontal, 20)
+                      .padding(.horizontal, 10)
                       .id(offset)
                       .onAppear {
                         viewModel.expandRangeIfNeeded(for: offset)
@@ -265,6 +265,15 @@ struct CalendarView: View {
       refreshReferenceDate()
       scheduleMidnightRefresh()
     }
+    .onChange(of: events.count) { _, _ in
+      gridReloadVersion += 1
+    }
+    .onChange(of: rootTodos.count) { _, _ in
+      gridReloadVersion += 1
+    }
+    .onChange(of: expenses.count) { _, _ in
+      gridReloadVersion += 1
+    }
   }
 
   private var eventsForMonth: [EventOccurrence] {
@@ -411,7 +420,9 @@ struct WeekdayHeaderView: View {
     }
     .padding(.horizontal, 16)
     .padding(.vertical, 8)
-    .softControl(cornerRadius: 12, padding: 0)
+    .overlay(alignment: .bottom) {
+      Divider().opacity(0.25)
+    }
   }
 }
 

@@ -11,7 +11,7 @@ struct DayCell: View {
   var expenses: [Expense] = []
 
   var body: some View {
-    VStack(spacing: 4) {
+    VStack(spacing: 6) {
       ZStack {
           if isCurrentMonth {
               if isSelected {
@@ -44,9 +44,9 @@ struct DayCell: View {
           }
         }
       }
-      .frame(height: 6)
+      .frame(height: 10)
     }
-    .frame(height: 50)
+    .frame(height: 60)
     .frame(maxWidth: .infinity)
     .contentShape(Rectangle())
   }
@@ -68,9 +68,9 @@ struct TodoIndicator: View {
   let count: Int
 
   var body: some View {
-    Circle()
+    RoundedRectangle(cornerRadius: 3)
       .fill(Color.statusInProgress)
-      .frame(width: 5, height: 5)
+      .frame(width: 28, height: 4)
   }
 }
 
@@ -78,8 +78,8 @@ struct ExpenseIndicator: View {
   let count: Int
   
   var body: some View {
-    Circle()
+    RoundedRectangle(cornerRadius: 3)
       .fill(Color.orange)
-      .frame(width: 5, height: 5)
+      .frame(width: 28, height: 4)
   }
 }
