@@ -44,6 +44,14 @@ struct CalendarView: View {
   @State private var referenceDate: Date = Date()
   @State private var midnightRefreshTask: Task<Void, Never>?
 
+  private var monthCardHeight: CGFloat {
+    max(UIScreen.main.bounds.height * 0.56, 360)
+  }
+
+  private var gridContentID: Int {
+    (events.count * 1_000_000) + (rootTodos.count * 1_000) + expenses.count
+  }
+
   var body: some View {
     ZStack {
       VStack(spacing: 0) {
@@ -53,6 +61,11 @@ struct CalendarView: View {
           viewMode: $viewMode,
           onPrevious: viewModel.moveToPreviousMonth,
           onNext: viewModel.moveToNextMonth,
+          onExitTimeline: {
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+              viewMode = .grid
+            }
+          },
           onAdd: { showingAddEvent = true },
           onSettings: { showingSettings = true },
           onTitleTap: {
@@ -98,7 +111,7 @@ struct CalendarView: View {
                           }
                         }
                       )
-                      .frame(height: 310)
+                      .frame(height: monthCardHeight)
                       .softCard(cornerRadius: 16, padding: 10, shadow: false)
                       .padding(.horizontal, 20)
                       .id(offset)
@@ -109,6 +122,7 @@ struct CalendarView: View {
                   }
                   .padding(.bottom, 10)
                 }
+                .id(gridContentID)
                 .onAppear {
                   proxy.scrollTo(0, anchor: .top)
                 }
@@ -407,6 +421,7 @@ struct MonthHeaderView: View {
   @Binding var viewMode: CalendarViewMode
   let onPrevious: () -> Void
   let onNext: () -> Void
+  let onExitTimeline: () -> Void
   let onAdd: () -> Void
   let onSettings: () -> Void
   var onTitleTap: (() -> Void)? = nil
@@ -456,22 +471,37 @@ struct MonthHeaderView: View {
       .padding(.horizontal, 20)
 
       HStack {
-        HStack(spacing: 4) {
-          Button(action: onPrevious) {
-            Image(systemName: "chevron.left")
-              .font(.system(size: 12, weight: .semibold))
-              .frame(width: 34, height: 32)
-              .softControl(cornerRadius: 10, padding: 0)
+        if viewMode == .timeline {
+          Button(action: onExitTimeline) {
+            HStack(spacing: 6) {
+              Image(systemName: "arrow.left")
+                .font(.system(size: 12, weight: .bold))
+              Text("Calendar")
+                .font(.system(size: 12, weight: .semibold))
+            }
+            .frame(height: 32)
+            .padding(.horizontal, 10)
+            .softControl(cornerRadius: 10, padding: 0)
           }
           .buttonStyle(.plain)
+        } else {
+          HStack(spacing: 4) {
+            Button(action: onPrevious) {
+              Image(systemName: "chevron.left")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 34, height: 32)
+                .softControl(cornerRadius: 10, padding: 0)
+            }
+            .buttonStyle(.plain)
 
-          Button(action: onNext) {
-            Image(systemName: "chevron.right")
-              .font(.system(size: 12, weight: .semibold))
-              .frame(width: 34, height: 32)
-              .softControl(cornerRadius: 10, padding: 0)
+            Button(action: onNext) {
+              Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 34, height: 32)
+                .softControl(cornerRadius: 10, padding: 0)
+            }
+            .buttonStyle(.plain)
           }
-          .buttonStyle(.plain)
         }
 
         Spacer()

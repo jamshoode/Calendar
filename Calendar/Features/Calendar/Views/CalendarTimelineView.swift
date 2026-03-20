@@ -26,6 +26,23 @@ struct CalendarTimelineView: View {
     events.filter { $0.sourceEvent.isHoliday && $0.occurrenceDate.isSameDay(as: selectedDate) }
   }
 
+  private var firstBusyHour: Int? {
+    let calendar = Calendar.current
+
+    let eventHours = timelineEvents.map { calendar.component(.hour, from: $0.occurrenceDate) }
+    let expenseHours = timelineExpenses.map { calendar.component(.hour, from: $0.date) }
+    let allHours = eventHours + expenseHours
+
+    return allHours.min()
+  }
+
+  private var initialScrollHour: Int {
+    if let firstBusyHour {
+      return max(firstBusyHour - 1, startHour)
+    }
+    return max(Calendar.current.component(.hour, from: Date()) - 1, startHour)
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       WeekStrip(
@@ -92,9 +109,13 @@ struct CalendarTimelineView: View {
               .frame(width: timelineWidth)
             }
             .onAppear {
-              let targetHour = Calendar.current.component(.hour, from: Date())
               withAnimation {
-                proxy.scrollTo(max(targetHour - 1, 0), anchor: .top)
+                proxy.scrollTo(initialScrollHour, anchor: .top)
+              }
+            }
+            .onChange(of: selectedDate) { _, _ in
+              withAnimation(.easeInOut(duration: 0.2)) {
+                proxy.scrollTo(initialScrollHour, anchor: .top)
               }
             }
           }
