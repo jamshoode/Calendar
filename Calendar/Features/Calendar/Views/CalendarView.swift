@@ -5,13 +5,12 @@ import SwiftUI
 // MARK: - View Mode
 
 enum CalendarViewMode: String, CaseIterable {
-  case grid, list, timeline
+  case grid, list
 
   var icon: String {
     switch self {
     case .grid: return "square.grid.2x2"
     case .list: return "list.bullet"
-    case .timeline: return "clock"
     }
   }
 }
@@ -37,6 +36,7 @@ struct CalendarView: View {
   @State private var editingTodo: TodoItem?
   @State private var editingExpense: Expense?
   @State private var detailOccurrence: EventOccurrence?
+  @State private var showingTimeline = false
   @State private var referenceDate: Date = Date()
   @State private var midnightRefreshTask: Task<Void, Never>?
 
@@ -70,78 +70,49 @@ struct CalendarView: View {
                 .padding(.top, 12)
                 .padding(.horizontal, 20)
 
-              MonthView(
-                currentMonth: viewModel.currentMonth,
-                selectedDate: viewModel.selectedDate,
-                events: eventsForMonth,
-                todos: todosForMonth,
-                expenses: expensesForMonth,
-                effectiveTodoDueDate: effectiveCalendarDueDate(for:),
-                onSelectDate: { date in
-                  let selectedMonth = Calendar.current.component(.month, from: date)
-                  let currentMonth = Calendar.current.component(
-                    .month, from: viewModel.currentMonth)
-                  if selectedMonth != currentMonth {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                      viewModel.currentMonth = date
+              ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                  LazyVStack(spacing: 12) {
+                    ForEach(viewModel.monthOffsets, id: \.self) { offset in
+                      let month = viewModel.month(for: offset)
+
+                      MonthView(
+                        currentMonth: month,
+                        selectedDate: viewModel.selectedDate,
+                        events: eventsForMonth(month),
+                        todos: todosForMonth(month),
+                        expenses: expensesForMonth(month),
+                        effectiveTodoDueDate: effectiveCalendarDueDate(for:),
+                        onSelectDate: { date in
+                          viewModel.selectDate(date)
+                          viewModel.recenter(on: date)
+                          showingTimeline = true
+                          if showingDatePicker {
+                            withAnimation { showingDatePicker = false }
+                          }
+                        }
+                      )
+                      .frame(height: 310)
+                      .softCard(cornerRadius: 16, padding: 10, shadow: false)
+                      .padding(.horizontal, 20)
+                      .id(offset)
+                      .onAppear {
+                        viewModel.expandRangeIfNeeded(for: offset)
+                      }
                     }
                   }
-                  viewModel.selectDate(date)
-                  if showingDatePicker {
-                    withAnimation { showingDatePicker = false }
+                  .padding(.bottom, 10)
+                }
+                .onAppear {
+                  proxy.scrollTo(0, anchor: .top)
+                }
+                .onChange(of: viewModel.currentMonth) { _, _ in
+                  withAnimation(.easeInOut(duration: 0.2)) {
+                    proxy.scrollTo(0, anchor: .top)
                   }
                 }
-              )
-              .frame(height: 310)  // 6 rows with tighter spacing
-              .softCard(cornerRadius: 16, padding: 10, shadow: false)
-              .padding(.horizontal, 20)
-
-              Spacer(minLength: 0)
-
-              EventListView(
-                date: viewModel.selectedDate ?? Date(),
-                events: eventsForSelectedDate,
-                todos: todosForSelectedDate,
-                expenses: expensesForSelectedDate,
-                onEdit: { occurrence in detailOccurrence = occurrence },
-                onDelete: { occurrence in
-                  guard !occurrence.sourceEvent.isHoliday else { return }
-                  deleteEvent(occurrence)
-                },
-                onAdd: { showingAddEvent = true },
-                onTodoToggle: { todo in
-                  todoViewModel.toggleCompletion(todo, context: modelContext)
-                },
-                onTodoTap: { todo in editingTodo = todo },
-                onExpenseTap: { expense in editingExpense = expense },
-                showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
-                  || !Calendar.current.isDate(
-                    viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
-                onJumpToToday: {
-                  withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    let today = Date()
-                    viewModel.selectDate(today)
-                    viewModel.currentMonth = today
-                  }
-                }
-              )
+              }
             }
-            .gesture(
-              DragGesture(minimumDistance: 50, coordinateSpace: .local)
-                .onEnded { value in
-                  let horizontal = value.translation.width
-                  let vertical = value.translation.height
-                  // Only trigger if horizontal swipe is dominant
-                  guard abs(horizontal) > abs(vertical) else { return }
-                  withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    if horizontal < 0 {
-                      viewModel.moveToNextMonth()
-                    } else {
-                      viewModel.moveToPreviousMonth()
-                    }
-                  }
-                }
-            )
 
           case .list:
             CalendarListView(
@@ -152,19 +123,6 @@ struct CalendarView: View {
               effectiveTodoDueDate: effectiveCalendarDueDate(for:),
               onEventTap: { occurrence in detailOccurrence = occurrence },
               onDateSelect: { date in viewModel.selectDate(date) }
-            )
-
-          case .timeline:
-            CalendarTimelineView(
-              selectedDate: Binding(
-                get: { viewModel.selectedDate ?? Date() },
-                set: { viewModel.selectedDate = $0 }
-              ),
-              events: eventsForSelectedDate,
-              expenses: expensesForSelectedDate,
-              onEventTap: { occurrence in detailOccurrence = occurrence },
-              onDateSelect: { date in viewModel.selectDate(date) },
-              currentMonth: viewModel.currentMonth
             )
           }
         }
@@ -204,6 +162,25 @@ struct CalendarView: View {
     }
     .sheet(isPresented: $showingSettings) {
       SettingsSheet(isPresented: $showingSettings)
+    }
+    .sheet(isPresented: $showingTimeline) {
+      CalendarTimelineView(
+        selectedDate: Binding(
+          get: { viewModel.selectedDate ?? Date() },
+          set: {
+            viewModel.selectDate($0)
+            viewModel.recenter(on: $0)
+          }
+        ),
+        events: eventsForSelectedDate,
+        expenses: expensesForSelectedDate,
+        onEventTap: { occurrence in detailOccurrence = occurrence },
+        onDateSelect: { date in
+          viewModel.selectDate(date)
+          viewModel.recenter(on: date)
+        },
+        currentMonth: viewModel.currentMonth
+      )
     }
     .sheet(item: $editingEventOccurrence) { occurrence in
       AddEventView(
@@ -271,8 +248,12 @@ struct CalendarView: View {
   }
 
   private var eventsForMonth: [EventOccurrence] {
-    let startOfMonth = viewModel.currentMonth.startOfMonth
-    let endOfMonth = viewModel.currentMonth.endOfMonth
+    eventsForMonth(viewModel.currentMonth)
+  }
+
+  private func eventsForMonth(_ month: Date) -> [EventOccurrence] {
+    let startOfMonth = month.startOfMonth
+    let endOfMonth = month.endOfMonth
     return EventRecurrenceService.shared.occurrences(
       for: events,
       in: DateInterval(start: startOfMonth, end: endOfMonth)
@@ -280,8 +261,12 @@ struct CalendarView: View {
   }
 
   private var todosForMonth: [TodoItem] {
-    let startOfMonth = viewModel.currentMonth.startOfMonth
-    let endOfMonth = viewModel.currentMonth.endOfMonth
+    todosForMonth(viewModel.currentMonth)
+  }
+
+  private func todosForMonth(_ month: Date) -> [TodoItem] {
+    let startOfMonth = month.startOfMonth
+    let endOfMonth = month.endOfMonth
     return rootTodos.filter { todo in
       let dueDate = effectiveCalendarDueDate(for: todo)
       return dueDate >= startOfMonth && dueDate <= endOfMonth
@@ -301,8 +286,12 @@ struct CalendarView: View {
   }
 
   private var expensesForMonth: [Expense] {
-    let startOfMonth = viewModel.currentMonth.startOfMonth
-    let endOfMonth = viewModel.currentMonth.endOfMonth
+    expensesForMonth(viewModel.currentMonth)
+  }
+
+  private func expensesForMonth(_ month: Date) -> [Expense] {
+    let startOfMonth = month.startOfMonth
+    let endOfMonth = month.endOfMonth
     let recurringTemplateIds = Set(expenseTemplates.map { $0.id })
 
     return expenses.filter {
