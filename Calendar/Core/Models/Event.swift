@@ -18,6 +18,7 @@ class Event: Identifiable {
   // Holiday support
   var isHoliday: Bool = false
   var holidayId: String?
+  var isAllDay: Bool = false
 
   // Google Calendar sync metadata
   var externalId: String?
@@ -41,7 +42,8 @@ class Event: Identifiable {
     recurrenceInterval: Int = 1,
     recurrenceEndDate: Date? = nil,
     isHoliday: Bool = false,
-    holidayId: String? = nil
+    holidayId: String? = nil,
+    isAllDay: Bool = false
   ) {
     self.id = UUID()
     self.date = date
@@ -55,6 +57,7 @@ class Event: Identifiable {
     self.createdAt = Date()
     self.isHoliday = isHoliday
     self.holidayId = holidayId
+    self.isAllDay = isAllDay
     self.externalId = nil
     self.externalCalendarId = nil
     self.externalUpdatedAt = nil

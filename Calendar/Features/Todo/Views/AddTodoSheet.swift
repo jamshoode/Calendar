@@ -134,7 +134,8 @@ struct AddTodoSheet: View {
                   Divider()
                   DatePicker(
                     Localization.string(.dueDate), selection: $dueDate,
-                    displayedComponents: [.date, .hourAndMinute])
+                    displayedComponents: [.date]
+                  )
 
                   Divider()
                   Toggle(Localization.string(.reminder), isOn: $reminderEnabled)

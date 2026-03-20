@@ -34,9 +34,7 @@ struct EventDetailPopover: View {
             }
 
             Text(
-              date.formatted(
-                .dateTime.weekday(.wide).day().month(.wide).hour().minute()
-                  .locale(Localization.locale))
+              eventDateLabel
             )
             .font(Typography.caption)
             .foregroundColor(Color.textSecondary)
@@ -145,5 +143,16 @@ struct EventDetailPopover: View {
     let hours = minutes / 60
     if hours < 24 { return Localization.string(.hoursBefore(hours)) }
     return Localization.string(.daysBefore(hours / 24))
+  }
+
+  private var eventDateLabel: String {
+    if event.isAllDay {
+      let day = date.formatted(
+        .dateTime.weekday(.wide).day().month(.wide).locale(Localization.locale))
+      return "\(day) - \(Localization.string(.allDay))"
+    }
+    return date.formatted(
+      .dateTime.weekday(.wide).day().month(.wide).hour().minute()
+        .locale(Localization.locale))
   }
 }

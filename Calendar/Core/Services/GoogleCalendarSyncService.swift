@@ -283,9 +283,11 @@ final class GoogleCalendarSyncService {
       return .ignored
     }
 
-    guard let title = dto.summary, let date = Self.parseEventStart(dto.start) else {
+    guard let title = dto.summary, let parsedStart = Self.parseEventStart(dto.start) else {
       return .ignored
     }
+    let date = parsedStart.date
+    let isHoliday = Self.isGoogleHolidayCalendarId(calendarId)
 
     let updatedAt = Self.parseUpdatedAt(dto.updated)
 
@@ -296,6 +298,8 @@ final class GoogleCalendarSyncService {
         existing.title = title
         existing.notes = dto.description
         existing.date = date
+        existing.isAllDay = parsedStart.isAllDay
+        existing.isHoliday = isHoliday
         existing.externalUpdatedAt = updatedAt
         existing.syncOrigin = "google"
         return .updated
@@ -307,7 +311,9 @@ final class GoogleCalendarSyncService {
       date: date,
       title: title,
       notes: dto.description,
-      color: "blue"
+      color: "blue",
+      isHoliday: isHoliday,
+      isAllDay: parsedStart.isAllDay
     )
     event.externalId = eventId
     event.externalCalendarId = calendarId
@@ -530,28 +536,55 @@ final class GoogleCalendarSyncService {
   }
 
   private func makeUpsertRequest(from event: Event) -> GoogleEventUpsertRequest {
-    let startDate = event.date
-    let endDate = Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate
+    if event.isAllDay {
+      let calendar = Calendar(identifier: .gregorian)
+      let startOfDay = calendar.startOfDay(for: event.date)
+      let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
 
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+      let formatter = DateFormatter()
+      formatter.calendar = calendar
+      formatter.locale = Locale(identifier: "en_US_POSIX")
+      formatter.timeZone = TimeZone(secondsFromGMT: 0)
+      formatter.dateFormat = "yyyy-MM-dd"
 
-    let timeZone = TimeZone.current.identifier
-
-    return GoogleEventUpsertRequest(
-      summary: event.title,
-      description: event.notes,
-      start: .init(
-        date: nil,
-        dateTime: formatter.string(from: startDate),
-        timeZone: timeZone
-      ),
-      end: .init(
-        date: nil,
-        dateTime: formatter.string(from: endDate),
-        timeZone: timeZone
+      return GoogleEventUpsertRequest(
+        summary: event.title,
+        description: event.notes,
+        start: .init(
+          date: formatter.string(from: startOfDay),
+          dateTime: nil,
+          timeZone: nil
+        ),
+        end: .init(
+          date: formatter.string(from: nextDay),
+          dateTime: nil,
+          timeZone: nil
+        )
       )
-    )
+    } else {
+      let startDate = event.date
+      let endDate = Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate
+
+      let formatter = ISO8601DateFormatter()
+      formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+      let timeZone = TimeZone.current.identifier
+
+      return GoogleEventUpsertRequest(
+        summary: event.title,
+        description: event.notes,
+        start: .init(
+          date: nil,
+          dateTime: formatter.string(from: startDate),
+          timeZone: timeZone
+        ),
+        end: .init(
+          date: nil,
+          dateTime: formatter.string(from: endDate),
+          timeZone: timeZone
+        )
+      )
+    }
   }
 
   private func makeAllDayTodoRequest(from todo: TodoItem, dueDate: Date) -> GoogleEventUpsertRequest
@@ -626,28 +659,43 @@ final class GoogleCalendarSyncService {
     try context.save()
   }
 
-  private static func parseEventStart(_ start: GoogleEventDateTimeDTO?) -> Date? {
+  private struct ParsedEventStart {
+    let date: Date
+    let isAllDay: Bool
+  }
+
+  private static func parseEventStart(_ start: GoogleEventDateTimeDTO?) -> ParsedEventStart? {
     guard let start else { return nil }
 
     if let dateTime = start.dateTime {
       let formatter = ISO8601DateFormatter()
       formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
       if let date = formatter.date(from: dateTime) {
-        return date
+        return ParsedEventStart(date: date, isAllDay: false)
       }
 
       let fallback = ISO8601DateFormatter()
       fallback.formatOptions = [.withInternetDateTime]
-      return fallback.date(from: dateTime)
+      if let date = fallback.date(from: dateTime) {
+        return ParsedEventStart(date: date, isAllDay: false)
+      }
+      return nil
     }
 
     if let date = start.date {
       let formatter = DateFormatter()
       formatter.calendar = Calendar(identifier: .gregorian)
       formatter.locale = Locale(identifier: "en_US_POSIX")
-      formatter.timeZone = TimeZone(secondsFromGMT: 0)
+      if let timezoneId = start.timeZone, let timezone = TimeZone(identifier: timezoneId) {
+        formatter.timeZone = timezone
+      } else {
+        formatter.timeZone = TimeZone.current
+      }
       formatter.dateFormat = "yyyy-MM-dd"
-      return formatter.date(from: date)
+      if let parsedDate = formatter.date(from: date) {
+        return ParsedEventStart(date: parsedDate, isAllDay: true)
+      }
+      return nil
     }
 
     return nil

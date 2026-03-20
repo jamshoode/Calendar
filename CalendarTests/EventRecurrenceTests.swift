@@ -64,6 +64,7 @@ final class EventRecurrenceTests: XCTestCase {
       notes: nil,
       color: "red",
       date: editedDate,
+      isAllDay: false,
       reminderInterval: nil,
       recurrenceType: .weekly,
       recurrenceInterval: 1,

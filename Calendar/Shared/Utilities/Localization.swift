@@ -42,6 +42,7 @@ public struct Localization {
     case noEvents
     case tapToAdd
     case addEvent
+    case allDay
 
     // Add/Edit Event
     case newEvent
@@ -490,6 +491,8 @@ public struct Localization {
       return lang == .ukrainian ? "Натисніть, щоб додати" : "Tap to add"
     case .addEvent:
       return lang == .ukrainian ? "Додати подію" : "Add event"
+    case .allDay:
+      return lang == .ukrainian ? "Цілоденно" : "All day"
 
     // Add/Edit
     case .newEvent:

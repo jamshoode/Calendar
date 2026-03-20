@@ -199,7 +199,11 @@ struct CompactEventRow: View {
       Circle().fill(Color.eventColor(named: event.sourceEvent.color)).frame(width: 8, height: 8)
       Text(event.sourceEvent.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.textPrimary).lineLimit(1)
       Spacer()
-      Text(event.occurrenceDate.formatted(date: .omitted, time: .shortened)).font(Typography.caption).foregroundColor(Color.textSecondary)
+      Text(
+        event.sourceEvent.isAllDay
+          ? Localization.string(.allDay)
+          : event.occurrenceDate.formatted(date: .omitted, time: .shortened)
+      ).font(Typography.caption).foregroundColor(Color.textSecondary)
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 8)
@@ -311,7 +315,11 @@ struct EventRow: View {
       RoundedRectangle(cornerRadius: 2).fill(Color.eventColor(named: event.sourceEvent.color)).frame(width: 4, height: 32)
       VStack(alignment: .leading, spacing: 2) {
           Text(event.sourceEvent.title).font(Typography.body).fontWeight(.bold)
-          Text(event.occurrenceDate.formatted(date: .omitted, time: .shortened)).font(Typography.caption).foregroundColor(.textSecondary)
+          Text(
+            event.sourceEvent.isAllDay
+              ? Localization.string(.allDay)
+              : event.occurrenceDate.formatted(date: .omitted, time: .shortened)
+          ).font(Typography.caption).foregroundColor(.textSecondary)
       }
       Spacer()
     }

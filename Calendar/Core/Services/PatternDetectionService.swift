@@ -1173,6 +1173,7 @@ private struct EventDTO: Codable, BackupDTO {
   let recurrenceEndDate: Date?
   let isHoliday: Bool
   let holidayId: String?
+  let isAllDay: Bool?
 
   init(_ event: Event) {
     id = event.id
@@ -1187,6 +1188,7 @@ private struct EventDTO: Codable, BackupDTO {
     recurrenceEndDate = event.recurrenceEndDate
     isHoliday = event.isHoliday
     holidayId = event.holidayId
+    isAllDay = event.isAllDay
   }
 
   func toModel() -> Event {
@@ -1200,7 +1202,8 @@ private struct EventDTO: Codable, BackupDTO {
       recurrenceInterval: recurrenceInterval ?? 1,
       recurrenceEndDate: recurrenceEndDate,
       isHoliday: isHoliday,
-      holidayId: holidayId
+      holidayId: holidayId,
+      isAllDay: isAllDay ?? false
     )
     model.id = id
     model.createdAt = createdAt

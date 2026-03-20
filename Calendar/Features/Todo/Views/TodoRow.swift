@@ -73,7 +73,7 @@ struct TodoRow: View {
               HStack(spacing: 4) {
                 Image(systemName: "calendar")
                   .font(.system(size: 10))
-                Text(dueDate.formatted(date: .abbreviated, time: .shortened))
+                Text(dueDate.formatted(date: .abbreviated, time: .omitted))
                   .font(Typography.caption)
               }
               .foregroundColor(dueDateColor(dueDate))

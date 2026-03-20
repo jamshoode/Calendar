@@ -108,6 +108,53 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     XCTAssertNotNil(states.first?.lastFullSyncAt)
   }
 
+  func testFullSyncMarksDateOnlyHolidayEventsAsAllDay() async throws {
+    try configureConnection(selectedCalendarIds: ["en.usa#holiday@group.v.calendar.google.com"])
+
+    IntegrationURLProtocolStub.responses = [
+      .init(
+        statusCode: 200,
+        body: Self.jsonData(
+          """
+          {
+            "items": [
+              {
+                "id": "evt_holiday",
+                "status": "confirmed",
+                "summary": "Independence Day",
+                "description": "US holiday",
+                "start": { "date": "2026-07-04" },
+                "updated": "2026-07-03T08:00:00Z"
+              }
+            ],
+            "nextSyncToken": "sync_holiday"
+          }
+          """
+        )
+      )
+    ]
+
+    let service = makeService()
+    _ = try await service.fullSyncSelectedCalendars(context: context)
+
+    let imported = try XCTUnwrap(
+      try context.fetch(
+        FetchDescriptor<Event>(
+          predicate: #Predicate {
+            $0.externalId == "evt_holiday"
+              && $0.externalCalendarId == "en.usa#holiday@group.v.calendar.google.com"
+          }
+        )
+      ).first
+    )
+
+    XCTAssertTrue(imported.isHoliday)
+    XCTAssertTrue(imported.isAllDay)
+    XCTAssertEqual(Calendar.current.component(.hour, from: imported.date), 0)
+    XCTAssertEqual(Calendar.current.component(.minute, from: imported.date), 0)
+    XCTAssertEqual(Calendar.current.component(.day, from: imported.date), 4)
+  }
+
   func testIncrementalSyncAppliesImportUpdateAndDelete() async throws {
     try configureConnection(selectedCalendarIds: ["cal_1"])
 

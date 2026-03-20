@@ -5,6 +5,7 @@ import SwiftUI
 struct CalendarTimelineView: View {
   @Binding var selectedDate: Date
   let events: [EventOccurrence]
+  let todos: [TodoItem]
   let expenses: [Expense]
   let onEventTap: (EventOccurrence) -> Void
   let onDateSelect: (Date) -> Void
@@ -15,15 +16,38 @@ struct CalendarTimelineView: View {
   private let hourHeight: CGFloat = 56
 
   private var timelineEvents: [EventOccurrence] {
-    events.filter { !$0.sourceEvent.isHoliday && $0.occurrenceDate.isSameDay(as: selectedDate) }
+    events
+      .filter { !isAllDayOccurrence($0) && $0.occurrenceDate.isSameDay(as: selectedDate) }
+      .sorted { $0.occurrenceDate < $1.occurrenceDate }
   }
 
   private var timelineExpenses: [Expense] {
-    expenses.filter { $0.date.isSameDay(as: selectedDate) }
+    expenses
+      .filter { $0.date.isSameDay(as: selectedDate) }
+      .sorted { $0.date < $1.date }
   }
 
   private var allDayEvents: [EventOccurrence] {
-    events.filter { $0.sourceEvent.isHoliday && $0.occurrenceDate.isSameDay(as: selectedDate) }
+    events
+      .filter { isAllDayOccurrence($0) && $0.occurrenceDate.isSameDay(as: selectedDate) }
+      .sorted {
+        if $0.occurrenceDate != $1.occurrenceDate {
+          return $0.occurrenceDate < $1.occurrenceDate
+        }
+        return $0.sourceEvent.title.localizedCaseInsensitiveCompare($1.sourceEvent.title)
+          == .orderedAscending
+      }
+  }
+
+  private var allDayTodos: [TodoItem] {
+    todos
+      .filter { !$0.isCompleted && ($0.dueDate?.isSameDay(as: selectedDate) ?? false) }
+      .sorted {
+        let lhsDue = $0.dueDate ?? .distantFuture
+        let rhsDue = $1.dueDate ?? .distantFuture
+        if lhsDue != rhsDue { return lhsDue < rhsDue }
+        return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+      }
   }
 
   private var firstBusyHour: Int? {
@@ -56,97 +80,64 @@ struct CalendarTimelineView: View {
 
       Divider()
 
+      if !allDayEvents.isEmpty || !allDayTodos.isEmpty {
+        AllDayEventsRow(events: allDayEvents, todos: allDayTodos, onEventTap: onEventTap)
+        Divider()
+      }
+
       // Hourly timeline
-      GeometryReader { geometry in
-        let totalWidth = geometry.size.width
-        let holidayWidth = totalWidth * 0.175
-        let timelineWidth = totalWidth - holidayWidth
+      ScrollViewReader { proxy in
+        ScrollView(showsIndicators: false) {
+          ZStack(alignment: .topLeading) {
+            // Hour grid
+            VStack(spacing: 0) {
+              ForEach(startHour..<endHour, id: \.self) { hour in
+                HStack(alignment: .top, spacing: 8) {
+                  Text(hourLabel(hour))
+                    .font(.system(size: 11, weight: .regular, design: .monospaced))
+                    .foregroundColor(Color.textTertiary)
+                    .frame(width: 44, alignment: .trailing)
 
-        HStack(spacing: 0) {
-          ScrollViewReader { proxy in
-            ScrollView(showsIndicators: false) {
-              // Column 1: Timeline Section
-              ZStack(alignment: .topLeading) {
-                // Hour grid
-                VStack(spacing: 0) {
-                  ForEach(startHour..<endHour, id: \.self) { hour in
-                    HStack(alignment: .top, spacing: 8) {
-                      Text(hourLabel(hour))
-                        .font(.system(size: 11, weight: .regular, design: .monospaced))
-                        .foregroundColor(Color.textTertiary)
-                        .frame(width: 44, alignment: .trailing)
-
-                      VStack(spacing: 0) {
-                        Divider()
-                        Spacer()
-                      }
-                    }
-                    .frame(height: hourHeight)
-                    .id(hour)
+                  VStack(spacing: 0) {
+                    Divider()
+                    Spacer()
                   }
                 }
-
-                // Event blocks
-                ForEach(timelineEvents) { event in
-                  TimelineEventBlock(
-                    event: event,
-                    hourHeight: hourHeight,
-                    startHour: startHour
-                  )
-                  .onTapGesture { onEventTap(event) }
-                }
-
-                // Expense blocks
-                ForEach(timelineExpenses) { expense in
-                  TimelineExpenseBlock(
-                    expense: expense,
-                    hourHeight: hourHeight,
-                    startHour: startHour
-                  )
-                }
-              }
-              .frame(width: timelineWidth)
-            }
-            .onAppear {
-              withAnimation {
-                proxy.scrollTo(initialScrollHour, anchor: .top)
+                .frame(height: hourHeight)
+                .id(hour)
               }
             }
-            .onChange(of: selectedDate) { _, _ in
-              withAnimation(.easeInOut(duration: 0.2)) {
-                proxy.scrollTo(initialScrollHour, anchor: .top)
-              }
+
+            // Event blocks
+            ForEach(timelineEvents) { event in
+              TimelineEventBlock(
+                event: event,
+                hourHeight: hourHeight,
+                startHour: startHour
+              )
+              .onTapGesture { onEventTap(event) }
+            }
+
+            // Expense blocks
+            ForEach(timelineExpenses) { expense in
+              TimelineExpenseBlock(
+                expense: expense,
+                hourHeight: hourHeight,
+                startHour: startHour
+              )
             }
           }
-
-          // Column 3: Holidays Section (Sticky)
-          VStack(spacing: 0) {
-            let dayHolidays = allDayEvents
-
-            if !dayHolidays.isEmpty {
-              VStack(spacing: 12) {
-                Spacer()
-                ForEach(dayHolidays) { holiday in
-                  Text(holiday.sourceEvent.title)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 10)
-                    .background(Color.eventTeal)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .rotationEffect(.degrees(-90))
-                    .fixedSize()
-                }
-                Spacer()
-              }
-              .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-              Spacer()
-            }
+          .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .onAppear {
+          withAnimation {
+            proxy.scrollTo(initialScrollHour, anchor: .top)
           }
-          .frame(width: holidayWidth)
-          .background(Color.backgroundTertiary.opacity(0.2))
+        }
+        .onChange(of: selectedDate) { _, _ in
+          withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(initialScrollHour, anchor: .top)
+          }
         }
       }
       .gesture(
@@ -184,6 +175,111 @@ struct CalendarTimelineView: View {
     let date = Calendar.current.date(from: components) ?? Date()
     formatter.locale = Locale.current
     return formatter.string(from: date)
+  }
+
+  private func isAllDayOccurrence(_ occurrence: EventOccurrence) -> Bool {
+    let source = occurrence.sourceEvent
+    if source.isAllDay || source.isHoliday {
+      return true
+    }
+    guard let externalCalendarId = source.externalCalendarId else {
+      return false
+    }
+    return GoogleCalendarSyncService.isGoogleHolidayCalendarId(externalCalendarId)
+  }
+}
+
+private struct AllDayEventsRow: View {
+  let events: [EventOccurrence]
+  let todos: [TodoItem]
+  let onEventTap: (EventOccurrence) -> Void
+
+  var body: some View {
+    HStack(alignment: .top, spacing: 4) {
+      Text(Localization.string(.allDay))
+        .font(.system(size: 10, weight: .semibold))
+        .foregroundColor(Color.textTertiary)
+        .frame(width: 56, alignment: .trailing)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+        .padding(.top, 10)
+
+      VStack(alignment: .leading, spacing: 6) {
+        ForEach(events) { event in
+          AllDayEventPill(event: event)
+            .onTapGesture { onEventTap(event) }
+        }
+
+        ForEach(todos) { todo in
+          AllDayTodoPill(todo: todo)
+        }
+      }
+      .padding(.vertical, 8)
+
+      Spacer(minLength: 0)
+    }
+    .padding(.horizontal, 8)
+    .background(Color.backgroundTertiary.opacity(0.2))
+  }
+}
+
+private struct AllDayTodoPill: View {
+  let todo: TodoItem
+
+  private var priorityColor: Color {
+    switch todo.priorityEnum {
+    case .high: return .priorityHigh
+    case .medium: return .priorityMedium
+    case .low: return .priorityLow
+    }
+  }
+
+  var body: some View {
+    HStack(spacing: 8) {
+      Image(systemName: "checklist")
+        .font(.system(size: 11, weight: .semibold))
+        .foregroundColor(priorityColor)
+
+      Text(todo.title)
+        .font(.system(size: 12, weight: .semibold))
+        .foregroundColor(Color.textPrimary)
+        .lineLimit(1)
+
+      Spacer(minLength: 0)
+    }
+    .padding(.horizontal, 10)
+    .padding(.vertical, 6)
+    .background(priorityColor.opacity(0.12))
+    .clipShape(RoundedRectangle(cornerRadius: 8))
+  }
+}
+
+private struct AllDayEventPill: View {
+  let event: EventOccurrence
+
+  var body: some View {
+    HStack(spacing: 8) {
+      Circle()
+        .fill(Color.eventColor(named: event.sourceEvent.color))
+        .frame(width: 7, height: 7)
+
+      Text(event.sourceEvent.title)
+        .font(.system(size: 12, weight: .semibold))
+        .foregroundColor(Color.textPrimary)
+        .lineLimit(1)
+
+      Spacer(minLength: 0)
+
+      if event.sourceEvent.isHoliday {
+        Image(systemName: "star.fill")
+          .font(.system(size: 10, weight: .bold))
+          .foregroundColor(Color.eventTeal)
+      }
+    }
+    .padding(.horizontal, 10)
+    .padding(.vertical, 6)
+    .background(Color.eventColor(named: event.sourceEvent.color).opacity(0.14))
+    .clipShape(RoundedRectangle(cornerRadius: 8))
   }
 }
 
@@ -232,6 +328,7 @@ private struct TimelineEventBlock: View {
     .background(Color.eventColor(named: event.sourceEvent.color).opacity(0.12))
     .clipShape(RoundedRectangle(cornerRadius: 8))
     .padding(.leading, 60)  // After the hour label column
+    .padding(.trailing, 12)
     .offset(y: topOffset)
   }
 }
@@ -279,6 +376,7 @@ private struct TimelineExpenseBlock: View {
     .background(Color.orange.opacity(0.12))
     .clipShape(RoundedRectangle(cornerRadius: 8))
     .padding(.leading, 60)  // After the hour label column
+    .padding(.trailing, 12)
     .offset(y: topOffset)
   }
 }

@@ -147,7 +147,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
       if notifyDate > Date() {
         let content = UNMutableNotificationContent()
         content.title = todo.title
-        content.body = "Due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
+        content.body = "Due on \(dueDate.formatted(date: .abbreviated, time: .omitted))"
         content.sound = .default
 
         let components = Calendar.current.dateComponents(
@@ -186,7 +186,7 @@ class NotificationService: NSObject, UNUserNotificationCenterDelegate {
       let content = UNMutableNotificationContent()
       content.title = todo.title
       content.body =
-        "Reminder \(i)/\(maxNotifications) — due at \(dueDate.formatted(date: .abbreviated, time: .shortened))"
+        "Reminder \(i)/\(maxNotifications) — due on \(dueDate.formatted(date: .abbreviated, time: .omitted))"
       content.sound = .default
 
       let components = Calendar.current.dateComponents(

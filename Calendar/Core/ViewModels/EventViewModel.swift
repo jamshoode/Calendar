@@ -8,7 +8,8 @@ enum EventEditScope {
 
 class EventViewModel {
   func addEvent(
-    date: Date, title: String, notes: String?, color: String, reminderInterval: TimeInterval?,
+    date: Date, title: String, notes: String?, color: String, isAllDay: Bool,
+    reminderInterval: TimeInterval?,
     recurrenceType: RecurrenceType?, recurrenceInterval: Int, recurrenceEndDate: Date?,
     context: ModelContext
   ) {
@@ -20,7 +21,8 @@ class EventViewModel {
       reminderInterval: reminderInterval,
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,
-      recurrenceEndDate: recurrenceEndDate
+      recurrenceEndDate: recurrenceEndDate,
+      isAllDay: isAllDay
     )
     context.insert(event)
     do {
@@ -35,8 +37,8 @@ class EventViewModel {
 
   func updateEvent(
     _ event: Event, title: String, notes: String?, color: String, date: Date,
-    reminderInterval: TimeInterval?, recurrenceType: RecurrenceType?, recurrenceInterval: Int,
-    recurrenceEndDate: Date?,
+    isAllDay: Bool, reminderInterval: TimeInterval?, recurrenceType: RecurrenceType?,
+    recurrenceInterval: Int, recurrenceEndDate: Date?,
     context: ModelContext
   ) {
     event.title = title
@@ -47,6 +49,7 @@ class EventViewModel {
     event.recurrenceTypeEnum = recurrenceType
     event.recurrenceInterval = recurrenceInterval
     event.recurrenceEndDate = recurrenceEndDate
+    event.isAllDay = isAllDay
     do {
       try context.save()
       scheduleGoogleUpsert(for: event, context: context)
@@ -63,6 +66,7 @@ class EventViewModel {
     notes: String?,
     color: String,
     date: Date,
+    isAllDay: Bool,
     reminderInterval: TimeInterval?,
     recurrenceType: RecurrenceType?,
     recurrenceInterval: Int,
@@ -88,7 +92,8 @@ class EventViewModel {
         reminderInterval: reminderInterval,
         recurrenceType: recurrenceType,
         recurrenceInterval: recurrenceInterval,
-        recurrenceEndDate: recurrenceEndDate
+        recurrenceEndDate: recurrenceEndDate,
+        isAllDay: isAllDay
       )
       context.insert(newSeries)
 
@@ -109,6 +114,7 @@ class EventViewModel {
       notes: notes,
       color: color,
       date: date,
+      isAllDay: isAllDay,
       reminderInterval: reminderInterval,
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,

@@ -32,6 +32,7 @@ struct CalendarView: View {
   @Query private var expenseTemplates: [RecurringExpenseTemplate]
   @Environment(\.modelContext) private var modelContext
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.colorScheme) private var colorScheme
 
   @State private var viewMode: CalendarViewMode = .grid
   @State private var showingAddEvent = false
@@ -154,6 +155,7 @@ struct CalendarView: View {
                 }
               ),
               events: eventsForSelectedDate,
+              todos: dueTodosForSelectedDate,
               expenses: expensesForSelectedDate,
               onEventTap: { occurrence in detailOccurrence = occurrence },
               onDateSelect: { date in
@@ -181,16 +183,34 @@ struct CalendarView: View {
     }
     .safeAreaPadding(.top, 4)
     .safeAreaPadding(.bottom, 8)
+    .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 0) {
+      if shouldShowJumpToTodayButton {
+        Button(action: jumpToToday) {
+          Label(Localization.string(.today), systemImage: "arrow.uturn.backward.circle.fill")
+            .font(.system(size: 13, weight: .bold))
+            .foregroundColor(accentForeground)
+            .padding(.horizontal, 14)
+            .frame(height: 44)
+            .background(Color.appAccent)
+            .clipShape(Capsule())
+            .shadow(color: Color.appAccent.opacity(0.25), radius: 10, x: 0, y: 5)
+        }
+        .buttonStyle(.plain)
+        .padding(.trailing, 20)
+        .padding(.bottom, 20)
+      }
+    }
     .navigationBarHidden(true)  // We use custom header
     .sheet(isPresented: $showingAddEvent) {
       AddEventView(date: viewModel.selectedDate ?? Date()) {
-        title, notes, color, date, reminderInterval, recurrenceType, recurrenceInterval,
+        title, notes, color, date, isAllDay, reminderInterval, recurrenceType, recurrenceInterval,
         recurrenceEndDate in
         addEvent(
           title: title,
           notes: notes,
           color: color,
           date: date,
+          isAllDay: isAllDay,
           reminderInterval: reminderInterval,
           recurrenceType: recurrenceType,
           recurrenceInterval: recurrenceInterval,
@@ -206,7 +226,7 @@ struct CalendarView: View {
         date: occurrence.occurrenceDate,
         eventOccurrence: occurrence,
         onSave: {
-          title, notes, color, date, reminderInterval, recurrenceType, recurrenceInterval,
+          title, notes, color, date, isAllDay, reminderInterval, recurrenceType, recurrenceInterval,
           recurrenceEndDate in
           eventViewModel.updateEventOccurrence(
             occurrence,
@@ -214,6 +234,7 @@ struct CalendarView: View {
             notes: notes,
             color: color,
             date: date,
+            isAllDay: isAllDay,
             reminderInterval: reminderInterval,
             recurrenceType: recurrenceType,
             recurrenceInterval: recurrenceInterval,
@@ -297,11 +318,19 @@ struct CalendarView: View {
     return EventRecurrenceService.shared.occurrences(for: events, on: dateToCheck)
   }
 
-  private var todosForSelectedDate: [TodoItem] {
+  private var dueTodosForSelectedDate: [TodoItem] {
     let dateToCheck = viewModel.selectedDate ?? Date()
-    return rootTodos.filter { todo in
-      effectiveCalendarDueDate(for: todo).isSameDay(as: dateToCheck)
-    }
+    return rootTodos
+      .filter { todo in
+        guard !todo.isCompleted, let dueDate = todo.dueDate else { return false }
+        return dueDate.isSameDay(as: dateToCheck)
+      }
+      .sorted {
+        let lhsDue = $0.dueDate ?? .distantFuture
+        let rhsDue = $1.dueDate ?? .distantFuture
+        if lhsDue != rhsDue { return lhsDue < rhsDue }
+        return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+      }
   }
 
   private var expensesForMonth: [Expense] {
@@ -336,6 +365,7 @@ struct CalendarView: View {
     notes: String?,
     color: String,
     date: Date,
+    isAllDay: Bool,
     reminderInterval: TimeInterval?,
     recurrenceType: RecurrenceType?,
     recurrenceInterval: Int,
@@ -346,6 +376,7 @@ struct CalendarView: View {
       title: title,
       notes: notes,
       color: color,
+      isAllDay: isAllDay,
       reminderInterval: reminderInterval,
       recurrenceType: recurrenceType,
       recurrenceInterval: recurrenceInterval,
@@ -356,6 +387,28 @@ struct CalendarView: View {
 
   private func deleteEvent(_ occurrence: EventOccurrence) {
     eventViewModel.deleteEventOccurrence(occurrence, scope: .thisAndFuture, context: modelContext)
+  }
+
+  private var shouldShowJumpToTodayButton: Bool {
+    guard !showingDatePicker, detailOccurrence == nil else { return false }
+    return !isCurrentSelectionToday || !viewModel.currentMonth.isSameMonth
+  }
+
+  private var isCurrentSelectionToday: Bool {
+    guard let selectedDate = viewModel.selectedDate else { return false }
+    return selectedDate.isToday
+  }
+
+  private var accentForeground: Color {
+    colorScheme == .dark ? .backgroundPrimary : .white
+  }
+
+  private func jumpToToday() {
+    let today = Date()
+    withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+      viewModel.selectDate(today)
+      viewModel.recenter(on: today)
+    }
   }
 
   private func effectiveCalendarDueDate(for todo: TodoItem) -> Date {

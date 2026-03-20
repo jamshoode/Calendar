@@ -5,13 +5,15 @@ struct AddEventView: View {
 
   let date: Date
   let eventOccurrence: EventOccurrence?
-  let onSave: (String, String?, String, Date, TimeInterval?, RecurrenceType?, Int, Date?) -> Void
+  let onSave: (String, String?, String, Date, Bool, TimeInterval?, RecurrenceType?, Int, Date?) ->
+    Void
   let onDelete: (() -> Void)?
 
   @State private var title: String = ""
   @State private var notes: String = ""
   @State private var selectedColor: String = "blue"
   @State private var selectedDate: Date = Date()
+  @State private var isAllDay: Bool = false
   @State private var reminderSelection: TimeInterval = 0
   @State private var recurrenceType: RecurrenceType?
   @State private var recurrenceInterval: Int = 1
@@ -34,7 +36,9 @@ struct AddEventView: View {
 
   init(
     date: Date, eventOccurrence: EventOccurrence? = nil,
-    onSave: @escaping (String, String?, String, Date, TimeInterval?, RecurrenceType?, Int, Date?) -> Void,
+    onSave: @escaping (
+      String, String?, String, Date, Bool, TimeInterval?, RecurrenceType?, Int, Date?
+    ) -> Void,
     onDelete: (() -> Void)? = nil
   ) {
     self.date = date
@@ -48,6 +52,7 @@ struct AddEventView: View {
       _notes = State(initialValue: event.notes ?? "")
       _selectedColor = State(initialValue: event.color)
       _selectedDate = State(initialValue: occurrence.occurrenceDate)
+      _isAllDay = State(initialValue: event.isAllDay)
       _reminderSelection = State(initialValue: event.reminderInterval ?? 0)
       _recurrenceType = State(initialValue: event.recurrenceTypeEnum)
       _recurrenceInterval = State(initialValue: event.recurrenceInterval ?? 1)
@@ -72,9 +77,17 @@ struct AddEventView: View {
         }
 
         Section(Localization.string(.date)) {
+          Toggle(Localization.string(.allDay), isOn: $isAllDay)
+
           DatePicker(
             Localization.string(.date), selection: $selectedDate,
-            displayedComponents: [.date, .hourAndMinute])
+            displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute]
+          )
+          .onChange(of: isAllDay) { _, newValue in
+            if newValue {
+              selectedDate = selectedDate.startOfDay
+            }
+          }
 
           Picker(Localization.string(.reminder), selection: $reminderSelection) {
             ForEach(reminders, id: \.1) { label, value in
@@ -135,12 +148,14 @@ struct AddEventView: View {
 
         ToolbarItem(placement: .confirmationAction) {
           Button(Localization.string(.save)) {
+            let eventDate = isAllDay ? selectedDate.startOfDay : selectedDate
             let reminder = reminderSelection == 0 ? nil : reminderSelection
             onSave(
               title,
               notes.isEmpty ? nil : notes,
               selectedColor,
-              selectedDate,
+              eventDate,
+              isAllDay,
               reminder,
               recurrenceType,
               recurrenceInterval,

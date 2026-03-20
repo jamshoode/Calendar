@@ -185,7 +185,8 @@ final class HolidayService {
           notes: holiday.description.isEmpty ? nil : holiday.description,
           color: Constants.Holiday.holidayColor,
           isHoliday: true,
-          holidayId: holidayId
+          holidayId: holidayId,
+          isAllDay: true
         )
         context.insert(event)
       }

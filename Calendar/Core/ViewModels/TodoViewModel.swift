@@ -149,11 +149,13 @@ class TodoViewModel: ObservableObject {
     subtasks: [String] = [],
     context: ModelContext
   ) {
+    let normalizedDueDate = normalizeDueDate(dueDate)
+
     let todo = TodoItem(
       title: title,
       notes: notes,
       priority: priority,
-      dueDate: dueDate,
+      dueDate: normalizedDueDate,
       reminderInterval: reminderInterval,
       reminderRepeatInterval: reminderRepeatInterval,
       reminderRepeatCount: reminderRepeatCount,
@@ -190,7 +192,7 @@ class TodoViewModel: ObservableObject {
       scheduleGoogleTodoUpsert(todo, context: context)
     }
 
-    if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
+    if normalizedDueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
 
@@ -215,10 +217,12 @@ class TodoViewModel: ObservableObject {
     subtasks: [String],
     context: ModelContext
   ) {
+    let normalizedDueDate = normalizeDueDate(dueDate)
+
     todo.title = title
     todo.notes = notes
     todo.priorityEnum = priority
-    todo.dueDate = dueDate
+    todo.dueDate = normalizedDueDate
     todo.reminderInterval = reminderInterval
     todo.reminderRepeatInterval = reminderRepeatInterval
     todo.reminderRepeatCount = reminderRepeatCount
@@ -243,7 +247,7 @@ class TodoViewModel: ObservableObject {
     }
 
     NotificationService.shared.cancelTodoNotification(id: todo.id)
-    if dueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
+    if normalizedDueDate != nil && (reminderInterval != nil || reminderRepeatInterval != nil) {
       NotificationService.shared.scheduleTodoNotification(todo: todo)
     }
 
@@ -430,7 +434,7 @@ class TodoViewModel: ObservableObject {
       title: todo.title,
       notes: todo.notes,
       priority: todo.priorityEnum,
-      dueDate: nextDue,
+      dueDate: normalizeDueDate(nextDue),
       reminderInterval: todo.reminderInterval,
       reminderRepeatInterval: todo.reminderRepeatInterval,
       reminderRepeatCount: todo.reminderRepeatCount,
@@ -461,6 +465,10 @@ class TodoViewModel: ObservableObject {
     if newTodo.reminderInterval != nil || newTodo.reminderRepeatInterval != nil {
       NotificationService.shared.scheduleTodoNotification(todo: newTodo)
     }
+  }
+
+  private func normalizeDueDate(_ dueDate: Date?) -> Date? {
+    dueDate?.endOfDay
   }
 
   private func persistAndSync(context: ModelContext) {

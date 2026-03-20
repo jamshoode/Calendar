@@ -149,7 +149,11 @@ private struct CalendarListEventCard: View {
           }
         }
 
-        Text(event.occurrenceDate.formatted(date: .omitted, time: .shortened))
+        Text(
+          event.sourceEvent.isAllDay
+            ? Localization.string(.allDay)
+            : event.occurrenceDate.formatted(date: .omitted, time: .shortened)
+        )
           .font(Typography.caption)
           .foregroundColor(Color.textSecondary)
 
