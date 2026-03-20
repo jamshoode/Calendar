@@ -22,5 +22,18 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>GIDClientID</key>
+	<string>73913025530-fpuvu920fvve28da7750g5ostpdl2a15.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.73913025530-fpuvu920fvve28da7750g5ostpdl2a15</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -11,24 +11,26 @@ struct DayCell: View {
   var expenses: [Expense] = []
 
   var body: some View {
-    VStack(spacing: 4) {
+    VStack(spacing: 6) {
       ZStack {
-          if isCurrentMonth {
-              if isSelected {
-                  Circle()
-                      .fill(Color.appAccent)
-                      .frame(width: 36, height: 36)
-                      .transition(.scale.combined(with: .opacity))
-              } else if isToday {
-                  Circle()
-                      .strokeBorder(Color.appAccent, lineWidth: 2)
-                      .frame(width: 36, height: 36)
-              }
+        if isCurrentMonth {
+          if isSelected {
+            Circle()
+              .fill(Color.appAccent)
+              .frame(width: 36, height: 36)
+              .transition(.scale.combined(with: .opacity))
+          } else if isToday {
+            Circle()
+              .strokeBorder(Color.appAccent, lineWidth: 2)
+              .frame(width: 36, height: 36)
           }
-          
-          Text(date.formattedDay)
-            .font(.system(size: 16, weight: isCurrentMonth && (isToday || isSelected) ? .bold : .medium))
-            .foregroundColor(textColor)
+        }
+
+        Text(date.formattedDay)
+          .font(
+            .system(size: 16, weight: isCurrentMonth && (isToday || isSelected) ? .bold : .medium)
+          )
+          .foregroundColor(textColor)
       }
 
       HStack(spacing: 3) {
@@ -44,9 +46,9 @@ struct DayCell: View {
           }
         }
       }
-      .frame(height: 6)
+      .frame(height: 10)
     }
-    .frame(height: 50)
+    .frame(height: 60)
     .frame(maxWidth: .infinity)
     .contentShape(Rectangle())
   }
@@ -68,18 +70,18 @@ struct TodoIndicator: View {
   let count: Int
 
   var body: some View {
-    Circle()
+    RoundedRectangle(cornerRadius: 3)
       .fill(Color.statusInProgress)
-      .frame(width: 5, height: 5)
+      .frame(width: 28, height: 4)
   }
 }
 
 struct ExpenseIndicator: View {
   let count: Int
-  
+
   var body: some View {
-    Circle()
+    RoundedRectangle(cornerRadius: 3)
       .fill(Color.orange)
-      .frame(width: 5, height: 5)
+      .frame(width: 28, height: 4)
   }
 }

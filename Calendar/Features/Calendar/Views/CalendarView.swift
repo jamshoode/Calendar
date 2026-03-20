@@ -7,6 +7,10 @@ import SwiftUI
 enum CalendarViewMode: String, CaseIterable {
   case grid, list, timeline
 
+  static var selectableCases: [CalendarViewMode] {
+    [.grid, .list]
+  }
+
   var icon: String {
     switch self {
     case .grid: return "square.grid.2x2"
@@ -40,6 +44,10 @@ struct CalendarView: View {
   @State private var referenceDate: Date = Date()
   @State private var midnightRefreshTask: Task<Void, Never>?
 
+  private var monthCardHeight: CGFloat {
+    max(UIScreen.main.bounds.height * 0.56, 360)
+  }
+
   var body: some View {
     ZStack {
       VStack(spacing: 0) {
@@ -49,6 +57,15 @@ struct CalendarView: View {
           viewMode: $viewMode,
           onPrevious: viewModel.moveToPreviousMonth,
           onNext: viewModel.moveToNextMonth,
+          onExitTimeline: {
+            showingDatePicker = false
+            if let selectedDate = viewModel.selectedDate {
+              viewModel.recenter(on: selectedDate)
+            }
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+              viewMode = .grid
+            }
+          },
           onAdd: { showingAddEvent = true },
           onSettings: { showingSettings = true },
           onTitleTap: {
@@ -70,78 +87,51 @@ struct CalendarView: View {
                 .padding(.top, 12)
                 .padding(.horizontal, 20)
 
-              MonthView(
-                currentMonth: viewModel.currentMonth,
-                selectedDate: viewModel.selectedDate,
-                events: eventsForMonth,
-                todos: todosForMonth,
-                expenses: expensesForMonth,
-                effectiveTodoDueDate: effectiveCalendarDueDate(for:),
-                onSelectDate: { date in
-                  let selectedMonth = Calendar.current.component(.month, from: date)
-                  let currentMonth = Calendar.current.component(
-                    .month, from: viewModel.currentMonth)
-                  if selectedMonth != currentMonth {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                      viewModel.currentMonth = date
+              ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                  LazyVStack(spacing: 12) {
+                    ForEach(viewModel.monthOffsets, id: \.self) { offset in
+                      let month = viewModel.month(for: offset)
+
+                      MonthView(
+                        currentMonth: month,
+                        selectedDate: viewModel.selectedDate,
+                        events: eventsForMonth(month),
+                        todos: todosForMonth(month),
+                        expenses: expensesForMonth(month),
+                        effectiveTodoDueDate: effectiveCalendarDueDate(for:),
+                        onSelectDate: { date in
+                          viewModel.selectDate(date)
+                          viewModel.recenter(on: date)
+                          withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+                            viewMode = .timeline
+                          }
+                          if showingDatePicker {
+                            withAnimation { showingDatePicker = false }
+                          }
+                        }
+                      )
+                      .frame(height: monthCardHeight)
+                      .padding(.horizontal, 10)
+                      .id(offset)
                     }
                   }
-                  viewModel.selectDate(date)
-                  if showingDatePicker {
-                    withAnimation { showingDatePicker = false }
+                  .padding(.bottom, 10)
+                }
+                .onAppear {
+                  DispatchQueue.main.async {
+                    proxy.scrollTo(0, anchor: .top)
                   }
                 }
-              )
-              .frame(height: 310)  // 6 rows with tighter spacing
-              .softCard(cornerRadius: 16, padding: 10, shadow: false)
-              .padding(.horizontal, 20)
-
-              Spacer(minLength: 0)
-
-              EventListView(
-                date: viewModel.selectedDate ?? Date(),
-                events: eventsForSelectedDate,
-                todos: todosForSelectedDate,
-                expenses: expensesForSelectedDate,
-                onEdit: { occurrence in detailOccurrence = occurrence },
-                onDelete: { occurrence in
-                  guard !occurrence.sourceEvent.isHoliday else { return }
-                  deleteEvent(occurrence)
-                },
-                onAdd: { showingAddEvent = true },
-                onTodoToggle: { todo in
-                  todoViewModel.toggleCompletion(todo, context: modelContext)
-                },
-                onTodoTap: { todo in editingTodo = todo },
-                onExpenseTap: { expense in editingExpense = expense },
-                showJumpToToday: !Calendar.current.isDateInToday(viewModel.selectedDate ?? Date())
-                  || !Calendar.current.isDate(
-                    viewModel.currentMonth, equalTo: Date(), toGranularity: .month),
-                onJumpToToday: {
-                  withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    let today = Date()
-                    viewModel.selectDate(today)
-                    viewModel.currentMonth = today
+                .onChange(of: viewModel.currentMonth) { _, _ in
+                  DispatchQueue.main.async {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                      proxy.scrollTo(0, anchor: .top)
+                    }
                   }
                 }
-              )
+              }
             }
-            .gesture(
-              DragGesture(minimumDistance: 50, coordinateSpace: .local)
-                .onEnded { value in
-                  let horizontal = value.translation.width
-                  let vertical = value.translation.height
-                  // Only trigger if horizontal swipe is dominant
-                  guard abs(horizontal) > abs(vertical) else { return }
-                  withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    if horizontal < 0 {
-                      viewModel.moveToNextMonth()
-                    } else {
-                      viewModel.moveToPreviousMonth()
-                    }
-                  }
-                }
-            )
 
           case .list:
             CalendarListView(
@@ -158,12 +148,18 @@ struct CalendarView: View {
             CalendarTimelineView(
               selectedDate: Binding(
                 get: { viewModel.selectedDate ?? Date() },
-                set: { viewModel.selectedDate = $0 }
+                set: {
+                  viewModel.selectDate($0)
+                  viewModel.recenter(on: $0)
+                }
               ),
               events: eventsForSelectedDate,
               expenses: expensesForSelectedDate,
               onEventTap: { occurrence in detailOccurrence = occurrence },
-              onDateSelect: { date in viewModel.selectDate(date) },
+              onDateSelect: { date in
+                viewModel.selectDate(date)
+                viewModel.recenter(on: date)
+              },
               currentMonth: viewModel.currentMonth
             )
           }
@@ -271,8 +267,12 @@ struct CalendarView: View {
   }
 
   private var eventsForMonth: [EventOccurrence] {
-    let startOfMonth = viewModel.currentMonth.startOfMonth
-    let endOfMonth = viewModel.currentMonth.endOfMonth
+    eventsForMonth(viewModel.currentMonth)
+  }
+
+  private func eventsForMonth(_ month: Date) -> [EventOccurrence] {
+    let startOfMonth = month.startOfMonth
+    let endOfMonth = month.endOfMonth
     return EventRecurrenceService.shared.occurrences(
       for: events,
       in: DateInterval(start: startOfMonth, end: endOfMonth)
@@ -280,8 +280,12 @@ struct CalendarView: View {
   }
 
   private var todosForMonth: [TodoItem] {
-    let startOfMonth = viewModel.currentMonth.startOfMonth
-    let endOfMonth = viewModel.currentMonth.endOfMonth
+    todosForMonth(viewModel.currentMonth)
+  }
+
+  private func todosForMonth(_ month: Date) -> [TodoItem] {
+    let startOfMonth = month.startOfMonth
+    let endOfMonth = month.endOfMonth
     return rootTodos.filter { todo in
       let dueDate = effectiveCalendarDueDate(for: todo)
       return dueDate >= startOfMonth && dueDate <= endOfMonth
@@ -301,8 +305,12 @@ struct CalendarView: View {
   }
 
   private var expensesForMonth: [Expense] {
-    let startOfMonth = viewModel.currentMonth.startOfMonth
-    let endOfMonth = viewModel.currentMonth.endOfMonth
+    expensesForMonth(viewModel.currentMonth)
+  }
+
+  private func expensesForMonth(_ month: Date) -> [Expense] {
+    let startOfMonth = month.startOfMonth
+    let endOfMonth = month.endOfMonth
     let recurringTemplateIds = Set(expenseTemplates.map { $0.id })
 
     return expenses.filter {
@@ -402,7 +410,9 @@ struct WeekdayHeaderView: View {
     }
     .padding(.horizontal, 16)
     .padding(.vertical, 8)
-    .softControl(cornerRadius: 12, padding: 0)
+    .overlay(alignment: .bottom) {
+      Divider().opacity(0.25)
+    }
   }
 }
 
@@ -412,6 +422,7 @@ struct MonthHeaderView: View {
   @Binding var viewMode: CalendarViewMode
   let onPrevious: () -> Void
   let onNext: () -> Void
+  let onExitTimeline: () -> Void
   let onAdd: () -> Void
   let onSettings: () -> Void
   var onTitleTap: (() -> Void)? = nil
@@ -461,28 +472,43 @@ struct MonthHeaderView: View {
       .padding(.horizontal, 20)
 
       HStack {
-        HStack(spacing: 4) {
-          Button(action: onPrevious) {
-            Image(systemName: "chevron.left")
-              .font(.system(size: 12, weight: .semibold))
-              .frame(width: 34, height: 32)
-              .softControl(cornerRadius: 10, padding: 0)
+        if viewMode == .timeline {
+          Button(action: onExitTimeline) {
+            HStack(spacing: 6) {
+              Image(systemName: "arrow.left")
+                .font(.system(size: 12, weight: .bold))
+              Text("Calendar")
+                .font(.system(size: 12, weight: .semibold))
+            }
+            .frame(height: 32)
+            .padding(.horizontal, 10)
+            .softControl(cornerRadius: 10, padding: 0)
           }
           .buttonStyle(.plain)
+        } else {
+          HStack(spacing: 4) {
+            Button(action: onPrevious) {
+              Image(systemName: "chevron.left")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 34, height: 32)
+                .softControl(cornerRadius: 10, padding: 0)
+            }
+            .buttonStyle(.plain)
 
-          Button(action: onNext) {
-            Image(systemName: "chevron.right")
-              .font(.system(size: 12, weight: .semibold))
-              .frame(width: 34, height: 32)
-              .softControl(cornerRadius: 10, padding: 0)
+            Button(action: onNext) {
+              Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 34, height: 32)
+                .softControl(cornerRadius: 10, padding: 0)
+            }
+            .buttonStyle(.plain)
           }
-          .buttonStyle(.plain)
         }
 
         Spacer()
 
         HStack(spacing: 4) {
-          ForEach(CalendarViewMode.allCases, id: \.self) { mode in
+          ForEach(CalendarViewMode.selectableCases, id: \.self) { mode in
             Button {
               withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 viewMode = mode

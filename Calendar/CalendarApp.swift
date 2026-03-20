@@ -73,6 +73,7 @@ struct CalendarApp: App {
             DuplicateSuggestion.self, FXRate.self, CSVImportMapping.self,
             SavingsContribution.self, NetWorthSnapshot.self,
             NotificationPreferences.self, OnboardingState.self,
+            GoogleCalendarConnection.self, GoogleCalendarSyncState.self,
             MonobankConnection.self, MonobankAccount.self, MonobankStatementItem.self,
             MonobankSyncState.self, MonobankConflict.self,
           ])
@@ -90,6 +91,7 @@ struct CalendarApp: App {
             DuplicateSuggestion.self, FXRate.self, CSVImportMapping.self,
             SavingsContribution.self, NetWorthSnapshot.self,
             NotificationPreferences.self, OnboardingState.self,
+            GoogleCalendarConnection.self, GoogleCalendarSyncState.self,
             MonobankConnection.self, MonobankAccount.self, MonobankStatementItem.self,
             MonobankSyncState.self, MonobankConflict.self,
           ])
@@ -417,12 +419,14 @@ private extension String {
 struct ContentView: View {
   @EnvironmentObject var appState: AppState
   @Environment(\.modelContext) private var modelContext
+  @Environment(\.scenePhase) private var scenePhase
   @Query(sort: \OnboardingState.lastUpdatedAt, order: .reverse) private var onboardingStates:
     [OnboardingState]
   @StateObject private var navigationCoordinator = NavigationCoordinator()
   @StateObject private var startupManager = StartupManager()
   @State private var showSplash = true
   @State private var showOnboarding = false
+  @State private var tabViewReloadToken = UUID()
 
   var body: some View {
     ZStack {
@@ -463,6 +467,7 @@ struct ContentView: View {
             }
             .tag(AppTab.weather)
         }
+        .id(tabViewReloadToken)
         .animation(AppMotion.quick, value: navigationCoordinator.selectedTab)
         .tint(.appAccent)
 
@@ -520,6 +525,9 @@ struct ContentView: View {
       }
     }
     .onOpenURL { url in
+      if GoogleAuthCoordinator.shared.handle(url: url) {
+        return
+      }
       handleWidgetActionURL(url)
     }
     .onAppear {
@@ -533,6 +541,7 @@ struct ContentView: View {
       if running {
         showSplash = true
       } else {
+        tabViewReloadToken = UUID()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
           withAnimation(AppMotion.standard) { showSplash = false }
         }
@@ -540,6 +549,12 @@ struct ContentView: View {
     }
     .onChange(of: onboardingStates.count) { _, _ in
       evaluateOnboardingVisibility()
+    }
+    .onChange(of: scenePhase) { _, newPhase in
+      guard newPhase == .active else { return }
+      Task { @MainActor in
+        await GoogleCalendarSyncService.shared.syncIfNeededOnStartup(context: modelContext)
+      }
     }
   }
 

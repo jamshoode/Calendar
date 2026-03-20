@@ -29,8 +29,7 @@ final class DuplicateDetectionService {
       var dismissed: Set<String> = []
       for suggestion in existing where suggestion.statusEnum != .pending {
         dismissed.insert(suggestion.pairKey)
-        if
-          let expenseA = expensesById[suggestion.expenseIdA],
+        if let expenseA = expensesById[suggestion.expenseIdA],
           let expenseB = expensesById[suggestion.expenseIdB]
         {
           dismissed.insert(semanticPairKey(expenseA: expenseA, expenseB: expenseB))
@@ -70,7 +69,8 @@ final class DuplicateDetectionService {
 
       try context.save()
     } catch {
-      Logging.log.error("Duplicate detection failed: \(String(describing: error), privacy: .public)")
+      Logging.log.error(
+        "Duplicate detection failed: \(String(describing: error), privacy: .public)")
     }
   }
 
@@ -116,7 +116,9 @@ final class DuplicateDetectionService {
     let keep = matches.min(by: { $0.createdAt < $1.createdAt }) ?? matches[0]
     let remove = matches.first(where: { $0.id != keep.id })
     if let remove {
-      if let existingNotes = keep.notes, !existingNotes.isEmpty, let removeNotes = remove.notes, !removeNotes.isEmpty {
+      if let existingNotes = keep.notes, !existingNotes.isEmpty, let removeNotes = remove.notes,
+        !removeNotes.isEmpty
+      {
         keep.notes = "\(existingNotes)\n\(removeNotes)"
       } else if keep.notes == nil {
         keep.notes = remove.notes
@@ -134,8 +136,8 @@ final class DuplicateDetectionService {
 
   private func stringSimilarity(_ a: String, _ b: String) -> Double {
     if a == b { return 1 }
-    let tokensA = Set(a.split(separator: " ").map(String.init))
-    let tokensB = Set(b.split(separator: " ").map(String.init))
+    let tokensA = Set(a.split(separator: " ").map { String($0) })
+    let tokensB = Set(b.split(separator: " ").map { String($0) })
     guard !tokensA.isEmpty || !tokensB.isEmpty else { return 0 }
 
     let intersection = tokensA.intersection(tokensB).count

@@ -2,12 +2,18 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 
+#if os(iOS)
+  import UIKit
+#endif
+
 struct SettingsSheet: View {
   @Binding var isPresented: Bool
   @EnvironmentObject var appState: AppState
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \MonobankConnection.updatedAt, order: .reverse) private var monobankConnections:
     [MonobankConnection]
+  @Query(sort: \GoogleCalendarConnection.updatedAt, order: .reverse)
+  private var googleConnections: [GoogleCalendarConnection]
   @Query(sort: \MonobankAccount.updatedAt, order: .reverse) private var monobankAccounts:
     [MonobankAccount]
   @Query(
@@ -48,6 +54,11 @@ struct SettingsSheet: View {
   private var holidayLanguageName: String = ""
 
   @AppStorage(
+    Constants.Holiday.sourceKey,
+    store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
+  private var holidaySource: String = Constants.Holiday.sourceCalendarific
+
+  @AppStorage(
     Constants.Weather.cityKey,
     store: UserDefaults(suiteName: Constants.Storage.appGroupIdentifier))
   private var weatherCity: String = ""
@@ -86,9 +97,16 @@ struct SettingsSheet: View {
   @State private var backupDocument: BackupFileDocument?
   @State private var calendarExportDocument: CalendarExportDocument?
   @State private var showCalendarExporter = false
+  @State private var googleIsSyncing = false
+  @State private var googleMessage: String?
+  @State private var googleCalendars: [GoogleCalendarListEntryDTO] = []
 
   private var monobankConnection: MonobankConnection? {
     monobankConnections.first
+  }
+
+  private var googleConnection: GoogleCalendarConnection? {
+    googleConnections.first
   }
 
   private var sanitizedMonobankToken: String {
@@ -151,6 +169,21 @@ struct SettingsSheet: View {
     return message
   }
 
+  private var googleLastSyncFormatted: String {
+    guard let date = googleConnection?.lastSyncAt else { return "Never" }
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter.string(from: date)
+  }
+
+  private var googleStatusText: String {
+    if googleConnection?.lastSyncStatus == "error" {
+      return "Error"
+    }
+    return (googleConnection?.isConnected ?? false) ? "Connected" : "Disconnected"
+  }
+
   private var appVersion: String {
     Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
   }
@@ -196,6 +229,10 @@ struct SettingsSheet: View {
 
         Section {
           shortcutsSection
+        }
+
+        Section {
+          googleCalendarSection
         }
 
         Section {
@@ -252,7 +289,8 @@ struct SettingsSheet: View {
       isPresented: $showBackupExporter,
       document: backupDocument,
       contentType: .data,
-      defaultFilename: "\(Constants.Backup.defaultFilenamePrefix)-\(Date().formatted(date: .numeric, time: .omitted))"
+      defaultFilename:
+        "\(Constants.Backup.defaultFilenamePrefix)-\(Date().formatted(date: .numeric, time: .omitted))"
     ) { result in
       switch result {
       case .success:
@@ -293,6 +331,7 @@ struct SettingsSheet: View {
       normalizeMonobankConnections()
       syncMonobankSettingsStateFromModel()
       loadNotificationPreferences()
+      await loadGoogleCalendarsIfConnected()
     }
     .onChange(of: monobankConnections.count) { _, _ in
       syncMonobankSettingsStateFromModel()
@@ -341,17 +380,23 @@ struct SettingsSheet: View {
         Toggle("Events", isOn: $notificationEvent).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationEvent) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Budget alerts", isOn: $notificationBudget).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: notificationBudget) { _, _ in saveNotificationPreferences() }
+        Toggle("Budget alerts", isOn: $notificationBudget).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: notificationBudget) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Subscriptions", isOn: $notificationSubscription).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: notificationSubscription) { _, _ in saveNotificationPreferences() }
+        Toggle("Subscriptions", isOn: $notificationSubscription).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: notificationSubscription) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
         Toggle("Bills", isOn: $notificationBill).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationBill) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Cashflow", isOn: $notificationCashflow).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: notificationCashflow) { _, _ in saveNotificationPreferences() }
+        Toggle("Cashflow", isOn: $notificationCashflow).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: notificationCashflow) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
         Toggle("Timer", isOn: $notificationTimer).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationTimer) { _, _ in saveNotificationPreferences() }
@@ -359,8 +404,10 @@ struct SettingsSheet: View {
         Toggle("Alarm", isOn: $notificationAlarm).padding(.horizontal, 16).padding(.vertical, 10)
           .onChange(of: notificationAlarm) { _, _ in saveNotificationPreferences() }
         Divider().padding(.leading, 16)
-        Toggle("Quiet hours", isOn: $quietHoursEnabled).padding(.horizontal, 16).padding(.vertical, 10)
-          .onChange(of: quietHoursEnabled) { _, _ in saveNotificationPreferences() }
+        Toggle("Quiet hours", isOn: $quietHoursEnabled).padding(.horizontal, 16).padding(
+          .vertical, 10
+        )
+        .onChange(of: quietHoursEnabled) { _, _ in saveNotificationPreferences() }
 
         if quietHoursEnabled {
           Divider().padding(.leading, 16)
@@ -453,6 +500,92 @@ struct SettingsSheet: View {
       .foregroundColor(.secondary)
       .padding(16)
       .frame(maxWidth: .infinity, alignment: .leading)
+      .background(Color.secondaryFill)
+      .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+  }
+
+  private var googleCalendarSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text("Google Calendar")
+        .font(.system(size: 14, weight: .semibold))
+        .foregroundColor(.secondary)
+
+      VStack(spacing: 0) {
+        HStack {
+          Button((googleConnection?.isConnected ?? false) ? "Reconnect" : "Connect") {
+            connectGoogleCalendar()
+          }
+          .buttonStyle(.plain)
+
+          Spacer()
+
+          Button(googleIsSyncing ? "Syncing..." : "Sync now") {
+            syncGoogleCalendarNow()
+          }
+          .buttonStyle(.plain)
+          .disabled(!(googleConnection?.isConnected ?? false) || googleIsSyncing)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+
+        Divider().padding(.leading, 16)
+
+        SettingsRow(title: "Status", value: googleStatusText)
+        Divider().padding(.leading, 16)
+        SettingsRow(title: "Account", value: googleConnection?.accountEmail ?? "—")
+        Divider().padding(.leading, 16)
+        SettingsRow(title: "Last sync", value: googleLastSyncFormatted)
+        Divider().padding(.leading, 16)
+        SettingsRow(
+          title: "Selected calendars", value: "\(googleConnection?.selectedCalendarIds.count ?? 0)")
+
+        if !googleCalendars.isEmpty {
+          Divider().padding(.leading, 16)
+
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Calendars")
+              .font(.system(size: 12, weight: .semibold))
+              .foregroundColor(.secondary)
+              .padding(.horizontal, 16)
+              .padding(.top, 10)
+
+            ForEach(googleCalendars, id: \.id) { calendar in
+              Toggle(
+                isOn: Binding(
+                  get: { googleConnection?.selectedCalendarIds.contains(calendar.id) ?? false },
+                  set: { isSelected in
+                    updateGoogleCalendarSelection(id: calendar.id, isSelected: isSelected)
+                  }
+                )
+              ) {
+                Text(calendar.summary ?? calendar.id)
+              }
+              .padding(.horizontal, 16)
+              .padding(.vertical, 4)
+            }
+          }
+          .padding(.bottom, 8)
+        }
+
+        if let googleMessage {
+          Divider().padding(.leading, 16)
+          Text(googleMessage)
+            .font(.system(size: 12))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+        }
+
+        if googleConnection?.isConnected == true {
+          Divider().padding(.leading, 16)
+          Button("Disconnect", role: .destructive) {
+            disconnectGoogleCalendar()
+          }
+          .padding(.horizontal, 16)
+          .padding(.vertical, 12)
+        }
+      }
       .background(Color.secondaryFill)
       .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -558,6 +691,178 @@ struct SettingsSheet: View {
       NotificationPreferencesService.shared.syncToDefaults(prefs)
     } catch {
       ErrorPresenter.shared.present(error)
+    }
+  }
+
+  private func connectGoogleCalendar() {
+    googleIsSyncing = true
+    googleMessage = nil
+
+    Task { @MainActor in
+      do {
+        #if os(iOS)
+          guard let presentingViewController = topViewController() else {
+            googleIsSyncing = false
+            googleMessage = "Unable to start Google sign-in."
+            return
+          }
+
+          let profile = try await GoogleAuthCoordinator.shared.signIn(
+            with: presentingViewController)
+          let connection = getOrCreateGoogleConnectionForWrite()
+          connection.hasConsent = true
+          connection.isConnected = true
+          connection.accountEmail = profile.email
+          connection.accountDisplayName = profile.displayName
+          connection.lastSyncStatus = "connected"
+          connection.lastSyncErrorMessage = nil
+          connection.lastSyncErrorAt = nil
+          connection.updatedAt = Date()
+          try modelContext.save()
+
+          googleMessage = "Connected"
+          await loadGoogleCalendarsIfConnected()
+        #else
+          googleMessage = "Google sign-in is supported on iOS only in V1."
+        #endif
+      } catch {
+        googleMessage = error.localizedDescription
+      }
+
+      googleIsSyncing = false
+    }
+  }
+
+  private func syncGoogleCalendarNow() {
+    googleIsSyncing = true
+    googleMessage = nil
+
+    Task { @MainActor in
+      do {
+        let summary = try await GoogleCalendarSyncService.shared.incrementalSyncSelectedCalendars(
+          context: modelContext)
+        googleMessage = "Synced \(summary.calendarsSynced) calendars"
+      } catch {
+        let connection = getOrCreateGoogleConnectionForWrite()
+        if isGoogleAuthorizationError(error) {
+          connection.isConnected = false
+          connection.lastSyncStatus = "unauthorized"
+        } else {
+          connection.lastSyncStatus = "error"
+        }
+        connection.lastSyncErrorMessage = error.localizedDescription
+        connection.lastSyncErrorAt = Date()
+        connection.updatedAt = Date()
+        try? modelContext.save()
+        googleMessage = error.localizedDescription
+      }
+
+      googleIsSyncing = false
+    }
+  }
+
+  private func disconnectGoogleCalendar() {
+    #if os(iOS)
+      GoogleAuthCoordinator.shared.disconnect()
+    #endif
+
+    let connection = getOrCreateGoogleConnectionForWrite()
+    connection.isConnected = false
+    connection.hasConsent = false
+    connection.accountEmail = nil
+    connection.accountDisplayName = nil
+    connection.selectedCalendarIds = []
+    connection.lastSyncStatus = "disconnected"
+    connection.lastSyncErrorMessage = nil
+    connection.lastSyncErrorAt = nil
+    connection.updatedAt = Date()
+
+    do {
+      try GoogleCalendarSyncService.shared.clearLocalImportedGoogleData(context: modelContext)
+      googleCalendars = []
+      googleMessage = "Disconnected"
+    } catch {
+      googleMessage = error.localizedDescription
+    }
+  }
+
+  private func loadGoogleCalendarsIfConnected() async {
+    guard googleConnection?.isConnected == true else {
+      googleCalendars = []
+      return
+    }
+
+    do {
+      let result = try await GoogleCalendarDiscoveryService.shared.refreshCalendars(
+        context: modelContext)
+      googleCalendars = result.calendars
+    } catch {
+      if isGoogleAuthorizationError(error) {
+        let connection = getOrCreateGoogleConnectionForWrite()
+        connection.isConnected = false
+        connection.lastSyncStatus = "unauthorized"
+        connection.lastSyncErrorMessage = error.localizedDescription
+        connection.lastSyncErrorAt = Date()
+        connection.updatedAt = Date()
+        try? modelContext.save()
+      }
+      googleMessage = error.localizedDescription
+    }
+  }
+
+  private func updateGoogleCalendarSelection(id: String, isSelected: Bool) {
+    let connection = getOrCreateGoogleConnectionForWrite()
+    var ids = Set(connection.selectedCalendarIds)
+    if isSelected {
+      ids.insert(id)
+    } else {
+      ids.remove(id)
+    }
+
+    do {
+      try GoogleCalendarDiscoveryService.shared.updateSelectedCalendars(
+        Array(ids), context: modelContext)
+    } catch {
+      googleMessage = error.localizedDescription
+    }
+  }
+
+  private func getOrCreateGoogleConnectionForWrite() -> GoogleCalendarConnection {
+    let descriptor = FetchDescriptor<GoogleCalendarConnection>(
+      sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
+    )
+    if let existing = try? modelContext.fetch(descriptor).first {
+      return existing
+    }
+
+    let connection = GoogleCalendarConnection()
+    modelContext.insert(connection)
+    return connection
+  }
+
+  #if os(iOS)
+    private func topViewController() -> UIViewController? {
+      guard
+        let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+        let root = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+      else { return nil }
+
+      var top = root
+      while let presented = top.presentedViewController {
+        top = presented
+      }
+      return top
+    }
+  #endif
+
+  private func isGoogleAuthorizationError(_ error: Error) -> Bool {
+    switch error {
+    case GoogleCalendarAPIError.missingTokens,
+      GoogleCalendarAPIError.expiredTokens,
+      GoogleCalendarAPIError.unauthorized:
+      return true
+    default:
+      return false
     }
   }
 
@@ -1068,6 +1373,44 @@ struct SettingsSheet: View {
         .foregroundColor(.secondary)
 
       VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 8) {
+          Text("Holiday source")
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+
+          Picker("Holiday source", selection: $holidaySource) {
+            Text("Calendarific API").tag(Constants.Holiday.sourceCalendarific)
+            Text("Google Calendar").tag(Constants.Holiday.sourceGoogle)
+          }
+          .pickerStyle(.segmented)
+          .padding(.horizontal, 16)
+          .padding(.bottom, 12)
+          .onChange(of: holidaySource) { _, newValue in
+            Task {
+              await HolidayService.shared.updateHolidaySource(newValue, context: modelContext)
+            }
+          }
+        }
+
+        Divider().padding(.leading, 16)
+
+        if holidaySource == Constants.Holiday.sourceGoogle {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Google holiday calendars are enabled.")
+              .font(.system(size: 13, weight: .semibold))
+              .foregroundColor(.primary)
+            Text("Calendarific holiday events are disabled and removed during migration.")
+              .font(.system(size: 12))
+              .foregroundColor(.secondary)
+          }
+          .padding(.horizontal, 16)
+          .padding(.vertical, 12)
+
+          Divider().padding(.leading, 16)
+        }
+
         // API Key
         VStack(alignment: .leading, spacing: 6) {
           Text(Localization.string(.holidayApiKey))
@@ -1081,6 +1424,8 @@ struct SettingsSheet: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
+        .disabled(holidaySource == Constants.Holiday.sourceGoogle)
+        .opacity(holidaySource == Constants.Holiday.sourceGoogle ? 0.5 : 1)
 
         Divider().padding(.leading, 16)
 
@@ -1105,6 +1450,8 @@ struct SettingsSheet: View {
           .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(holidaySource == Constants.Holiday.sourceGoogle)
+        .opacity(holidaySource == Constants.Holiday.sourceGoogle ? 0.5 : 1)
 
         Divider().padding(.leading, 16)
 
@@ -1149,6 +1496,8 @@ struct SettingsSheet: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .disabled(holidaySource == Constants.Holiday.sourceGoogle)
+        .opacity(holidaySource == Constants.Holiday.sourceGoogle ? 0.5 : 1)
 
         Divider().padding(.leading, 16)
 

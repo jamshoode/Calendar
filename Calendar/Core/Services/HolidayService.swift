@@ -125,6 +125,11 @@ final class HolidayService {
 
   /// Sync holidays: delete existing holiday events, fetch fresh ones, insert into SwiftData.
   func syncHolidays(context: ModelContext) async throws {
+    if defaults.string(forKey: Constants.Holiday.sourceKey) == Constants.Holiday.sourceGoogle {
+      await migrateCalendarificHolidaysToGoogleSource(context: context)
+      return
+    }
+
     guard let apiKey = defaults.string(forKey: Constants.Holiday.apiKeyKey),
       !apiKey.isEmpty
     else {
@@ -201,6 +206,57 @@ final class HolidayService {
     }
   }
 
+  func updateHolidaySource(_ source: String, context: ModelContext) async {
+    defaults.set(source, forKey: Constants.Holiday.sourceKey)
+    if source == Constants.Holiday.sourceGoogle {
+      await migrateCalendarificHolidaysToGoogleSource(context: context)
+    } else {
+      await removeGoogleHolidayCalendarEvents(context: context)
+    }
+  }
+
+  func migrateCalendarificHolidaysToGoogleSource(context: ModelContext) async {
+    await MainActor.run {
+      do {
+        let existing = try context.fetch(FetchDescriptor<Event>())
+        for event in existing {
+          if event.isHoliday == true {
+            context.delete(event)
+            continue
+          }
+
+          if let externalCalendarId = event.externalCalendarId,
+            GoogleCalendarSyncService.isGoogleHolidayCalendarId(externalCalendarId)
+          {
+            context.delete(event)
+          }
+        }
+        try context.save()
+        EventViewModel().syncEventsToWidget(context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
+  }
+
+  func removeGoogleHolidayCalendarEvents(context: ModelContext) async {
+    await MainActor.run {
+      do {
+        let existing = try context.fetch(FetchDescriptor<Event>())
+        for event in existing {
+          guard let externalCalendarId = event.externalCalendarId else { continue }
+          if GoogleCalendarSyncService.isGoogleHolidayCalendarId(externalCalendarId) {
+            context.delete(event)
+          }
+        }
+        try context.save()
+        EventViewModel().syncEventsToWidget(context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
+  }
+
   /// Remove all holiday events (when user selects "None" country).
   func removeAllHolidays(context: ModelContext) async {
     await MainActor.run {
@@ -235,7 +291,8 @@ final class HolidayService {
     let currentYear = calendar.component(.year, from: Date())
 
     // Sync if we're in a new month compared to the last sync
-    return currentYear > lastSyncYear || (currentYear == lastSyncYear && currentMonth > lastSyncMonth)
+    return currentYear > lastSyncYear
+      || (currentYear == lastSyncYear && currentMonth > lastSyncMonth)
   }
 
   /// Look up language for a country code from the static map.

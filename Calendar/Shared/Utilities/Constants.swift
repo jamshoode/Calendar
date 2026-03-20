@@ -87,6 +87,21 @@ public struct Constants {
       "CL": (code: "es", name: "Español"),
       "CO": (code: "es", name: "Español"),
     ]
+
+    // Holiday source selection
+    static let sourceKey = "holiday.source"
+    static let sourceCalendarific = "calendarific"
+    static let sourceGoogle = "google"
+  }
+
+  struct GoogleCalendar {
+    static let authStateKey = "googleCalendar.auth.state"
+    static let selectedCalendarIdsKey = "googleCalendar.selectedCalendarIds"
+    static let accountEmailKey = "googleCalendar.accountEmail"
+    static let accountDisplayNameKey = "googleCalendar.accountDisplayName"
+    static let holidaysEnabledKey = "googleCalendar.holidaysEnabled"
+    static let syncThrottleSeconds: TimeInterval = 60
+    static let defaultScopes = ["https://www.googleapis.com/auth/calendar"]
   }
 
   struct Weather {

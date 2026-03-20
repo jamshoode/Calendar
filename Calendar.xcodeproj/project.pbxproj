@@ -34,6 +34,12 @@
 		F57A615E2F55A9090073E676 /* MonobankModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A615D2F55A9090073E676 /* MonobankModels.swift */; };
 		F57A61612F55A9140073E676 /* MonobankSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A61602F55A9140073E676 /* MonobankSyncService.swift */; };
 		F57A61622F55A9140073E676 /* MonobankKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A615F2F55A9140073E676 /* MonobankKeychainStore.swift */; };
+		A1B2C4022F60000400A0B001 /* GoogleTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4012F60000400A0B001 /* GoogleTokenStore.swift */; };
+		A1B2C4122F60000500A0B001 /* GoogleAuthCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4112F60000500A0B001 /* GoogleAuthCoordinator.swift */; };
+		A1B2C4222F60000600A0B001 /* GoogleCalendarDTOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4212F60000600A0B001 /* GoogleCalendarDTOs.swift */; };
+		A1B2C4322F60000700A0B001 /* GoogleCalendarAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4312F60000700A0B001 /* GoogleCalendarAPIClient.swift */; };
+		A1B2C4422F60000800A0B001 /* GoogleCalendarDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4412F60000800A0B001 /* GoogleCalendarDiscoveryService.swift */; };
+		A1B2C4522F60000900A0B001 /* GoogleCalendarSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C4512F60000900A0B001 /* GoogleCalendarSyncService.swift */; };
 		F57A61652F55A9230073E676 /* MonobankProjectionMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A61632F55A9230073E676 /* MonobankProjectionMapperTests.swift */; };
 		F57A61662F55A9230073E676 /* MonobankWidgetBalanceSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57A61642F55A9230073E676 /* MonobankWidgetBalanceSyncTests.swift */; };
 		F593C11E2F33C234007F8DEB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F593C0E62F33C234007F8DEB /* Assets.xcassets */; };
@@ -129,6 +135,9 @@
 		F5D65F612F421490004F7A39 /* StartupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F4F2F4213D0004F7A39 /* StartupUITests.swift */; };
 		F5D65F622F421498004F7A39 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5D65F572F421409004F7A39 /* XCTest.framework */; platformFilter = ios; };
 		F5D65F662F42236D004F7A39 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D65F652F42236D004F7A39 /* Logging.swift */; };
+		A1B2C3D42F60000100A0B001 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D52F60000100A0B001 /* GoogleSignIn */; };
+		A1B2C3E22F60000200A0B001 /* GoogleCalendarConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F60000200A0B001 /* GoogleCalendarConnection.swift */; };
+		A1B2C3F22F60000300A0B001 /* GoogleCalendarSyncState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3F12F60000300A0B001 /* GoogleCalendarSyncState.swift */; };
 		F5E000102F50000100AA0001 /* BudgetLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000012F50000100AA0001 /* BudgetLimit.swift */; };
 		F5E000112F50000100AA0001 /* CashflowForecastCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000022F50000100AA0001 /* CashflowForecastCache.swift */; };
 		F5E000122F50000100AA0001 /* DuplicateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000032F50000100AA0001 /* DuplicateSuggestion.swift */; };
@@ -143,6 +152,8 @@
 		F5E0001B2F50000100AA0001 /* DuplicateDetectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000C2F50000100AA0001 /* DuplicateDetectionServiceTests.swift */; };
 		F5E0001C2F50000100AA0001 /* FXRateServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000D2F50000100AA0001 /* FXRateServiceTests.swift */; };
 		F5E0001D2F50000100AA0001 /* ForecastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000E2F50000100AA0001 /* ForecastServiceTests.swift */; };
+		F5E0001E2F50000100AA0001 /* GoogleCalendarCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E0000F2F50000100AA0001 /* GoogleCalendarCoreTests.swift */; };
+		F5E000212F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E000202F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -210,9 +221,17 @@
 		F556A0262F33C9E70071D8B8 /* CalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F556A0352F33CD160071D8B8 /* NotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotFoundView.swift; path = Calendar/Shared/Components/NotFoundView.swift; sourceTree = SOURCE_ROOT; };
 		F556A0532F33F0BD0071D8B8 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		A1B2C3E12F60000200A0B001 /* GoogleCalendarConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarConnection.swift; sourceTree = "<group>"; };
+		A1B2C3F12F60000300A0B001 /* GoogleCalendarSyncState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarSyncState.swift; sourceTree = "<group>"; };
 		F57A615D2F55A9090073E676 /* MonobankModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankModels.swift; sourceTree = "<group>"; };
 		F57A615F2F55A9140073E676 /* MonobankKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankKeychainStore.swift; sourceTree = "<group>"; };
 		F57A61602F55A9140073E676 /* MonobankSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankSyncService.swift; sourceTree = "<group>"; };
+		A1B2C4012F60000400A0B001 /* GoogleTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTokenStore.swift; sourceTree = "<group>"; };
+		A1B2C4112F60000500A0B001 /* GoogleAuthCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAuthCoordinator.swift; sourceTree = "<group>"; };
+		A1B2C4212F60000600A0B001 /* GoogleCalendarDTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarDTOs.swift; sourceTree = "<group>"; };
+		A1B2C4312F60000700A0B001 /* GoogleCalendarAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarAPIClient.swift; sourceTree = "<group>"; };
+		A1B2C4412F60000800A0B001 /* GoogleCalendarDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarDiscoveryService.swift; sourceTree = "<group>"; };
+		A1B2C4512F60000900A0B001 /* GoogleCalendarSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarSyncService.swift; sourceTree = "<group>"; };
 		F57A61632F55A9230073E676 /* MonobankProjectionMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankProjectionMapperTests.swift; sourceTree = "<group>"; };
 		F57A61642F55A9230073E676 /* MonobankWidgetBalanceSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonobankWidgetBalanceSyncTests.swift; sourceTree = "<group>"; };
 		F593C0E42F33C234007F8DEB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Calendar/AppDelegate.swift; sourceTree = "<group>"; };
@@ -273,7 +292,7 @@
 		F5A1B00C2F4E0007007F8DEB /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		F5A1B00E2F4E0008007F8DEB /* ExpenseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseCategory.swift; sourceTree = "<group>"; };
 		F5A1B0102F4E0009007F8DEB /* ExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseViewModel.swift; sourceTree = "<group>"; };
-		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
+		F5A1B0122F4E000A007F8DEB /* ExpensesView.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; tabWidth = 2; };
 		F5A1B0142F4E000B007F8DEB /* AddExpenseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseSheet.swift; sourceTree = "<group>"; };
 		F5A1B0162F4E000C007F8DEB /* ExpenseRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseRow.swift; sourceTree = "<group>"; };
 		F5A1B0182F4E000D007F8DEB /* ClockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockView.swift; sourceTree = "<group>"; };
@@ -325,6 +344,8 @@
 		F5E0000C2F50000100AA0001 /* DuplicateDetectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateDetectionServiceTests.swift; sourceTree = "<group>"; };
 		F5E0000D2F50000100AA0001 /* FXRateServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FXRateServiceTests.swift; sourceTree = "<group>"; };
 		F5E0000E2F50000100AA0001 /* ForecastServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastServiceTests.swift; sourceTree = "<group>"; };
+		F5E0000F2F50000100AA0001 /* GoogleCalendarCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarCoreTests.swift; sourceTree = "<group>"; };
+		F5E000202F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarSyncIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -353,6 +374,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D42F60000100A0B001 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,6 +489,8 @@
 				F5E000012F50000100AA0001 /* BudgetLimit.swift */,
 				F5E000022F50000100AA0001 /* CashflowForecastCache.swift */,
 				F593C0E92F33C234007F8DEB /* Event.swift */,
+				A1B2C3E12F60000200A0B001 /* GoogleCalendarConnection.swift */,
+				A1B2C3F12F60000300A0B001 /* GoogleCalendarSyncState.swift */,
 				F593C0EA2F33C234007F8DEB /* TimerPreset.swift */,
 				F5A362D02F40875300030163 /* CSVImportSession.swift */,
 				F5E000032F50000100AA0001 /* DuplicateSuggestion.swift */,
@@ -489,6 +513,12 @@
 			children = (
 				F593C0ED2F33C234007F8DEB /* AudioService.swift */,
 				F5E000052F50000100AA0001 /* BudgetService.swift */,
+				A1B2C4112F60000500A0B001 /* GoogleAuthCoordinator.swift */,
+				A1B2C4312F60000700A0B001 /* GoogleCalendarAPIClient.swift */,
+				A1B2C4412F60000800A0B001 /* GoogleCalendarDiscoveryService.swift */,
+				A1B2C4512F60000900A0B001 /* GoogleCalendarSyncService.swift */,
+				A1B2C4212F60000600A0B001 /* GoogleCalendarDTOs.swift */,
+				A1B2C4012F60000400A0B001 /* GoogleTokenStore.swift */,
 				F5A1B0002F4E0001007F8DEB /* HolidayService.swift */,
 				F593C0EE2F33C234007F8DEB /* NotificationService.swift */,
 				F5A362D42F40876200030163 /* CSVImportService.swift */,
@@ -810,6 +840,8 @@
 				F5B897C62F54A7820027C977 /* RecurringExpenseTests.swift */,
 				F5B897C72F54A7820027C977 /* WidgetSyncTests.swift */,
 				F5E0000E2F50000100AA0001 /* ForecastServiceTests.swift */,
+				F5E0000F2F50000100AA0001 /* GoogleCalendarCoreTests.swift */,
+				F5E000202F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift */,
 				F5D65F4A2F4213D0004F7A39 /* StartupManagerTests.swift */,
 				F5D65F4B2F4213D0004F7A39 /* TodoCategoryTests.swift */,
 			);
@@ -845,6 +877,7 @@
 			);
 			name = Calendar;
 			packageProductDependencies = (
+				A1B2C3D52F60000100A0B001 /* GoogleSignIn */,
 			);
 			productName = Calendar;
 			productReference = F593C1472F33C290007F8DEB /* Calendar.app */;
@@ -948,6 +981,9 @@
 			mainGroup = F593BFD32F33B928007F8DEB;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				A1B2C3D62F60000100A0B001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			productRefGroup = F593BFD32F33B928007F8DEB;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1050,6 +1086,8 @@
 				F554EFFE2F34F4DF008B6601 /* RecurrencePicker.swift in Sources */,
 				F51F1B462F3BD2FA007A3F3E /* FloatingErrorView.swift in Sources */,
 				F57A615E2F55A9090073E676 /* MonobankModels.swift in Sources */,
+				A1B2C3E22F60000200A0B001 /* GoogleCalendarConnection.swift in Sources */,
+				A1B2C3F22F60000300A0B001 /* GoogleCalendarSyncState.swift in Sources */,
 				F5E000132F50000100AA0001 /* FXRate.swift in Sources */,
 				F5E000162F50000100AA0001 /* FXRateService.swift in Sources */,
 				F5B897C22F54A76D0027C977 /* EventRecurrenceService.swift in Sources */,
@@ -1058,6 +1096,12 @@
 				F554EFE72F34F4AA008B6601 /* TodoItem.swift in Sources */,
 				F57A61612F55A9140073E676 /* MonobankSyncService.swift in Sources */,
 				F57A61622F55A9140073E676 /* MonobankKeychainStore.swift in Sources */,
+				A1B2C4022F60000400A0B001 /* GoogleTokenStore.swift in Sources */,
+				A1B2C4122F60000500A0B001 /* GoogleAuthCoordinator.swift in Sources */,
+				A1B2C4222F60000600A0B001 /* GoogleCalendarDTOs.swift in Sources */,
+				A1B2C4322F60000700A0B001 /* GoogleCalendarAPIClient.swift in Sources */,
+				A1B2C4422F60000800A0B001 /* GoogleCalendarDiscoveryService.swift in Sources */,
+				A1B2C4522F60000900A0B001 /* GoogleCalendarSyncService.swift in Sources */,
 				F593C12F2F33C234007F8DEB /* Event.swift in Sources */,
 				F593C1302F33C234007F8DEB /* Date+Extensions.swift in Sources */,
 				F554F0002F34F99C008B6601 /* TopBarView.swift in Sources */,
@@ -1130,6 +1174,8 @@
 				F5B897CA2F54A7820027C977 /* ExpenseConversionTests.swift in Sources */,
 				F5B897CB2F54A7820027C977 /* ForbiddenPatternsTests.swift in Sources */,
 				F5B897CC2F54A7820027C977 /* RecurringExpenseTests.swift in Sources */,
+				F5E0001E2F50000100AA0001 /* GoogleCalendarCoreTests.swift in Sources */,
+				F5E000212F50000100AA0001 /* GoogleCalendarSyncIntegrationTests.swift in Sources */,
 				F5D65F5D2F421480004F7A39 /* TodoCategoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1170,6 +1216,25 @@
 			targetProxy = F593C1612F33C31F007F8DEB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1B2C3D62F60000100A0B001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D52F60000100A0B001 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D62F60000100A0B001 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F593BFFB2F33B92A007F8DEB /* Debug */ = {
