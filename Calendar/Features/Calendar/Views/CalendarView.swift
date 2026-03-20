@@ -5,12 +5,17 @@ import SwiftUI
 // MARK: - View Mode
 
 enum CalendarViewMode: String, CaseIterable {
-  case grid, list
+  case grid, list, timeline
+
+  static var selectableCases: [CalendarViewMode] {
+    [.grid, .list]
+  }
 
   var icon: String {
     switch self {
     case .grid: return "square.grid.2x2"
     case .list: return "list.bullet"
+    case .timeline: return "clock"
     }
   }
 }
@@ -36,7 +41,6 @@ struct CalendarView: View {
   @State private var editingTodo: TodoItem?
   @State private var editingExpense: Expense?
   @State private var detailOccurrence: EventOccurrence?
-  @State private var showingTimeline = false
   @State private var referenceDate: Date = Date()
   @State private var midnightRefreshTask: Task<Void, Never>?
 
@@ -86,7 +90,9 @@ struct CalendarView: View {
                         onSelectDate: { date in
                           viewModel.selectDate(date)
                           viewModel.recenter(on: date)
-                          showingTimeline = true
+                          withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+                            viewMode = .timeline
+                          }
                           if showingDatePicker {
                             withAnimation { showingDatePicker = false }
                           }
@@ -123,6 +129,25 @@ struct CalendarView: View {
               effectiveTodoDueDate: effectiveCalendarDueDate(for:),
               onEventTap: { occurrence in detailOccurrence = occurrence },
               onDateSelect: { date in viewModel.selectDate(date) }
+            )
+
+          case .timeline:
+            CalendarTimelineView(
+              selectedDate: Binding(
+                get: { viewModel.selectedDate ?? Date() },
+                set: {
+                  viewModel.selectDate($0)
+                  viewModel.recenter(on: $0)
+                }
+              ),
+              events: eventsForSelectedDate,
+              expenses: expensesForSelectedDate,
+              onEventTap: { occurrence in detailOccurrence = occurrence },
+              onDateSelect: { date in
+                viewModel.selectDate(date)
+                viewModel.recenter(on: date)
+              },
+              currentMonth: viewModel.currentMonth
             )
           }
         }
@@ -162,25 +187,6 @@ struct CalendarView: View {
     }
     .sheet(isPresented: $showingSettings) {
       SettingsSheet(isPresented: $showingSettings)
-    }
-    .sheet(isPresented: $showingTimeline) {
-      CalendarTimelineView(
-        selectedDate: Binding(
-          get: { viewModel.selectedDate ?? Date() },
-          set: {
-            viewModel.selectDate($0)
-            viewModel.recenter(on: $0)
-          }
-        ),
-        events: eventsForSelectedDate,
-        expenses: expensesForSelectedDate,
-        onEventTap: { occurrence in detailOccurrence = occurrence },
-        onDateSelect: { date in
-          viewModel.selectDate(date)
-          viewModel.recenter(on: date)
-        },
-        currentMonth: viewModel.currentMonth
-      )
     }
     .sheet(item: $editingEventOccurrence) { occurrence in
       AddEventView(
@@ -471,7 +477,7 @@ struct MonthHeaderView: View {
         Spacer()
 
         HStack(spacing: 4) {
-          ForEach(CalendarViewMode.allCases, id: \.self) { mode in
+          ForEach(CalendarViewMode.selectableCases, id: \.self) { mode in
             Button {
               withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 viewMode = mode
