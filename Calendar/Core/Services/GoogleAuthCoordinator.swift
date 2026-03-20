@@ -137,8 +137,12 @@ import SwiftData
         throw GoogleAuthError.missingAccessToken
       }
 
-      let refreshToken = user.refreshToken.tokenString
-      guard !refreshToken.isEmpty else {
+      let refreshToken: String
+      if !user.refreshToken.tokenString.isEmpty {
+        refreshToken = user.refreshToken.tokenString
+      } else if let existing = try tokenStore.loadTokens(), !existing.refreshToken.isEmpty {
+        refreshToken = existing.refreshToken
+      } else {
         throw GoogleAuthError.missingRefreshToken
       }
 

@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 /// Timeline mode for the Calendar tab — horizontal week strip + vertical hourly axis with event blocks.
 struct CalendarTimelineView: View {
@@ -53,7 +53,6 @@ struct CalendarTimelineView: View {
             onDateSelect(date)
           }
         ), currentMonth: currentMonth)
-
 
       Divider()
 
@@ -174,7 +173,6 @@ struct CalendarTimelineView: View {
       }
     }
   }
-
 
   private func hourLabel(_ hour: Int) -> String {
     let formatter = DateFormatter()

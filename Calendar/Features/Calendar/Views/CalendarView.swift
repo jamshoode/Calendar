@@ -43,14 +43,9 @@ struct CalendarView: View {
   @State private var detailOccurrence: EventOccurrence?
   @State private var referenceDate: Date = Date()
   @State private var midnightRefreshTask: Task<Void, Never>?
-  @State private var gridReloadVersion = 0
 
   private var monthCardHeight: CGFloat {
     max(UIScreen.main.bounds.height * 0.56, 360)
-  }
-
-  private var gridContentID: Int {
-    (events.count * 1_000_000) + (rootTodos.count * 1_000) + expenses.count + gridReloadVersion
   }
 
   var body: some View {
@@ -63,6 +58,10 @@ struct CalendarView: View {
           onPrevious: viewModel.moveToPreviousMonth,
           onNext: viewModel.moveToNextMonth,
           onExitTimeline: {
+            showingDatePicker = false
+            if let selectedDate = viewModel.selectedDate {
+              viewModel.recenter(on: selectedDate)
+            }
             withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
               viewMode = .grid
             }
@@ -115,20 +114,20 @@ struct CalendarView: View {
                       .frame(height: monthCardHeight)
                       .padding(.horizontal, 10)
                       .id(offset)
-                      .onAppear {
-                        viewModel.expandRangeIfNeeded(for: offset)
-                      }
                     }
                   }
                   .padding(.bottom, 10)
                 }
-                .id(gridContentID)
                 .onAppear {
-                  proxy.scrollTo(0, anchor: .top)
+                  DispatchQueue.main.async {
+                    proxy.scrollTo(0, anchor: .top)
+                  }
                 }
                 .onChange(of: viewModel.currentMonth) { _, _ in
-                  withAnimation(.easeInOut(duration: 0.2)) {
-                    proxy.scrollTo(0, anchor: .top)
+                  DispatchQueue.main.async {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                      proxy.scrollTo(0, anchor: .top)
+                    }
                   }
                 }
               }
@@ -264,15 +263,6 @@ struct CalendarView: View {
       guard newValue == .active else { return }
       refreshReferenceDate()
       scheduleMidnightRefresh()
-    }
-    .onChange(of: events.count) { _, _ in
-      gridReloadVersion += 1
-    }
-    .onChange(of: rootTodos.count) { _, _ in
-      gridReloadVersion += 1
-    }
-    .onChange(of: expenses.count) { _, _ in
-      gridReloadVersion += 1
     }
   }
 

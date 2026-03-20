@@ -426,6 +426,7 @@ struct ContentView: View {
   @StateObject private var startupManager = StartupManager()
   @State private var showSplash = true
   @State private var showOnboarding = false
+  @State private var tabViewReloadToken = UUID()
 
   var body: some View {
     ZStack {
@@ -466,6 +467,7 @@ struct ContentView: View {
             }
             .tag(AppTab.weather)
         }
+        .id(tabViewReloadToken)
         .animation(AppMotion.quick, value: navigationCoordinator.selectedTab)
         .tint(.appAccent)
 
@@ -539,6 +541,7 @@ struct ContentView: View {
       if running {
         showSplash = true
       } else {
+        tabViewReloadToken = UUID()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
           withAnimation(AppMotion.standard) { showSplash = false }
         }

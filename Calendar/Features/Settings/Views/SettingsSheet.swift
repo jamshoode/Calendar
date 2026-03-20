@@ -744,7 +744,12 @@ struct SettingsSheet: View {
         googleMessage = "Synced \(summary.calendarsSynced) calendars"
       } catch {
         let connection = getOrCreateGoogleConnectionForWrite()
-        connection.lastSyncStatus = "error"
+        if isGoogleAuthorizationError(error) {
+          connection.isConnected = false
+          connection.lastSyncStatus = "unauthorized"
+        } else {
+          connection.lastSyncStatus = "error"
+        }
         connection.lastSyncErrorMessage = error.localizedDescription
         connection.lastSyncErrorAt = Date()
         connection.updatedAt = Date()
@@ -792,6 +797,15 @@ struct SettingsSheet: View {
         context: modelContext)
       googleCalendars = result.calendars
     } catch {
+      if isGoogleAuthorizationError(error) {
+        let connection = getOrCreateGoogleConnectionForWrite()
+        connection.isConnected = false
+        connection.lastSyncStatus = "unauthorized"
+        connection.lastSyncErrorMessage = error.localizedDescription
+        connection.lastSyncErrorAt = Date()
+        connection.updatedAt = Date()
+        try? modelContext.save()
+      }
       googleMessage = error.localizedDescription
     }
   }
@@ -840,6 +854,17 @@ struct SettingsSheet: View {
       return top
     }
   #endif
+
+  private func isGoogleAuthorizationError(_ error: Error) -> Bool {
+    switch error {
+    case GoogleCalendarAPIError.missingTokens,
+      GoogleCalendarAPIError.expiredTokens,
+      GoogleCalendarAPIError.unauthorized:
+      return true
+    default:
+      return false
+    }
+  }
 
   private func exportEncryptedBackup() {
     do {

@@ -47,7 +47,12 @@ final class GoogleCalendarSyncService {
       _ = try await incrementalSyncSelectedCalendars(context: context)
     } catch {
       let connection = (try? upsertConnection(context: context))
-      connection?.lastSyncStatus = "error"
+      if isAuthorizationFailure(error) {
+        connection?.isConnected = false
+        connection?.lastSyncStatus = "unauthorized"
+      } else {
+        connection?.lastSyncStatus = "error"
+      }
       connection?.lastSyncErrorMessage = error.localizedDescription
       connection?.lastSyncErrorAt = Date()
       connection?.updatedAt = Date()
@@ -316,6 +321,17 @@ final class GoogleCalendarSyncService {
     switch conflictPolicy {
     case .googleWins:
       return true
+    }
+  }
+
+  private func isAuthorizationFailure(_ error: Error) -> Bool {
+    switch error {
+    case GoogleCalendarAPIError.missingTokens,
+      GoogleCalendarAPIError.expiredTokens,
+      GoogleCalendarAPIError.unauthorized:
+      return true
+    default:
+      return false
     }
   }
 

@@ -1,8 +1,9 @@
-import Foundation
-import CryptoKit
 import Compression
-import Vision
+import CryptoKit
+import Foundation
 import SwiftData
+import Vision
+
 #if os(iOS)
   import UIKit
 #endif
@@ -302,7 +303,8 @@ final class CategorizationRuleService {
       .lowercased()
       .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
-    let enabled = rules
+    let enabled =
+      rules
       .filter { $0.isEnabled }
       .sorted { lhs, rhs in
         if lhs.priority != rhs.priority { return lhs.priority < rhs.priority }
@@ -437,7 +439,8 @@ final class CashflowAlertService: CashflowAlertServiceProtocol {
         alertList.append(
           CashflowAlert(
             title: "Negative cashflow expected",
-            message: "Projected balance becomes negative on \(day.date.formatted(date: .abbreviated, time: .omitted)).",
+            message:
+              "Projected balance becomes negative on \(day.date.formatted(date: .abbreviated, time: .omitted)).",
             severity: .critical
           )
         )
@@ -447,7 +450,8 @@ final class CashflowAlertService: CashflowAlertServiceProtocol {
         alertList.append(
           CashflowAlert(
             title: "Low balance warning",
-            message: "Projected balance drops below ₴5,000 on \(day.date.formatted(date: .abbreviated, time: .omitted)).",
+            message:
+              "Projected balance drops below ₴5,000 on \(day.date.formatted(date: .abbreviated, time: .omitted)).",
             severity: .warning
           )
         )
@@ -455,14 +459,19 @@ final class CashflowAlertService: CashflowAlertServiceProtocol {
       }
     }
 
-    let dueSoonBills = bills
-      .filter { !$0.isPaid && $0.dueDate >= date && $0.dueDate <= Calendar.current.date(byAdding: .day, value: 7, to: date) ?? date }
+    let dueSoonBills =
+      bills
+      .filter {
+        !$0.isPaid && $0.dueDate >= date
+          && $0.dueDate <= Calendar.current.date(byAdding: .day, value: 7, to: date) ?? date
+      }
       .sorted { $0.dueDate < $1.dueDate }
     if let nextBill = dueSoonBills.first {
       alertList.append(
         CashflowAlert(
           title: "Upcoming bill",
-          message: "\(nextBill.name) is due on \(nextBill.dueDate.formatted(date: .abbreviated, time: .omitted)).",
+          message:
+            "\(nextBill.name) is due on \(nextBill.dueDate.formatted(date: .abbreviated, time: .omitted)).",
           severity: .info
         )
       )
@@ -489,12 +498,14 @@ final class SubscriptionService: SubscriptionServiceProtocol {
       .filter { !$0.isIncome }
 
     var candidates = existing
-    let normalizedExisting = Set(existing.map { PatternDetectionService().normalizeMerchant($0.merchant) })
+    let normalizedExisting = Set(
+      existing.map { PatternDetectionService().normalizeMerchant($0.merchant) })
 
     for template in templates {
       let normalizedMerchant = PatternDetectionService().normalizeMerchant(template.merchant)
       let isSubscriptionCategory = template.allCategories.contains(.subscriptions)
-      let looksLikeSubscription = PatternDetectionService().normalizeMerchant(template.merchant).contains("sub")
+      let looksLikeSubscription =
+        PatternDetectionService().normalizeMerchant(template.merchant).contains("sub")
         || PatternDetectionService().normalizeMerchant(template.merchant).contains("netflix")
         || PatternDetectionService().normalizeMerchant(template.merchant).contains("spotify")
 
@@ -509,8 +520,12 @@ final class SubscriptionService: SubscriptionServiceProtocol {
         billingCycle: BillingCycle(rawValue: template.frequency.rawValue) ?? .monthly,
         nextRenewalDate: template.nextDueDate(from: Date()) ?? Date(),
         leadTimeDays: 3,
-        lastChargeDate: expenses
-          .filter { PatternDetectionService().normalizeMerchant($0.merchant ?? $0.title) == normalizedMerchant }
+        lastChargeDate:
+          expenses
+          .filter {
+            PatternDetectionService().normalizeMerchant($0.merchant ?? $0.title)
+              == normalizedMerchant
+          }
           .sorted(by: { $0.date > $1.date })
           .first?.date,
         nextChargeAmount: template.amount,
@@ -525,7 +540,9 @@ final class SubscriptionService: SubscriptionServiceProtocol {
 
   func save(_ item: SubscriptionItem, context: ModelContext) throws {
     item.updatedAt = Date()
-    if try context.fetch(FetchDescriptor<SubscriptionItem>()).contains(where: { $0.id == item.id }) == false {
+    if try context.fetch(FetchDescriptor<SubscriptionItem>()).contains(where: { $0.id == item.id })
+      == false
+    {
       context.insert(item)
     }
     try context.save()
@@ -613,7 +630,8 @@ final class ReceiptOCRService: ReceiptOCRServiceProtocol {
     let parsed = parseReceiptText(recognizedText)
     let digest = SHA256.hash(data: imageData).map { String(format: "%02x", $0) }.joined()
 
-    let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+    let caches =
+      FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
       ?? URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = caches.appendingPathComponent("receipt-\(UUID().uuidString).jpg")
     try imageData.write(to: fileURL, options: [.atomic])
@@ -657,8 +675,11 @@ final class ReceiptOCRService: ReceiptOCRServiceProtocol {
     return lines.joined(separator: "\n")
   }
 
-  private func parseReceiptText(_ text: String) -> (merchant: String?, amount: Double?, date: Date?, confidence: Double) {
-    let lines = text
+  private func parseReceiptText(_ text: String) -> (
+    merchant: String?, amount: Double?, date: Date?, confidence: Double
+  ) {
+    let lines =
+      text
       .components(separatedBy: .newlines)
       .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
       .filter { !$0.isEmpty }
@@ -722,7 +743,8 @@ final class BudgetSharingService: BudgetSharingServiceProtocol {
 
   func importEncryptedPackage(_ data: Data, context: ModelContext, passphrase: String) throws {
     let decrypted = try BackupCrypto.open(package: data, passphrase: passphrase)
-    let decoded = try JSONDecoder().decode([BudgetLimitDTO].self, from: CompressionCodec.decompress(decrypted))
+    let decoded = try JSONDecoder().decode(
+      [BudgetLimitDTO].self, from: CompressionCodec.decompress(decrypted))
     let existing = Set(try context.fetch(FetchDescriptor<BudgetLimit>()).map(\.id))
 
     for item in decoded where !existing.contains(item.id) {
@@ -808,7 +830,8 @@ final class BackupRestoreService: BackupRestoreServiceProtocol {
       throw BackupRestoreError.invalidChecksum
     }
 
-    let decoded = try JSONDecoder().decode(BackupPayload.self, from: CompressionCodec.decompress(decrypted))
+    let decoded = try JSONDecoder().decode(
+      BackupPayload.self, from: CompressionCodec.decompress(decrypted))
     try decoded.restore(into: context)
     try context.save()
   }
@@ -879,23 +902,45 @@ private struct BackupPayload: Codable {
   }
 
   init(context: ModelContext) throws {
-    expenses = try context.fetch(FetchDescriptor<Expense>()).map(ExpenseDTO.init)
-    templates = try context.fetch(FetchDescriptor<RecurringExpenseTemplate>()).map(RecurringTemplateDTO.init)
-    events = try context.fetch(FetchDescriptor<Event>()).map(EventDTO.init)
-    todoCategories = try context.fetch(FetchDescriptor<TodoCategory>()).map(TodoCategoryDTO.init)
-    todos = try context.fetch(FetchDescriptor<TodoItem>()).map(TodoDTO.init)
-    budgetLimits = try context.fetch(FetchDescriptor<BudgetLimit>()).map(BudgetLimitDTO.init)
-    fxRates = try context.fetch(FetchDescriptor<FXRate>()).map(FXRateDTO.init)
-    subscriptions = try context.fetch(FetchDescriptor<SubscriptionItem>()).map(SubscriptionDTO.init)
-    bills = try context.fetch(FetchDescriptor<BillItem>()).map(BillDTO.init)
-    savingsGoals = try context.fetch(FetchDescriptor<SavingsGoal>()).map(SavingsGoalDTO.init)
-    netWorthAccounts = try context.fetch(FetchDescriptor<NetWorthAccount>()).map(NetWorthAccountDTO.init)
-    trips = try context.fetch(FetchDescriptor<TripBudget>()).map(TripBudgetDTO.init)
-    weeklyReviews = try context.fetch(FetchDescriptor<WeeklyReviewSnapshot>()).map(WeeklyReviewDTO.init)
-    whatIfScenarios = try context.fetch(FetchDescriptor<WhatIfScenario>()).map(WhatIfScenarioDTO.init)
-    csvMappings = try context.fetch(FetchDescriptor<CSVImportMapping>()).map(CSVImportMappingDTO.init)
-    notificationPreferences = try context.fetch(FetchDescriptor<NotificationPreferences>()).map(NotificationPreferencesDTO.init)
-    onboardingStates = try context.fetch(FetchDescriptor<OnboardingState>()).map(OnboardingStateDTO.init)
+    expenses = try context.fetch(FetchDescriptor<Expense>()).map { ExpenseDTO($0) }
+    templates = try context.fetch(FetchDescriptor<RecurringExpenseTemplate>()).map {
+      RecurringTemplateDTO($0)
+    }
+    events = try context.fetch(FetchDescriptor<Event>()).map { EventDTO($0) }
+    todoCategories = try context.fetch(FetchDescriptor<TodoCategory>()).map {
+      TodoCategoryDTO($0)
+    }
+    todos = try context.fetch(FetchDescriptor<TodoItem>()).map { TodoDTO($0) }
+    budgetLimits = try context.fetch(FetchDescriptor<BudgetLimit>()).map {
+      BudgetLimitDTO(limit: $0)
+    }
+    fxRates = try context.fetch(FetchDescriptor<FXRate>()).map { FXRateDTO($0) }
+    subscriptions = try context.fetch(FetchDescriptor<SubscriptionItem>()).map {
+      SubscriptionDTO($0)
+    }
+    bills = try context.fetch(FetchDescriptor<BillItem>()).map { BillDTO($0) }
+    savingsGoals = try context.fetch(FetchDescriptor<SavingsGoal>()).map {
+      SavingsGoalDTO($0)
+    }
+    netWorthAccounts = try context.fetch(FetchDescriptor<NetWorthAccount>()).map {
+      NetWorthAccountDTO($0)
+    }
+    trips = try context.fetch(FetchDescriptor<TripBudget>()).map { TripBudgetDTO($0) }
+    weeklyReviews = try context.fetch(FetchDescriptor<WeeklyReviewSnapshot>()).map {
+      WeeklyReviewDTO($0)
+    }
+    whatIfScenarios = try context.fetch(FetchDescriptor<WhatIfScenario>()).map {
+      WhatIfScenarioDTO($0)
+    }
+    csvMappings = try context.fetch(FetchDescriptor<CSVImportMapping>()).map {
+      CSVImportMappingDTO($0)
+    }
+    notificationPreferences = try context.fetch(FetchDescriptor<NotificationPreferences>()).map {
+      NotificationPreferencesDTO($0)
+    }
+    onboardingStates = try context.fetch(FetchDescriptor<OnboardingState>()).map {
+      OnboardingStateDTO($0)
+    }
   }
 
   func restore(into context: ModelContext) throws {
@@ -1566,7 +1611,8 @@ private struct WeeklyReviewDTO: Codable, BackupDTO {
   }
 
   func toModel() -> WeeklyReviewSnapshot {
-    let model = WeeklyReviewSnapshot(weekStart: weekStart, weekEnd: weekEnd, summaryJSON: summaryJSON)
+    let model = WeeklyReviewSnapshot(
+      weekStart: weekStart, weekEnd: weekEnd, summaryJSON: summaryJSON)
     model.id = id
     model.generatedAt = generatedAt
     return model
@@ -1863,10 +1909,12 @@ final class NetWorthService: NetWorthServiceProtocol {
   func recordSnapshot(context: ModelContext, date: Date = Date()) throws -> NetWorthSnapshot {
     let accounts = try context.fetch(FetchDescriptor<NetWorthAccount>())
       .filter { $0.includeInTotal }
-    let assets = accounts
+    let assets =
+      accounts
       .filter { (NetWorthAccountType(rawValue: $0.type) ?? .asset) == .asset }
       .reduce(0) { $0 + $1.balanceUAH }
-    let liabilities = accounts
+    let liabilities =
+      accounts
       .filter { (NetWorthAccountType(rawValue: $0.type) ?? .asset) == .liability }
       .reduce(0) { $0 + $1.balanceUAH }
 
@@ -1928,7 +1976,8 @@ final class WeeklyReviewService: WeeklyReviewServiceProtocol {
     let totalIncome = income.reduce(0.0) { $0 + expenseVM.amountInUAH($1) }
     let completed = todos.filter(\.isCompleted).count
     let completionRate = todos.isEmpty ? 0 : Double(completed) / Double(todos.count)
-    let topCategory = Dictionary(grouping: expenses, by: { $0.primaryCategory })
+    let topCategory =
+      Dictionary(grouping: expenses, by: { $0.primaryCategory })
       .mapValues { rows in rows.reduce(0.0) { $0 + expenseVM.amountInUAH($1) } }
       .sorted(by: { $0.value > $1.value })
       .first?.key.displayName ?? "n/a"
@@ -1946,7 +1995,8 @@ final class WeeklyReviewService: WeeklyReviewServiceProtocol {
     ]
     let summaryData = try JSONSerialization.data(withJSONObject: summaryMap, options: [.sortedKeys])
     let summary = String(data: summaryData, encoding: .utf8) ?? "{}"
-    let snapshot = WeeklyReviewSnapshot(weekStart: weekStart, weekEnd: weekEnd, summaryJSON: summary)
+    let snapshot = WeeklyReviewSnapshot(
+      weekStart: weekStart, weekEnd: weekEnd, summaryJSON: summary)
     context.insert(snapshot)
     try context.save()
     return snapshot
@@ -2023,7 +2073,9 @@ final class SmartPriorityService: SmartPriorityServiceProtocol {
 protocol CSVMappingServiceProtocol {
   func fingerprint(headers: [String]) -> String
   func loadMapping(context: ModelContext, headers: [String]) throws -> CSVImportMapping?
-  func parseWithMapping(csvString: String, mapping: CSVImportMapping) -> (transactions: [CSVTransaction], invalidRows: Int)
+  func parseWithMapping(csvString: String, mapping: CSVImportMapping) -> (
+    transactions: [CSVTransaction], invalidRows: Int
+  )
 }
 
 final class CSVMappingService: CSVMappingServiceProtocol {
@@ -2031,7 +2083,8 @@ final class CSVMappingService: CSVMappingServiceProtocol {
   private init() {}
 
   func fingerprint(headers: [String]) -> String {
-    let canonical = headers.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }.joined(separator: "|")
+    let canonical = headers.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+      .joined(separator: "|")
     return BackupCrypto.checksumHex(Data(canonical.utf8))
   }
 
@@ -2044,7 +2097,9 @@ final class CSVMappingService: CSVMappingServiceProtocol {
     return mappings.first(where: \.isDefault)
   }
 
-  func parseWithMapping(csvString: String, mapping: CSVImportMapping) -> (transactions: [CSVTransaction], invalidRows: Int) {
+  func parseWithMapping(csvString: String, mapping: CSVImportMapping) -> (
+    transactions: [CSVTransaction], invalidRows: Int
+  ) {
     let lines = csvString.components(separatedBy: .newlines).filter { !$0.isEmpty }
     guard let headerLine = lines.first else { return ([], 0) }
     let headers = parseLine(headerLine, delimiter: mapping.delimiter)
@@ -2077,7 +2132,8 @@ final class CSVMappingService: CSVMappingServiceProtocol {
         continue
       }
 
-      let cleanedAmount = amountRaw
+      let cleanedAmount =
+        amountRaw
         .replacingOccurrences(of: ",", with: ".")
         .replacingOccurrences(of: " ", with: "")
         .replacingOccurrences(of: "₴", with: "")
@@ -2114,10 +2170,11 @@ final class CSVMappingService: CSVMappingServiceProtocol {
     guard let data = json.data(using: .utf8),
       let decoded = try? JSONDecoder().decode([String: String].self, from: data)
     else { return nil }
-    return Dictionary(uniqueKeysWithValues: decoded.compactMap { key, value in
-      guard let field = CSVImportField(rawValue: key) else { return nil }
-      return (field, value)
-    })
+    return Dictionary(
+      uniqueKeysWithValues: decoded.compactMap { key, value in
+        guard let field = CSVImportField(rawValue: key) else { return nil }
+        return (field, value)
+      })
   }
 
   private func parseLine(_ line: String, delimiter: String) -> [String] {
@@ -2176,25 +2233,28 @@ final class CalendarExportService: CalendarExportServiceProtocol {
     for template in templates where template.isActive && !template.isCurrentlyPaused {
       var due = template.nextDueDate(from: startDate.addingTimeInterval(-1))
       while let date = due, date <= endDate {
-        lines.append(contentsOf: eventLines(
-          uid: "recurring-\(template.id.uuidString)-\(Int(date.timeIntervalSince1970))",
-          start: date,
-          summary: template.title,
-          description: "Recurring \(template.isIncome ? "income" : "expense") \(template.currencyEnum.symbol)\(String(format: "%.2f", template.amount))",
-          formatter: formatter
-        ))
+        lines.append(
+          contentsOf: eventLines(
+            uid: "recurring-\(template.id.uuidString)-\(Int(date.timeIntervalSince1970))",
+            start: date,
+            summary: template.title,
+            description:
+              "Recurring \(template.isIncome ? "income" : "expense") \(template.currencyEnum.symbol)\(String(format: "%.2f", template.amount))",
+            formatter: formatter
+          ))
         due = template.nextDueDate(from: date)
       }
     }
 
     for bill in bills where !bill.isPaid && bill.dueDate >= startDate && bill.dueDate <= endDate {
-      lines.append(contentsOf: eventLines(
-        uid: "bill-\(bill.id.uuidString)",
-        start: bill.dueDate,
-        summary: "Bill: \(bill.name)",
-        description: "Amount \(bill.amount) \(bill.currency)",
-        formatter: formatter
-      ))
+      lines.append(
+        contentsOf: eventLines(
+          uid: "bill-\(bill.id.uuidString)",
+          start: bill.dueDate,
+          summary: "Bill: \(bill.name)",
+          description: "Amount \(bill.amount) \(bill.currency)",
+          formatter: formatter
+        ))
     }
 
     lines.append("END:VCALENDAR")
