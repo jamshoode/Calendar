@@ -433,6 +433,65 @@ final class GoogleCalendarSyncIntegrationTests: XCTestCase {
     XCTAssertTrue(remainingStates.isEmpty)
   }
 
+  func testClearLocalImportedGoogleDataRemovesGoogleHolidayCalendarRowsByCalendarId() throws {
+    try configureConnection(selectedCalendarIds: ["en.usa#holiday@group.v.calendar.google.com"])
+
+    let holidayCalendarEvent = Event(date: Date(), title: "Holiday", notes: nil, color: "blue")
+    holidayCalendarEvent.externalId = "evt_holiday"
+    holidayCalendarEvent.externalCalendarId = "en.usa#holiday@group.v.calendar.google.com"
+    holidayCalendarEvent.syncOrigin = "local"
+    holidayCalendarEvent.isHoliday = false
+    context.insert(holidayCalendarEvent)
+
+    let normalGoogleEvent = Event(date: Date(), title: "Regular", notes: nil, color: "blue")
+    normalGoogleEvent.externalId = "evt_regular"
+    normalGoogleEvent.externalCalendarId = "primary"
+    normalGoogleEvent.syncOrigin = "local"
+    context.insert(normalGoogleEvent)
+    try context.save()
+
+    let service = makeService()
+    try service.clearLocalImportedGoogleData(context: context)
+
+    let remainingEvents = try context.fetch(FetchDescriptor<Event>())
+    XCTAssertEqual(remainingEvents.count, 1)
+    XCTAssertEqual(remainingEvents.first?.externalId, "evt_regular")
+  }
+
+  func testClearLocalImportedGoogleDataRemovesGoogleLinkedHolidayEvents() throws {
+    try configureConnection(selectedCalendarIds: ["cal_holidays"])
+
+    let holidayEvent = Event(
+      date: Date(),
+      title: "Holiday",
+      notes: nil,
+      color: "teal",
+      isHoliday: true,
+      holidayId: "h1"
+    )
+    holidayEvent.externalId = "evt_holiday"
+    holidayEvent.externalCalendarId = "cal_holidays"
+    holidayEvent.syncOrigin = "local"
+    context.insert(holidayEvent)
+
+    let normalLocalEvent = Event(
+      date: Date(),
+      title: "Local",
+      notes: nil,
+      color: "blue"
+    )
+    normalLocalEvent.syncOrigin = "local"
+    context.insert(normalLocalEvent)
+    try context.save()
+
+    let service = makeService()
+    try service.clearLocalImportedGoogleData(context: context)
+
+    let remainingEvents = try context.fetch(FetchDescriptor<Event>())
+    XCTAssertEqual(remainingEvents.count, 1)
+    XCTAssertEqual(remainingEvents.first?.title, "Local")
+  }
+
   private func makeService() -> GoogleCalendarSyncService {
     GoogleCalendarSyncService(
       apiClient: GoogleCalendarAPIClient(session: session, tokenStore: tokenStore)

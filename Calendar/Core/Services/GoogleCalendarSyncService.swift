@@ -371,7 +371,15 @@ final class GoogleCalendarSyncService {
       return
     }
 
-    try await apiClient.deleteEvent(calendarId: externalCalendarId, eventId: externalId)
+    do {
+      try await apiClient.deleteEvent(calendarId: externalCalendarId, eventId: externalId)
+    } catch GoogleCalendarAPIError.missingTokens,
+      GoogleCalendarAPIError.expiredTokens,
+      GoogleCalendarAPIError.unauthorized
+    {
+      // Allow local deletion to proceed when OAuth state is no longer available.
+      return
+    }
   }
 
   func pushLocalTodoAsAllDayEvent(_ todo: TodoItem, context: ModelContext) async throws {
@@ -438,6 +446,28 @@ final class GoogleCalendarSyncService {
       context.delete(event)
     }
 
+    // Some previously imported holiday rows may be edited later and lose "google"
+    // syncOrigin while still carrying Google linkage. Purge those on disconnect too.
+    let googleLinkedHolidayEvents = try context.fetch(
+      FetchDescriptor<Event>(
+        predicate: #Predicate { event in
+          event.isHoliday == true && event.externalCalendarId != nil
+        }
+      )
+    )
+
+    for holidayEvent in googleLinkedHolidayEvents {
+      context.delete(holidayEvent)
+    }
+
+    let allEvents = try context.fetch(FetchDescriptor<Event>())
+    for event in allEvents {
+      guard let externalCalendarId = event.externalCalendarId else { continue }
+      if Self.isGoogleHolidayCalendarId(externalCalendarId) {
+        context.delete(event)
+      }
+    }
+
     let importedTodos = try context.fetch(
       FetchDescriptor<TodoItem>(
         predicate: #Predicate { todo in
@@ -456,6 +486,12 @@ final class GoogleCalendarSyncService {
     }
 
     try context.save()
+  }
+
+  static func isGoogleHolidayCalendarId(_ calendarId: String) -> Bool {
+    let normalized = calendarId.lowercased()
+    return normalized.contains("#holiday@")
+      || normalized.contains("holiday.calendar.google.com")
   }
 
   private func upsertConnection(context: ModelContext) throws -> GoogleCalendarConnection {

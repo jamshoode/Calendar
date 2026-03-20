@@ -210,17 +210,45 @@ final class HolidayService {
     defaults.set(source, forKey: Constants.Holiday.sourceKey)
     if source == Constants.Holiday.sourceGoogle {
       await migrateCalendarificHolidaysToGoogleSource(context: context)
+    } else {
+      await removeGoogleHolidayCalendarEvents(context: context)
     }
   }
 
   func migrateCalendarificHolidaysToGoogleSource(context: ModelContext) async {
     await MainActor.run {
-      let descriptor = FetchDescriptor<Event>(
-        predicate: #Predicate { $0.isHoliday == true }
-      )
       do {
-        let existing = try context.fetch(descriptor)
-        for event in existing { context.delete(event) }
+        let existing = try context.fetch(FetchDescriptor<Event>())
+        for event in existing {
+          if event.isHoliday == true {
+            context.delete(event)
+            continue
+          }
+
+          if let externalCalendarId = event.externalCalendarId,
+            GoogleCalendarSyncService.isGoogleHolidayCalendarId(externalCalendarId)
+          {
+            context.delete(event)
+          }
+        }
+        try context.save()
+        EventViewModel().syncEventsToWidget(context: context)
+      } catch {
+        ErrorPresenter.shared.present(error)
+      }
+    }
+  }
+
+  func removeGoogleHolidayCalendarEvents(context: ModelContext) async {
+    await MainActor.run {
+      do {
+        let existing = try context.fetch(FetchDescriptor<Event>())
+        for event in existing {
+          guard let externalCalendarId = event.externalCalendarId else { continue }
+          if GoogleCalendarSyncService.isGoogleHolidayCalendarId(externalCalendarId) {
+            context.delete(event)
+          }
+        }
         try context.save()
         EventViewModel().syncEventsToWidget(context: context)
       } catch {

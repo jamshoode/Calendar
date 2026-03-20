@@ -95,6 +95,24 @@ final class GoogleCalendarCoreTests: XCTestCase {
     XCTAssertEqual(response.items.count, 1)
     XCTAssertEqual(response.items.first?.id, "cal_1")
   }
+
+  @MainActor
+  func testDeleteRemoteEventDoesNotThrowWhenTokensMissing() async throws {
+    let emptyTokenStore = MockGoogleTokenStore()
+    emptyTokenStore.tokens = nil
+
+    let client = GoogleCalendarAPIClient(session: session, tokenStore: emptyTokenStore)
+    let service = GoogleCalendarSyncService(apiClient: client)
+
+    do {
+      try await service.deleteRemoteEvent(
+        externalId: "evt_1",
+        externalCalendarId: "cal_1"
+      )
+    } catch {
+      XCTFail("Expected local-delete-safe behavior, got error: \(error)")
+    }
+  }
 }
 
 private final class MockGoogleTokenStore: GoogleTokenStore {
