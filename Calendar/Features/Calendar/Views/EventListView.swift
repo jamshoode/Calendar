@@ -76,18 +76,18 @@ struct EventListView: View {
           if let date {
             Text(date.formattedDate)
               .font(.system(size: 18, weight: .black))
-              .foregroundColor(Color.textPrimary)
+              .foregroundColor(Color.appText)
           }
 
           if isToday {
             Text(Localization.string(.today).uppercased())
               .font(.system(size: 10, weight: .black))
-              .foregroundColor(.appAccent)
+              .foregroundColor(.appPrimary)
               .tracking(1)
           } else if let date {
             Text(date.formatted(.dateTime.weekday(.abbreviated)).uppercased())
               .font(.system(size: 10, weight: .semibold))
-              .foregroundColor(.textSecondary)
+              .foregroundColor(Color.neutral400)
               .tracking(0.8)
           }
         }
@@ -99,7 +99,7 @@ struct EventListView: View {
             Button(action: onJumpToToday) {
               Image(systemName: "arrow.uturn.backward.circle.fill")
                 .font(.system(size: 20))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(Color.appText)
                 .frame(width: 30, height: 30)
             }
             .softControl(cornerRadius: 10, padding: 2)
@@ -109,7 +109,7 @@ struct EventListView: View {
           Button(action: onAdd) {
             Image(systemName: "plus")
               .font(.system(size: 15, weight: .bold))
-              .foregroundColor(.appAccent)
+              .foregroundColor(.appPrimary)
               .frame(width: 30, height: 30)
           }
           .softControl(cornerRadius: 10, padding: 2)
@@ -127,7 +127,7 @@ struct EventListView: View {
               VStack(spacing: 8) {
                   Image(systemName: "calendar.badge.plus")
                     .font(.system(size: 24))
-                    .foregroundColor(Color.textTertiary)
+                    .foregroundColor(Color.neutral500)
                   Text(Localization.string(.noEvents))
                     .font(Typography.caption)
                     .foregroundColor(Color.textSecondary)
@@ -197,13 +197,13 @@ struct CompactEventRow: View {
   var body: some View {
     HStack(spacing: 8) {
       Circle().fill(Color.eventColor(named: event.sourceEvent.color)).frame(width: 8, height: 8)
-      Text(event.sourceEvent.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.textPrimary).lineLimit(1)
+      Text(event.sourceEvent.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.appText).lineLimit(1)
       Spacer()
       Text(
         event.sourceEvent.isAllDay
           ? Localization.string(.allDay)
           : event.occurrenceDate.formatted(date: .omitted, time: .shortened)
-      ).font(Typography.caption).foregroundColor(Color.textSecondary)
+      ).font(Typography.caption).foregroundColor(Color.neutral400)
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 6)
@@ -216,9 +216,9 @@ struct CompactExpenseRow: View {
   var body: some View {
     HStack(spacing: 8) {
       Circle().fill(Color.orange).frame(width: 8, height: 8)
-      Text(expense.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.textPrimary).lineLimit(1)
+      Text(expense.title).font(Typography.body).fontWeight(.semibold).foregroundColor(Color.appText).lineLimit(1)
       Spacer()
-      Text(expense.amount.formatted(.currency(code: expense.currency))).font(Typography.caption).foregroundColor(Color.textSecondary)
+      Text(expense.amount.formatted(.currency(code: expense.currency))).font(Typography.caption).foregroundColor(Color.neutral400)
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 8)
@@ -234,7 +234,7 @@ struct CompactTodoRow: View {
       Button(action: onToggle) {
         Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle").font(.system(size: 16)).foregroundColor(priorityColor)
       }.buttonStyle(.plain)
-      Text(todo.title).font(Typography.body).fontWeight(.medium).foregroundColor(Color.textPrimary).lineLimit(1)
+      Text(todo.title).font(Typography.body).fontWeight(.medium).foregroundColor(Color.appText).lineLimit(1)
       Spacer()
       PriorityBadge(priority: todo.priorityEnum)
     }
@@ -277,7 +277,7 @@ struct EventListDetailSheet: View {
               
               if !expenses.isEmpty {
                 HStack {
-                  Text(Localization.string(.tabBudget).uppercased()).font(.system(size: 10, weight: .black)).foregroundColor(Color.textTertiary).tracking(2)
+                  Text(Localization.string(.tabBudget).uppercased()).font(.system(size: 10, weight: .black)).foregroundColor(Color.neutral500).tracking(2)
                   Spacer()
                 }.padding(.top, 16).padding(.leading, 4)
                 ForEach(expenses) { expense in
@@ -287,7 +287,7 @@ struct EventListDetailSheet: View {
 
               if !todos.isEmpty {
                 HStack {
-                  Text(Localization.string(.tabTodo).uppercased()).font(.system(size: 10, weight: .black)).foregroundColor(Color.textTertiary).tracking(2)
+                  Text(Localization.string(.tabTodo).uppercased()).font(.system(size: 10, weight: .black)).foregroundColor(Color.neutral500).tracking(2)
                   Spacer()
                 }.padding(.top, 16).padding(.leading, 4)
                 ForEach(todos) { todo in
