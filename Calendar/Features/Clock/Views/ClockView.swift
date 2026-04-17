@@ -73,7 +73,9 @@ struct ClockView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     .safeAreaPadding(.top, 4)
     .safeAreaPadding(.bottom, 8)
+#if os(iOS)
     .navigationBarHidden(true)
+#endif
     .background(Color.clear)
   }
 }

@@ -229,7 +229,9 @@ struct TodoView: View {
     .onChange(of: allTodosRaw.count) { _, _ in
       viewModel.normalizeCompletionStatesOnLoad(context: modelContext, candidates: allTodos)
     }
+#if os(iOS)
     .navigationBarHidden(true)
+#endif
     .safeAreaPadding(.top, 4)
   }
 
