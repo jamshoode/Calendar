@@ -206,8 +206,8 @@ struct CompactEventRow: View {
       ).font(Typography.caption).foregroundColor(Color.textSecondary)
     }
     .padding(.horizontal, 12)
-    .padding(.vertical, 8)
-    .softControl(cornerRadius: 10, padding: 0)
+    .padding(.vertical, 6)
+    .softControl(cornerRadius: 8, padding: 0)
   }
 }
 

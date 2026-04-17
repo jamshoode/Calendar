@@ -12,7 +12,7 @@ struct MonthView: View {
   private let calendar = Calendar.current
   private let daysInWeek = 7
   private let totalRows = 6  // Always 6 rows for consistent layout
-  private let rowHeight: CGFloat = 62
+  private let rowHeight: CGFloat = 68
 
   private var days: [Date] {
     let startOfMonth = currentMonth.startOfMonth

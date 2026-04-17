@@ -17,18 +17,18 @@ struct DayCell: View {
           if isSelected {
             Circle()
               .fill(Color.appAccent)
-              .frame(width: 36, height: 36)
+              .frame(width: 32, height: 32)
               .transition(.scale.combined(with: .opacity))
           } else if isToday {
             Circle()
               .strokeBorder(Color.appAccent, lineWidth: 2)
-              .frame(width: 36, height: 36)
+              .frame(width: 32, height: 32)
           }
         }
 
         Text(date.formattedDay)
           .font(
-            .system(size: 16, weight: isCurrentMonth && (isToday || isSelected) ? .bold : .medium)
+            .system(size: 15, weight: isCurrentMonth && (isToday || isSelected) ? .bold : .medium)
           )
           .foregroundColor(textColor)
       }
