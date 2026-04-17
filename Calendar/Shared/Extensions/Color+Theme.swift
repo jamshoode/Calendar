@@ -195,3 +195,20 @@ extension Color {
   static let expenseShopping = Color(red: 0 / 255, green: 150 / 255, blue: 136 / 255)
   static let expenseOther = platformColor(ios: .systemGray2, mac: .systemGray)
 }
+
+// Token aliases for design tokens (compatibility)
+extension Color {
+  // Primary tokens
+  static let appPrimary = AppPalette.accentLight
+  static let appPrimaryVariant = AppPalette.accentDark
+
+  // Text token
+  static let appText = textPrimary
+
+  // Neutral scale
+  static let neutral100 = Color.white
+  static let neutral200 = Color(red: 242 / 255, green: 242 / 255, blue: 244 / 255)
+  static let neutral300 = Color(red: 230 / 255, green: 230 / 255, blue: 233 / 255)
+  static let neutral400 = Color(red: 199 / 255, green: 199 / 255, blue: 204 / 255)
+  static let neutral500 = Color(red: 142 / 255, green: 142 / 255, blue: 147 / 255)
+}
