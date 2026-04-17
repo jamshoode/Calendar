@@ -57,8 +57,8 @@ struct MonthView: View {
     VStack(spacing: 0) {
       HStack {
         Text(currentMonth.formattedMonthShort.localizedCapitalized)
-          .font(.system(size: 18, weight: .bold))
-          .foregroundColor(Color.textPrimary)
+          .font(.system(size: 18, weight: .semibold))
+          .foregroundColor(Color.appText)
         Spacer()
       }
       .padding(.horizontal, 16)
@@ -91,14 +91,14 @@ struct MonthView: View {
         VStack(spacing: 0) {
           ForEach(0..<5, id: \.self) { _ in
             Spacer()
-            Divider().opacity(0.22)
+            Divider().background(Color.neutral300.opacity(1))
           }
           Spacer()
         }
       }
     }
-    .padding(.horizontal, 8)
-    .padding(.vertical, 6)
+    .padding(.horizontal, 12)
+    .padding(.vertical, 8)
   }
 
   private func eventsForDate(_ date: Date) -> [EventOccurrence] {

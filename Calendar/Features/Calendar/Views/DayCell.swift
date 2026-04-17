@@ -16,12 +16,12 @@ struct DayCell: View {
         if isCurrentMonth {
           if isSelected {
             Circle()
-              .fill(Color.appAccent)
+              .fill(Color.appPrimary)
               .frame(width: 32, height: 32)
               .transition(.scale.combined(with: .opacity))
           } else if isToday {
             Circle()
-              .strokeBorder(Color.appAccent, lineWidth: 2)
+              .strokeBorder(Color.appPrimary, lineWidth: 2)
               .frame(width: 32, height: 32)
           }
         }
@@ -59,7 +59,7 @@ struct DayCell: View {
     } else if isSelected {
       return colorScheme == .dark ? .backgroundPrimary : .white
     } else if isToday {
-      return .appAccent
+      return .appPrimary
     } else {
       return Color.textPrimary
     }
