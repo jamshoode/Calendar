@@ -479,7 +479,9 @@ struct ExpensesView: View {
       let targetAccount = pinnedMonobankAccounts.first ?? selectedMonobankAccounts.first
       selectedBankAccountId = targetAccount?.accountId
     }
+#if os(iOS)
     .navigationBarHidden(true)
+#endif
     .safeAreaPadding(.top, 4)
   }
 

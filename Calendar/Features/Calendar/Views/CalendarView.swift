@@ -2,6 +2,15 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
+#if canImport(AppKit)
+import AppKit
+#endif
+
+
 // MARK: - View Mode
 
 enum CalendarViewMode: String, CaseIterable {
@@ -46,7 +55,14 @@ struct CalendarView: View {
   @State private var midnightRefreshTask: Task<Void, Never>?
 
   private var monthCardHeight: CGFloat {
-    max(UIScreen.main.bounds.height * 0.56, 360)
+  #if canImport(UIKit)
+    let screenHeight = UIScreen.main.bounds.height
+  #elseif canImport(AppKit)
+    let screenHeight = NSScreen.main?.frame.height ?? 800
+  #else
+    let screenHeight: CGFloat = 800
+  #endif
+    return max(screenHeight * 0.56, 360)
   }
 
   var body: some View {
@@ -200,7 +216,9 @@ struct CalendarView: View {
         .padding(.bottom, 20)
       }
     }
+#if os(iOS)
     .navigationBarHidden(true)  // We use custom header
+#endif
     .sheet(isPresented: $showingAddEvent) {
       AddEventView(date: viewModel.selectedDate ?? Date()) {
         title, notes, color, date, isAllDay, reminderInterval, recurrenceType, recurrenceInterval,

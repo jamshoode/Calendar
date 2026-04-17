@@ -222,8 +222,8 @@ enum WidgetColorScheme {
   var textSecondary: Color { Color(UIColor.secondaryLabel) }
   var accent: Color {
     self == .dark
-      ? Color(red: 216 / 255, green: 220 / 255, blue: 227 / 255)
-      : Color(red: 47 / 255, green: 51 / 255, blue: 58 / 255)
+      ? Color(red: 0 / 255, green: 96 / 255, blue: 223 / 255)
+      : Color(red: 10 / 255, green: 132 / 255, blue: 255 / 255)
   }
   var todayHighlight: Color { accent }
   var iconMuted: Color { Color(UIColor.tertiaryLabel) }

@@ -9,8 +9,8 @@ import SwiftUI
 #endif
 
 enum AppPalette {
-  static let accentLight = Color(red: 47 / 255, green: 51 / 255, blue: 58 / 255)  // #2F333A
-  static let accentDark = Color(red: 216 / 255, green: 220 / 255, blue: 227 / 255)  // #D8DCE3
+  static let accentLight = Color(red: 10 / 255, green: 132 / 255, blue: 255 / 255)  // #0A84FF
+  static let accentDark = Color(red: 0 / 255, green: 96 / 255, blue: 223 / 255)     // #0060DF
 
   static let appAccent: Color = {
     #if canImport(UIKit)
